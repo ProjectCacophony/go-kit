@@ -15,7 +15,9 @@ import (
 // TODO: ratelimit
 func NewZapHookDiscord(serviceName, webhookURL string, client *http.Client) func(zapcore.Entry) error {
 	if webhookURL == "" || client == nil {
-		return nil
+		return func(_ zapcore.Entry) error {
+			return nil
+		}
 	}
 
 	return func(entry zapcore.Entry) error {
