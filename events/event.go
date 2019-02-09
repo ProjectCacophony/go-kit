@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/interfaces"
 	"go.uber.org/zap"
 )
 
@@ -52,4 +53,5 @@ type Event struct {
 	ctx            context.Context
 	discordSession *discordgo.Session
 	logger         *zap.Logger
+	localisations  []interfaces.Localisation
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
+	"gitlab.com/Cacophony/go-kit/interfaces"
 	"go.uber.org/zap"
 )
 
@@ -53,4 +54,14 @@ func (e *Event) WithLogger(logger *zap.Logger) {
 // Logger retrieves the logger from the event
 func (e *Event) Logger() *zap.Logger {
 	return e.logger
+}
+
+// WithLocalisations stores the localisations in the event
+func (e *Event) WithLocalisations(localisations []interfaces.Localisation) {
+	e.localisations = localisations
+}
+
+// Localisations retrieves the localisations from the event
+func (e *Event) Localisations() []interfaces.Localisation {
+	return e.localisations
 }
