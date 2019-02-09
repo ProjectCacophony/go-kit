@@ -38,11 +38,11 @@ func (e *Event) Except(err error) {
 		// TODO: better message, emoji, translation, …
 
 		message := "**Something went wrong.** " + "\n```\nError: " + errorMessage + "\n```"
-		if !doLog {
+		if doLog {
 			message += "I sent our top people to fix the issue as soon as possible."
 		}
 
-		e.Discord().ChannelMessageSend(
+		e.Discord().ChannelMessageSend( // nolint: errcheck
 			e.MessageCreate.ChannelID,
 			message,
 		)
