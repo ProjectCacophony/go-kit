@@ -15,7 +15,7 @@ func (e *Event) Send(channelID, message string) (*discordgo.Message, error) {
 func (e *Event) Sendf(channelID, message string, values ...interface{}) (*discordgo.Message, error) {
 	var translation string
 	for _, localisation := range e.Localisations() {
-		translation = localisation.Translatef(message, values)
+		translation = localisation.Translatef(message, values...)
 
 		// valid translation found
 		if translation != message {
