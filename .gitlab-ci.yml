@@ -1,0 +1,16 @@
+stages:
+  - test
+
+Go Lint:
+  stage: test
+  image: golang:1.11
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - /go/
+  before_script:
+    - go mod download
+    - go get -u golang.org/x/tools/cmd/goimports
+    - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.13.2
+  script:
+    - make lint
