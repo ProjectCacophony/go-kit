@@ -3,6 +3,7 @@ module gitlab.com/Cacophony/go-kit
 require (
 	github.com/bwmarrin/discordgo v0.19.0
 	github.com/go-chi/chi v4.0.1+incompatible
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.3.0 // indirect
 	go.uber.org/atomic v1.3.2 // indirect
