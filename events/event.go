@@ -54,4 +54,8 @@ type Event struct {
 	discordSession *discordgo.Session
 	logger         *zap.Logger
 	localisations  []interfaces.Localisation
+	command        bool
+	dm             bool
+	prefix         string
+	fields         []string
 }
