@@ -25,7 +25,7 @@ func (e *Event) Respondf(message string, values ...interface{}) (*discordgo.Mess
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	return e.Sendf(e.MessageCreate.ChannelID, message, values)
+	return e.Sendf(e.MessageCreate.ChannelID, message, values...)
 }
 
 // Send sends a message to the given channel, translates it if possible
