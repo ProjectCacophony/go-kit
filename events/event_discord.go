@@ -3,15 +3,20 @@ package events
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
+	"gitlab.com/Cacophony/go-kit/discord"
 )
 
 // Respond sends a message to the source channel, translates it if possible
-func (e *Event) Respond(message string) (*discordgo.Message, error) {
-	return e.Respondf(message)
+func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Message, error) {
+	if e.Type != MessageCreateType {
+		return nil, errors.New("cannot respond to this event")
+	}
+
+	return e.Send(e.MessageCreate.ChannelID, message, values...)
 }
 
 // RespondComplex sends a message to the source channel, translates it if possible
-func (e *Event) RespondComplex(message *discordgo.MessageSend) (*discordgo.Message, error) {
+func (e *Event) RespondComplex(message *discordgo.MessageSend) ([]*discordgo.Message, error) {
 	if e.Type != MessageCreateType {
 		return nil, errors.New("cannot respond to this event")
 	}
@@ -19,32 +24,27 @@ func (e *Event) RespondComplex(message *discordgo.MessageSend) (*discordgo.Messa
 	return e.SendComplex(e.MessageCreate.ChannelID, message)
 }
 
-// Respondf sends a message to the source channel, translates it if possible
-func (e *Event) Respondf(message string, values ...interface{}) (*discordgo.Message, error) {
-	if e.Type != MessageCreateType {
-		return nil, errors.New("cannot respond to this event")
-	}
-
-	return e.Sendf(e.MessageCreate.ChannelID, message, values...)
-}
-
 // Send sends a message to the given channel, translates it if possible
-func (e *Event) Send(channelID, message string) (*discordgo.Message, error) {
-	return e.Sendf(channelID, message)
+// TODO: check language
+func (e *Event) Send(channelID, message string, values ...interface{}) ([]*discordgo.Message, error) {
+	return discord.SendComplexWithVars(
+		e.Discord(),
+		e.Localisations(),
+		channelID,
+		&discordgo.MessageSend{
+			Content: message,
+		},
+		append(values, "prefix", e.Prefix())...,
+	)
 }
 
 // SendComplex sends a message to the given channel, translates it if possible
-// TODO: make DMs possible
 // TODO: check language
-func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend) (*discordgo.Message, error) {
-	message.Content = e.Translate(message.Content)
-
-	return e.Discord().ChannelMessageSendComplex(channelID, message)
-}
-
-// Sendf sends a message to the given channel, translates it if possible
-// TODO: make DMs possible
-// TODO: check language
-func (e *Event) Sendf(channelID, message string, values ...interface{}) (*discordgo.Message, error) {
-	return e.Discord().ChannelMessageSend(channelID, e.Translate(message, values...))
+func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend) ([]*discordgo.Message, error) {
+	return discord.SendComplexWithVars(
+		e.Discord(),
+		e.Localisations(),
+		channelID,
+		message,
+	)
 }
