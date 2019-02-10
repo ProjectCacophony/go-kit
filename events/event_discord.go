@@ -46,5 +46,5 @@ func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend) (*
 // TODO: make DMs possible
 // TODO: check language
 func (e *Event) Sendf(channelID, message string, values ...interface{}) (*discordgo.Message, error) {
-	return e.Discord().ChannelMessageSend(channelID, e.Translate(message, values))
+	return e.Discord().ChannelMessageSend(channelID, e.Translate(message, values...))
 }
