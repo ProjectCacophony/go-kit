@@ -50,7 +50,7 @@ func (l *FileSource) load() error {
 		switch v := value.(type) {
 		case string:
 
-			translation, err := template.New(key).Parse(v)
+			translation, err := newTemplate(key, v)
 			if err != nil {
 				continue
 			}
@@ -65,7 +65,7 @@ func (l *FileSource) load() error {
 				vString, ok := vValue.(string)
 				if ok {
 
-					translation, err := template.New(key).Parse(vString)
+					translation, err := newTemplate(key, vString)
 					if err != nil {
 						continue
 					}
