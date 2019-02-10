@@ -22,9 +22,9 @@ func (e *Event) Except(err error) {
 			errD.Message.Code == discordgo.ErrCodeMissingAccess ||
 			errD.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
 			doLog = false
-
-			errorMessage = errD.Message.Message
 		}
+
+		errorMessage = errD.Message.Message
 	}
 	// // do not log state errors
 	// if err == state.ErrStateNotFound ||
@@ -42,8 +42,7 @@ func (e *Event) Except(err error) {
 			message += "I sent our top people to fix the issue as soon as possible."
 		}
 
-		e.Discord().ChannelMessageSend( // nolint: errcheck
-			e.MessageCreate.ChannelID,
+		e.Respond( // nolint: errcheck
 			message,
 		)
 	}
