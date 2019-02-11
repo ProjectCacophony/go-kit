@@ -117,7 +117,7 @@ func (l *FileSource) TranslateMap(key string, values map[interface{}]interface{}
 	var buffer bytes.Buffer
 	err := translation.Execute(&buffer, values)
 	if err != nil {
-		return key
+		panic(err) // TODO: better error handling
 	}
 
 	return buffer.String()
