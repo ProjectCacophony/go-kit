@@ -40,7 +40,9 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 
 // SendComplex sends a message to the given channel, translates it if possible
 // TODO: check language
-func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
+func (e *Event) SendComplex(
+	channelID string, message *discordgo.MessageSend, values ...interface{},
+) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
 		e.Discord(),
 		e.Localisations(),
