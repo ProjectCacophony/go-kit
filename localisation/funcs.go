@@ -21,5 +21,8 @@ var (
 		// Title returns a titleised version of a string
 		// example: {{Title foo bar}} => Foo Bar
 		"Title": strings.Title,
+
+		// Replace replaces
+		"Replace": strings.Replace,
 	}
 )
