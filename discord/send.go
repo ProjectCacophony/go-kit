@@ -43,13 +43,13 @@ func SendComplexWithVars(
 			send.Embed.Title,
 			values...,
 		)
-		send.Embed.Title = emoji.ReplaceWithout(send.Embed.Title)
+		send.Embed.Title = emoji.Replace(send.Embed.Title)
 		send.Embed.Description = localisation.Translate(
 			localisations,
 			send.Embed.Description,
 			values...,
 		)
-		send.Embed.Description = emoji.ReplaceWithout(send.Embed.Description)
+		send.Embed.Description = emoji.Replace(send.Embed.Description)
 		if send.Embed.Footer != nil {
 			send.Embed.Footer.IconURL = localisation.Translate(
 				localisations,
@@ -61,7 +61,7 @@ func SendComplexWithVars(
 				send.Embed.Footer.Text,
 				values...,
 			)
-			send.Embed.Footer.Text = emoji.ReplaceWithout(send.Embed.Footer.Text)
+			send.Embed.Footer.Text = emoji.Replace(send.Embed.Footer.Text)
 		}
 		if send.Embed.Image != nil {
 			send.Embed.Image.URL = localisation.Translate(
@@ -95,7 +95,7 @@ func SendComplexWithVars(
 				send.Embed.Provider.Name,
 				values...,
 			)
-			send.Embed.Provider.Name = emoji.ReplaceWithout(send.Embed.Provider.Name)
+			send.Embed.Provider.Name = emoji.Replace(send.Embed.Provider.Name)
 		}
 		if send.Embed.Author != nil {
 			send.Embed.Author.URL = localisation.Translate(
@@ -113,7 +113,7 @@ func SendComplexWithVars(
 				send.Embed.Author.Name,
 				values...,
 			)
-			send.Embed.Author.Name = emoji.ReplaceWithout(send.Embed.Author.Name)
+			send.Embed.Author.Name = emoji.Replace(send.Embed.Author.Name)
 		}
 		for i := range send.Embed.Fields {
 			send.Embed.Fields[i].Name = localisation.Translate(
@@ -121,13 +121,13 @@ func SendComplexWithVars(
 				send.Embed.Fields[i].Name,
 				values...,
 			)
-			send.Embed.Fields[i].Name = emoji.ReplaceWithout(send.Embed.Fields[i].Name)
+			send.Embed.Fields[i].Name = emoji.Replace(send.Embed.Fields[i].Name)
 			send.Embed.Fields[i].Value = localisation.Translate(
 				localisations,
 				send.Embed.Fields[i].Value,
 				values...,
 			)
-			send.Embed.Fields[i].Value = emoji.ReplaceWithout(send.Embed.Fields[i].Value)
+			send.Embed.Fields[i].Value = emoji.Replace(send.Embed.Fields[i].Value)
 		}
 	}
 
