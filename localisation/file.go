@@ -52,7 +52,8 @@ func (l *FileSource) load() error {
 
 			translation, err := newTemplate(key, v)
 			if err != nil {
-				continue
+				panic(err) // TODO: handle error better
+				// continue
 			}
 
 			l.translations[key] = []*template.Template{
@@ -67,7 +68,8 @@ func (l *FileSource) load() error {
 
 					translation, err := newTemplate(key, vString)
 					if err != nil {
-						continue
+						panic(err) // TODO: handle error better
+						// continue
 					}
 
 					l.translations[key] = append(
@@ -117,7 +119,7 @@ func (l *FileSource) TranslateMap(key string, values map[interface{}]interface{}
 	var buffer bytes.Buffer
 	err := translation.Execute(&buffer, values)
 	if err != nil {
-		panic(err) // TODO: better error handling
+		return key
 	}
 
 	return buffer.String()
