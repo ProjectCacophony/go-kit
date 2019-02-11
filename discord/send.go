@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/discord/emoji"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/localisation"
 )
@@ -32,6 +33,7 @@ func SendComplexWithVars(
 		send.Embed = TrimEmbed(send.Embed)
 	}
 	send.Content = EscapeDiscordContent(send.Content)
+	send.Content = emoji.Replace(send.Content) // TODO: replace emoji in other fields
 	pages := Pagify(send.Content)
 	if len(pages) > 0 {
 		for i, page := range pages {
