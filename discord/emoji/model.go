@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
+// nolint: gochecknoglobals
 var (
-	// nolint: gochecknoglobals
 	random = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 

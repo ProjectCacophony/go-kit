@@ -1,11 +1,21 @@
 package emoji
 
+// nolint: gochecknoglobals
 var (
 	// List is the List of all emoji known by the bot
 	// they are on these servers: https://discord.is/RobyulEmotes1 https://discord.is/RobyulEmotes2
-	// nolint: gochecknoglobals
 	List = map[string]Emoji{
 		// all names should be lowercase
+		"nayoung": []string{
+			":nayoungthumbsup:430592739839705091",
+			":nayoungsalute:430592737340030979",
+			":nayounghype:430592740066066433",
+			":nayoungheart6:430592739868934164",
+			":nayoungheart2:430592737004224514",
+			":nayoungheart:430592736496713738",
+			":nayoungok:424683077793611777",
+			"a:anayoungminnie:430592552610299924",
+		},
 		"start": []string{
 			":blobgo:317034640181297163",
 		},
