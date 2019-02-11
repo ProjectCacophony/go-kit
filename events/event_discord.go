@@ -16,12 +16,12 @@ func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Mes
 }
 
 // RespondComplex sends a message to the source channel, translates it if possible
-func (e *Event) RespondComplex(message *discordgo.MessageSend) ([]*discordgo.Message, error) {
+func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
 	if e.Type != MessageCreateType {
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	return e.SendComplex(e.MessageCreate.ChannelID, message)
+	return e.SendComplex(e.MessageCreate.ChannelID, message, values...)
 }
 
 // Send sends a message to the given channel, translates it if possible
@@ -40,11 +40,12 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 
 // SendComplex sends a message to the given channel, translates it if possible
 // TODO: check language
-func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend) ([]*discordgo.Message, error) {
+func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
 		e.Discord(),
 		e.Localisations(),
 		channelID,
 		message,
+		append(values, "prefix", e.Prefix())...,
 	)
 }

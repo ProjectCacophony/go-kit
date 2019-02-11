@@ -23,3 +23,17 @@ func Replace(input string) string {
 	// return result
 	return input
 }
+
+// ReplaceWithout replaces all :emoji: in a text with their full ID
+func ReplaceWithout(input string) string {
+	// match all :emoji: in the text
+	colonContents := colonRegex.FindAllString(input, -1)
+
+	// replace all :emoji: in the text
+	for _, colonContent := range colonContents {
+		input = strings.Replace(input, colonContent, GetWithout(colonContent), -1)
+	}
+
+	// return result
+	return input
+}
