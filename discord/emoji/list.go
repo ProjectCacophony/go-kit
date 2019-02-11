@@ -1,10 +1,10 @@
 package emoji
 
 var (
-	// list is the list of all emoji known by the bot
+	// List is the List of all emoji known by the bot
 	// they are on these servers: https://discord.is/RobyulEmotes1 https://discord.is/RobyulEmotes2
 	// nolint: gochecknoglobals
-	list = map[string]Emoji{
+	List = map[string]Emoji{
 		// all names should be lowercase
 		"start": []string{
 			":blobgo:317034640181297163",

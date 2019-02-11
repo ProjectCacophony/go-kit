@@ -7,7 +7,7 @@ import (
 // Get returns a random emoji for the type with < > around it, can be with or without colons around it
 // Example: robyulblush => <:robyulblush:327206930437373952>
 func Get(name string) string {
-	emoji, ok := list[strings.ToLower(strings.Trim(name, ":"))]
+	emoji, ok := List[strings.ToLower(strings.Trim(name, ":"))]
 	if ok {
 		// return requested emoji
 		return emoji.Get()
@@ -20,7 +20,7 @@ func Get(name string) string {
 // GetWithout returns a random emoji for the type without < > around it, can be with or without colons around it
 // Example: robyulblush => :robyulblush:327206930437373952
 func GetWithout(name string) string {
-	emoji, ok := list[strings.ToLower(strings.Trim(name, ":"))]
+	emoji, ok := List[strings.ToLower(strings.Trim(name, ":"))]
 	if ok {
 		// return requested emoji
 		return emoji.GetWithout()

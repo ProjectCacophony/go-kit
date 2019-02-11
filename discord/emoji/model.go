@@ -10,7 +10,7 @@ var (
 	random = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
-// Emoji is a list of emoji strings with helper methods
+// Emoji is a List of emoji strings with helper methods
 type Emoji []string
 
 // Get returns a random emoji for the type with < > around it
