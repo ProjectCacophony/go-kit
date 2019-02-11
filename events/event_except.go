@@ -24,7 +24,9 @@ func (e *Event) Except(err error) {
 			doLog = false
 		}
 
-		errorMessage = errD.Message.Message
+		if errD.Message.Message != "" {
+			errorMessage = errD.Message.Message
+		}
 	}
 	// // do not log state errors
 	// if err == state.ErrStateNotFound ||
