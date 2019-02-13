@@ -17,7 +17,7 @@ func GenerateRoutingKey(eventType Type) string {
 // nolint: gocyclo
 func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*Event, error) {
 	event := &Event{
-		ReceivedAt: time.Now(),
+		ReceivedAt: time.Now().UTC(),
 		BotUserID:  botUserID,
 	}
 
