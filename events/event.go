@@ -17,36 +17,36 @@ type Event struct {
 	BotUserID  string
 
 	// discordgo event data
-	ChannelCreate            *discordgo.ChannelCreate
-	ChannelDelete            *discordgo.ChannelDelete
-	ChannelPinsUpdate        *discordgo.ChannelPinsUpdate
-	ChannelUpdate            *discordgo.ChannelUpdate
-	GuildBanAdd              *discordgo.GuildBanAdd
-	GuildBanRemove           *discordgo.GuildBanRemove
-	GuildCreate              *discordgo.GuildCreate
-	GuildDelete              *discordgo.GuildDelete
-	GuildEmojisUpdate        *discordgo.GuildEmojisUpdate
-	GuildMemberAdd           *discordgo.GuildMemberAdd
-	GuildMemberRemove        *discordgo.GuildMemberRemove
-	GuildMemberUpdate        *discordgo.GuildMemberUpdate
-	GuildMembersChunk        *discordgo.GuildMembersChunk
-	GuildRoleCreate          *discordgo.GuildRoleCreate
-	GuildRoleDelete          *discordgo.GuildRoleDelete
-	GuildRoleUpdate          *discordgo.GuildRoleUpdate
-	GuildUpdate              *discordgo.GuildUpdate
-	MessageCreate            *discordgo.MessageCreate
-	MessageDelete            *discordgo.MessageDelete
-	MessageReactionAdd       *discordgo.MessageReactionAdd
-	MessageReactionRemove    *discordgo.MessageReactionRemove
-	MessageReactionRemoveAll *discordgo.MessageReactionRemoveAll
-	MessageUpdate            *discordgo.MessageUpdate
-	PresenceUpdate           *discordgo.PresenceUpdate
-	GuildIntegrationsUpdate  *discordgo.GuildIntegrationsUpdate
-	MessageDeleteBulk        *discordgo.MessageDeleteBulk
-	UserUpdate               *discordgo.UserUpdate
-	VoiceStateUpdate         *discordgo.VoiceStateUpdate
-	VoiceServerUpdate        *discordgo.VoiceServerUpdate
-	WebhooksUpdate           *discordgo.WebhooksUpdate
+	ChannelCreate            *discordgo.ChannelCreate            `json:",omitempty"`
+	ChannelDelete            *discordgo.ChannelDelete            `json:",omitempty"`
+	ChannelPinsUpdate        *discordgo.ChannelPinsUpdate        `json:",omitempty"`
+	ChannelUpdate            *discordgo.ChannelUpdate            `json:",omitempty"`
+	GuildBanAdd              *discordgo.GuildBanAdd              `json:",omitempty"`
+	GuildBanRemove           *discordgo.GuildBanRemove           `json:",omitempty"`
+	GuildCreate              *discordgo.GuildCreate              `json:",omitempty"`
+	GuildDelete              *discordgo.GuildDelete              `json:",omitempty"`
+	GuildEmojisUpdate        *discordgo.GuildEmojisUpdate        `json:",omitempty"`
+	GuildMemberAdd           *discordgo.GuildMemberAdd           `json:",omitempty"`
+	GuildMemberRemove        *discordgo.GuildMemberRemove        `json:",omitempty"`
+	GuildMemberUpdate        *discordgo.GuildMemberUpdate        `json:",omitempty"`
+	GuildMembersChunk        *discordgo.GuildMembersChunk        `json:",omitempty"`
+	GuildRoleCreate          *discordgo.GuildRoleCreate          `json:",omitempty"`
+	GuildRoleDelete          *discordgo.GuildRoleDelete          `json:",omitempty"`
+	GuildRoleUpdate          *discordgo.GuildRoleUpdate          `json:",omitempty"`
+	GuildUpdate              *discordgo.GuildUpdate              `json:",omitempty"`
+	MessageCreate            *discordgo.MessageCreate            `json:",omitempty"`
+	MessageDelete            *discordgo.MessageDelete            `json:",omitempty"`
+	MessageReactionAdd       *discordgo.MessageReactionAdd       `json:",omitempty"`
+	MessageReactionRemove    *discordgo.MessageReactionRemove    `json:",omitempty"`
+	MessageReactionRemoveAll *discordgo.MessageReactionRemoveAll `json:",omitempty"`
+	MessageUpdate            *discordgo.MessageUpdate            `json:",omitempty"`
+	PresenceUpdate           *discordgo.PresenceUpdate           `json:",omitempty"`
+	GuildIntegrationsUpdate  *discordgo.GuildIntegrationsUpdate  `json:",omitempty"`
+	MessageDeleteBulk        *discordgo.MessageDeleteBulk        `json:",omitempty"`
+	UserUpdate               *discordgo.UserUpdate               `json:",omitempty"`
+	VoiceStateUpdate         *discordgo.VoiceStateUpdate         `json:",omitempty"`
+	VoiceServerUpdate        *discordgo.VoiceServerUpdate        `json:",omitempty"`
+	WebhooksUpdate           *discordgo.WebhooksUpdate           `json:",omitempty"`
 
 	// non marshalled events
 
