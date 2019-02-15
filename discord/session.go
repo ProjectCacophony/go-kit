@@ -2,16 +2,14 @@ package discord
 
 import (
 	"errors"
-	"os"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 // NewSession creates a new DiscordGo Client for the given BotID
-// requires DISCORD_TOKEN_<BOT ID> to be set
-func NewSession(botID string) (*discordgo.Session, error) {
-	token := os.Getenv("DISCORD_TOKEN_" + botID)
-
+// from the tokens map (key: BotID, value: token)
+func NewSession(tokens map[string]string, botID string) (*discordgo.Session, error) {
+	token := tokens[botID]
 	if token == "" {
 		return nil, errors.New("token for bot ID is not configured")
 	}

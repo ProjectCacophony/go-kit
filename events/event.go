@@ -58,4 +58,5 @@ type Event struct {
 	dm             bool
 	prefix         string
 	fields         []string
+	tokens         map[string]string
 }

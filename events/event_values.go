@@ -26,6 +26,10 @@ func (e *Event) WithContext(ctx context.Context) {
 	e.ctx = ctx
 }
 
+func (e *Event) WithTokens(tokens map[string]string) {
+	e.tokens = tokens
+}
+
 // Discord gets the Discord API client for the events bot
 func (e *Event) Discord() *discordgo.Session {
 	if e.discordSession != nil {
@@ -36,7 +40,7 @@ func (e *Event) Discord() *discordgo.Session {
 		panic("could not create discordgo session, no bot user ID set")
 	}
 
-	session, err := discord.NewSession(e.BotUserID)
+	session, err := discord.NewSession(e.tokens, e.BotUserID)
 	if err != nil {
 		panic(errors.Wrap(err, "could not create discordgo session"))
 	}
