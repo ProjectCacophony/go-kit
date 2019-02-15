@@ -24,5 +24,13 @@ var (
 
 		// Replace replaces
 		"Replace": strings.Replace,
+
+		// EscapeLink returns a given link escaped to be used in Discord Embeds
+		// example: {{EscapeLink "https://example.org/A+(B)"}} => https://example.org/A+%28B%29
+		"EscapeLink": func(text string) string {
+			return strings.Replace(
+				strings.Replace(text, ")", "%29", -1), "(", "%28", -1,
+			)
+		},
 	}
 )
