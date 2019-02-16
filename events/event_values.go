@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/interfaces"
@@ -68,4 +69,14 @@ func (e *Event) WithLocalisations(localisations []interfaces.Localisation) {
 // Localisations retrieves the localisations from the event
 func (e *Event) Localisations() []interfaces.Localisation {
 	return e.localisations
+}
+
+// WithDB stores the GORM DB in the event
+func (e *Event) WithDB(db *gorm.DB) {
+	e.db = db
+}
+
+// DB retrieves the GORM DB from the event
+func (e *Event) DB() *gorm.DB {
+	return e.db
 }

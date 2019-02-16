@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jinzhu/gorm"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"go.uber.org/zap"
 )
@@ -59,4 +60,5 @@ type Event struct {
 	prefix         string
 	fields         []string
 	tokens         map[string]string
+	db             *gorm.DB
 }
