@@ -27,12 +27,13 @@ var (
 		// Replace replaces
 		"Replace": strings.Replace,
 
-		// EscapeLink returns a given link escaped to be used in Discord Embeds
-		// example: {{EscapeLink "https://example.org/A+(B)"}} => https://example.org/A+%28B%29
-		"EscapeLink": func(text string) string {
-			return strings.Replace(
-				strings.Replace(text, ")", "%29", -1), "(", "%28", -1,
-			)
+		// Escape returns a text to be escaped to be used in Discord Embeds
+		// example: {{Escape "https://example.org/A+(B)"}} => https://example.org/A+%28B%29
+		"Escape": func(text string) string {
+			text = strings.Replace(text, ")", "%29", -1)
+			text = strings.Replace(text, "(", "%28", -1)
+			text = strings.Replace(text, "`", "%60", -1)
+			return text
 		},
 
 		// HumanizeNumber adds commas after every three orders of magnitude
