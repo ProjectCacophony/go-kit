@@ -3,6 +3,8 @@ package localisation
 import (
 	"strings"
 	"text/template"
+
+	humanize "github.com/dustin/go-humanize"
 )
 
 // nolint: gochecknoglobals
@@ -32,5 +34,8 @@ var (
 				strings.Replace(text, ")", "%29", -1), "(", "%28", -1,
 			)
 		},
+
+		// HumanizeNumber adds commas after every three orders of magnitude
+		"HumanizeNumber": humanize.Comma,
 	}
 )
