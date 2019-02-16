@@ -1,11 +1,16 @@
 package events
 
 import (
+	"encoding/gob"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+
+	// nolint: gosec
+	"crypto/md5"
 )
 
 // GenerateRoutingKey generates an Routing Key for AMQP based on a Event Type
@@ -16,6 +21,7 @@ func GenerateRoutingKey(eventType Type) string {
 // GenerateEventFromDiscordgoEvent generates an Event from a Discordgo Event
 // nolint: gocyclo
 func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*Event, error) {
+	var err error
 	event := &Event{
 		ReceivedAt: time.Now().UTC(),
 		BotUserID:  botUserID,
@@ -117,9 +123,26 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		return nil, nil
 	}
 
-	if event.Type != "" {
-		return event, nil
+	if event.Type == "" {
+		return nil, errors.New("received unexpected event")
 	}
 
-	return nil, errors.New("received unexpected event")
+	event.ID, err = hash(eventItem)
+	if err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+func hash(data interface{}) (string, error) {
+	// nolint: gosec
+	md5Hasher := md5.New()
+
+	enc := gob.NewEncoder(md5Hasher)
+	err := enc.Encode(data)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(md5Hasher.Sum(nil)), nil
 }

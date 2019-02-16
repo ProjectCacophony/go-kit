@@ -14,6 +14,7 @@ import (
 // Event represents an Event
 // TODO: event ID or Key
 type Event struct {
+	ID         string
 	Type       Type
 	ReceivedAt time.Time
 	BotUserID  string
