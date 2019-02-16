@@ -139,7 +139,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 	case *discordgo.MessageUpdate:
 		event.Type = MessageUpdateType
 		event.MessageUpdate = t
-		event.ID, err = hash(t)
+		event.ID, err = hash(t.ID + t.Content)
 		if err != nil {
 			return nil, err
 		}

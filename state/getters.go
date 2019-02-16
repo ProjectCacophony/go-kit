@@ -8,11 +8,13 @@ import (
 
 type State struct {
 	client *redis.Client
+	botIDs []string
 }
 
-func NewSate(client *redis.Client) *State {
+func NewSate(client *redis.Client, botIDs []string) *State {
 	return &State{
 		client: client,
+		botIDs: botIDs,
 	}
 }
 

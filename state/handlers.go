@@ -3,6 +3,7 @@ package state
 import (
 	"github.com/bwmarrin/discordgo"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 )
 
 // nolint: gochecknoglobals
@@ -240,16 +241,27 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
+	// remove this bot for this guild
+	err = removeFromStateSet(s.client, guildBotIDsSetKey(guild.ID), session.State.User.ID)
+	if err != nil {
+		return err
+	}
+
+	// check if other bots are on this server, if so, don't do anything further
+	botIDs, err := readStateSet(s.client, guildBotIDsSetKey(guild.ID))
+	if err != nil {
+		return err
+	}
+	if len(botIDs) > 0 {
+		return nil
+	}
+
 	// remove guild
 	err = deleteStateObject(s.client, guildKey(guild.ID))
 	if err != nil {
 		return err
 	}
 	err = removeFromStateSet(s.client, allGuildIDsSetKey(), guild.ID)
-	if err != nil {
-		return err
-	}
-	err = removeFromStateSet(s.client, guildBotIDsSetKey(guild.ID), session.State.User.ID)
 	if err != nil {
 		return err
 	}
@@ -685,58 +697,128 @@ func (s *State) messageCreate(message *discordgo.MessageCreate) (err error) {
 }
 
 // SharedStateEventHandler receives events from a discordgo Websocket and updates the shared state with them
+// nolint: gocyclo
 func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{}) error {
+	var err error
 	ready, ok := i.(*discordgo.Ready)
 	if ok {
-		return s.onReady(session, ready)
+		err = s.onReady(session, ready)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	switch t := i.(type) {
 	case *discordgo.GuildCreate:
-		return s.guildAdd(session, t.Guild)
+		err = s.guildAdd(session, t.Guild)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildCreate guildAdd")
+		}
+		return nil
 	case *discordgo.GuildUpdate:
-		return s.guildAdd(session, t.Guild)
+		err = s.guildAdd(session, t.Guild)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildUpdate guildAdd")
+		}
+		return nil
 	case *discordgo.GuildDelete:
-		return s.guildRemove(session, t.Guild)
+		err = s.guildRemove(session, t.Guild)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildDelete guildRemove")
+		}
+		return nil
 	case *discordgo.GuildMemberAdd:
-		return s.memberAdd(session, t.Member)
+		err = s.memberAdd(session, t.Member)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildMemberAdd memberAdd")
+		}
+		return nil
 	case *discordgo.GuildMemberUpdate:
-		return s.memberAdd(session, t.Member)
+		err = s.memberAdd(session, t.Member)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildMemberUpdate memberAdd")
+		}
+		return nil
 	case *discordgo.GuildMemberRemove:
-		return s.memberRemove(t.Member)
+		err = s.memberRemove(t.Member)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildMemberRemove memberRemove")
+		}
+		return nil
 	case *discordgo.GuildMembersChunk:
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
 			err := s.memberAdd(session, t.Members[i])
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to process GuildMembersChunk memberAdd")
 			}
 		}
 		return nil
 	case *discordgo.GuildRoleCreate:
-		return s.roleAdd(session, t.GuildID, t.Role)
+		err = s.roleAdd(session, t.GuildID, t.Role)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildRoleCreate roleAdd")
+		}
+		return nil
 	case *discordgo.GuildRoleUpdate:
-		return s.roleAdd(session, t.GuildID, t.Role)
+		err = s.roleAdd(session, t.GuildID, t.Role)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildRoleUpdate roleAdd")
+		}
+		return nil
 	case *discordgo.GuildRoleDelete:
-		return s.roleRemove(t.GuildID, t.RoleID)
+		err = s.roleRemove(t.GuildID, t.RoleID)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildRoleDelete roleRemove")
+		}
+		return nil
 	case *discordgo.GuildEmojisUpdate:
-		return s.emojisAdd(t.GuildID, t.Emojis)
+		err = s.emojisAdd(t.GuildID, t.Emojis)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildEmojisUpdate emojisAdd")
+		}
+		return nil
 	case *discordgo.ChannelCreate:
-		return s.channelAdd(t.Channel)
+		err = s.channelAdd(t.Channel)
+		if err != nil {
+			return errors.Wrap(err, "failed to process ChannelCreate channelAdd")
+		}
+		return nil
 	case *discordgo.ChannelUpdate:
-		return s.channelAdd(t.Channel)
+		err = s.channelAdd(t.Channel)
+		if err != nil {
+			return errors.Wrap(err, "failed to process ChannelUpdate channelAdd")
+		}
+		return nil
 	case *discordgo.ChannelDelete:
-		return s.channelRemove(t.Channel)
+		err = s.channelRemove(t.Channel)
+		if err != nil {
+			return errors.Wrap(err, "failed to process ChannelDelete channelRemove")
+		}
+		return nil
 	case *discordgo.GuildBanAdd:
-		return s.banAdd(session, t.GuildID, t.User)
+		err = s.banAdd(session, t.GuildID, t.User)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildBanAdd banAdd")
+		}
+		return nil
 	case *discordgo.GuildBanRemove:
-		return s.banRemove(t.GuildID, t.User)
+		err = s.banRemove(t.GuildID, t.User)
+		if err != nil {
+			return errors.Wrap(err, "failed to process GuildBanRemove banRemove")
+		}
+		return nil
 	case *discordgo.MessageCreate:
-		return s.messageCreate(t)
+		err = s.messageCreate(t)
+		if err != nil {
+			return errors.Wrap(err, "failed to process MessageCreate messageCreate")
+		}
+		return nil
 	case *discordgo.PresenceUpdate:
 		err := s.presenceAdd(t.GuildID, &t.Presence)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to process PresenceUpdate presenceAdd")
 		}
 
 		previousMember, err := s.Member(t.GuildID, t.User.ID)
@@ -771,7 +853,11 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 
 		}
 
-		return s.memberAdd(session, previousMember)
+		err = s.memberAdd(session, previousMember)
+		if err != nil {
+			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
+		}
+		return nil
 		/*
 		   case *discordgo.MessageCreate:
 		       if s.MaxMessageCount != 0 {
