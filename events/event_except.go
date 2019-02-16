@@ -2,6 +2,7 @@ package events
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
 
@@ -28,12 +29,12 @@ func (e *Event) Except(err error) {
 			errorMessage = errD.Message.Message
 		}
 	}
-	// // do not log state errors
-	// if err == state.ErrStateNotFound ||
-	// 	err == state.ErrTargetWrongServer ||
-	// 	err == state.ErrTargetWrongType {
-	// 	dontLog = true
-	// }
+	// do not log state errors
+	if err == state.ErrStateNotFound ||
+		err == state.ErrTargetWrongServer ||
+		err == state.ErrTargetWrongType {
+		doLog = false
+	}
 
 	if e.Type == MessageCreateType {
 		// TODO: send reaction instead if we are not allowed to send messages (check permissions from state)
