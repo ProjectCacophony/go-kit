@@ -27,12 +27,11 @@ var (
 		// Replace replaces
 		"Replace": strings.Replace,
 
-		// Escape returns a text to be escaped to be used in Discord Embeds
-		// example: {{Escape "https://example.org/A+(B)"}} => https://example.org/A+%28B%29
-		"Escape": func(text string) string {
+		// EscapeLink returns a text to be escaped to be used in Discord Embeds
+		// example: {{EscapeLink "https://example.org/A+(B)"}} => https://example.org/A+%28B%29
+		"EscapeLink": func(text string) string {
 			text = strings.Replace(text, ")", "%29", -1)
 			text = strings.Replace(text, "(", "%28", -1)
-			text = strings.Replace(text, "`", "%60", -1)
 			return text
 		},
 
