@@ -51,3 +51,12 @@ func (e *Event) SendComplex(
 		append(values, "prefix", e.Prefix())...,
 	)
 }
+
+// Typing starts typing in the event channel
+func (e *Event) Typing() {
+	if e.Type != MessageCreateType {
+		return
+	}
+
+	e.Discord().ChannelTyping(e.MessageCreate.ChannelID) // nolint: errcheck
+}
