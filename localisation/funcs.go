@@ -36,6 +36,11 @@ var (
 		},
 
 		// HumanizeNumber adds commas after every three orders of magnitude
-		"HumanizeNumber": humanize.Comma,
+		"HumanizeNumber": func(number int) string {
+			return humanize.Comma(int64(number))
+		},
+
+		// HumanizeNumber64 adds commas after every three orders of magnitude
+		"HumanizeNumber64": humanize.Comma,
 	}
 )
