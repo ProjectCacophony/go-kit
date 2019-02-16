@@ -1,0 +1,803 @@
+package state
+
+import (
+	"github.com/bwmarrin/discordgo"
+	jsoniter "github.com/json-iterator/go"
+)
+
+// nolint: gochecknoglobals
+var (
+	messagesLimit = 10
+)
+
+func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err error) {
+	//  check if bot is allowed to see bans
+	apermissions, err := s.UserPermissions(session.State.User.ID, guildID)
+	if err != nil {
+		return err
+	}
+	if apermissions&discordgo.PermissionBanMembers != discordgo.PermissionBanMembers {
+		// fmt.Println("resetting bans for", guildID, "because no permissions")
+		// reset ban list if not allowed
+		err = deleteStateObject(s.client, guildBannedUserIDsSetKey(guildID))
+		if err != nil {
+			return err
+		}
+		err = removeFromStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey(), guildID)
+		return err
+	}
+
+	// have we already cached the guild bans for this guild?
+	initializedGuildIDs, err := readStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey())
+	if err != nil {
+		return err
+	}
+
+	var guildInitialized bool
+	for _, initializedGuildID := range initializedGuildIDs {
+		if initializedGuildID == guildID {
+			guildInitialized = true
+		}
+	}
+
+	if guildInitialized {
+		// fmt.Println("ignoring initializing bans for", guildID, "because already initialized")
+		return
+	}
+
+	// reset guild bans
+	// fmt.Println("resetting bans for", guildID, "because caching new ones")
+	err = deleteStateObject(s.client, guildBannedUserIDsSetKey(guildID))
+	if err != nil {
+		return err
+	}
+
+	// cache new guild bans
+	bans, err := session.GuildBans(guildID)
+	if err != nil {
+		return err
+	}
+
+	newSet := make([]string, 0)
+	for _, ban := range bans {
+		newSet = append(newSet, ban.User.ID)
+	}
+	err = addToStateSet(s.client, guildBannedUserIDsSetKey(guildID), newSet...)
+	if err != nil {
+		return err
+	}
+	// fmt.Println("setting bans for", guildID, ":", strings.Join(newSet, ", "))
+
+	err = addToStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey(), guildID)
+	return err
+}
+
+func (s *State) onReady(session *discordgo.Session, ready *discordgo.Ready) (err error) {
+	// fmt.Println("running onReady")
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// cache bot user
+	err = updateStateObject(s.client, userKey(ready.User.ID), ready.User)
+	if err != nil {
+		return err
+	}
+
+	// cache guilds
+	for _, guild := range ready.Guilds {
+		err = updateStateObject(s.client, guildKey(guild.ID), guild)
+		if err != nil {
+			return err
+		}
+		err = addToStateSet(s.client, allGuildIDsSetKey(), guild.ID)
+		if err != nil {
+			return err
+		}
+		err = addToStateSet(s.client, guildBotIDsSetKey(guild.ID), ready.User.ID)
+		if err != nil {
+			return err
+		}
+
+		// cache guild channels
+		for _, channel := range guild.Channels {
+			err = updateStateObject(s.client, channelKey(channel.ID), channel)
+			if err != nil {
+				return err
+			}
+			err = addToStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+			if err != nil {
+				return err
+			}
+		}
+
+		// cache guild members and users
+		for _, member := range guild.Members {
+			err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
+			if err != nil {
+				return err
+			}
+			err = updateStateObject(s.client, userKey(member.User.ID), member.User)
+			if err != nil {
+				return err
+			}
+			err = addToStateSet(s.client, allUserIDsSetKey(), member.User.ID)
+			if err != nil {
+				return err
+			}
+			err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+			if err != nil {
+				return err
+			}
+		}
+
+		// init guild bans (async)
+		go func(gS *discordgo.Session, gGuildID string) {
+			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			// if err != nil {
+			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
+			// }
+		}(session, guild.ID)
+	}
+
+	// cache private channels
+	for _, privateChannel := range ready.PrivateChannels {
+		err = updateStateObject(s.client, channelKey(privateChannel.ID), privateChannel)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (err error) {
+	// fmt.Println("running guildAdd", guild.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// cache guild channels
+	for _, channel := range guild.Channels {
+		err = updateStateObject(s.client, channelKey(channel.ID), channel)
+		if err != nil {
+			return err
+		}
+		err = addToStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// cache guild members and users
+	for _, member := range guild.Members {
+		err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
+		if err != nil {
+			return err
+		}
+		err = updateStateObject(s.client, userKey(member.User.ID), member.User)
+		if err != nil {
+			return err
+		}
+		err = addToStateSet(s.client, allUserIDsSetKey(), member.User.ID)
+		if err != nil {
+			return err
+		}
+		err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// carry over previous guild fields if set
+	previousGuild, err := s.Guild(guild.ID)
+	if err == nil {
+		if guild.Roles == nil {
+			guild.Roles = previousGuild.Roles
+		}
+		if guild.Emojis == nil {
+			guild.Emojis = previousGuild.Emojis
+		}
+		if guild.Members == nil {
+			guild.Members = previousGuild.Members
+		}
+		if guild.Presences == nil {
+			guild.Presences = previousGuild.Presences
+		}
+		if guild.Channels == nil {
+			guild.Channels = previousGuild.Channels
+		}
+		if guild.VoiceStates == nil {
+			guild.VoiceStates = previousGuild.VoiceStates
+		}
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(guild.ID), guild)
+	if err != nil {
+		return err
+	}
+	err = addToStateSet(s.client, allGuildIDsSetKey(), guild.ID)
+	if err != nil {
+		return err
+	}
+	err = addToStateSet(s.client, guildBotIDsSetKey(guild.ID), session.State.User.ID)
+	if err != nil {
+		return err
+	}
+
+	// init guild bans (async)
+	go func(gS *discordgo.Session, gGuildID string) {
+		s.initGuildBans(gS, gGuildID) // nolint: errcheck
+		// if err != nil {
+		// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
+		// }
+	}(session, guild.ID)
+
+	return nil
+}
+
+func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) (err error) {
+	// fmt.Println("running guildRemove", guild.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// remove guild
+	err = deleteStateObject(s.client, guildKey(guild.ID))
+	if err != nil {
+		return err
+	}
+	err = removeFromStateSet(s.client, allGuildIDsSetKey(), guild.ID)
+	if err != nil {
+		return err
+	}
+	err = removeFromStateSet(s.client, guildBotIDsSetKey(guild.ID), session.State.User.ID)
+	if err != nil {
+		return err
+	}
+
+	// remove channels
+	for _, channel := range guild.Channels {
+		err = deleteStateObject(s.client, channelKey(channel.ID))
+		if err != nil {
+			return err
+		}
+		err = removeFromStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) (err error) {
+	// fmt.Println("running memberAdd", member.GuildID, member.User.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read member guild
+	previousGuild, err := s.Guild(member.GuildID)
+	if err != nil {
+		return err
+	}
+
+	// read previous member if exists
+	previousMember, err := s.Member(member.GuildID, member.User.ID)
+	if err == nil {
+		// carry over previous member fields if set
+		if member.JoinedAt == "" {
+			member.JoinedAt = previousMember.JoinedAt
+		}
+	} else {
+		// update member guild
+		previousGuild.Members = append(previousGuild.Members, member)
+		previousGuild.MemberCount++
+		// cache guild
+		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+		if err != nil {
+			return err
+		}
+	}
+
+	// cache member and user
+	err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
+	if err != nil {
+		return err
+	}
+	err = updateStateObject(s.client, userKey(member.User.ID), member.User)
+	if err != nil {
+		return err
+	}
+	err = addToStateSet(s.client, allUserIDsSetKey(), member.User.ID)
+	if err != nil {
+		return err
+	}
+	err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+	if err != nil {
+		return err
+	}
+
+	if member.User.ID == session.State.User.ID {
+		// init guild bans (async) (could be giving or revoking the bot ban permission)
+		go func(gS *discordgo.Session, gGuildID string) {
+			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			// if err != nil {
+			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
+			// }
+		}(session, member.GuildID)
+	}
+
+	return nil
+}
+
+func (s *State) memberRemove(member *discordgo.Member) (err error) {
+	// fmt.Println("running memberRemove", member.GuildID, member.User.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read member guild
+	previousGuild, err := s.Guild(member.GuildID)
+	if err != nil {
+		return err
+	}
+
+	// remove member and user
+	err = deleteStateObject(s.client, memberKey(member.GuildID, member.User.ID))
+	if err != nil {
+		return err
+	}
+
+	// viable?
+	allGuildIDs, err := s.AllGuildIDs()
+	if err == nil {
+		var isMember bool
+		for _, guildID := range allGuildIDs {
+			if guildID == member.GuildID {
+				continue
+			}
+			isMember, err = s.IsMember(guildID, member.User.ID)
+			if err != nil {
+				return err
+			}
+			if isMember {
+				break
+			}
+		}
+		if !isMember {
+			err = deleteStateObject(s.client, userKey(member.User.ID))
+			if err != nil {
+				return err
+			}
+			err = removeFromStateSet(s.client, allUserIDsSetKey(), member.User.ID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// update previous guild
+	for i, previousMember := range previousGuild.Members {
+		if previousMember.User.ID == member.User.ID {
+			previousGuild.Members = append(previousGuild.Members[:i], previousGuild.Members[i+1:]...)
+			previousGuild.MemberCount--
+			break
+		}
+	}
+	err = removeFromStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+	if err != nil {
+		return err
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+	return err
+}
+
+func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discordgo.Role) (err error) {
+	// fmt.Println("running roleAdd", guildID, role.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read role guild
+	previousGuild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	// update previous guild
+	var updated bool
+	for i, previousRole := range previousGuild.Roles {
+		if previousRole.ID == role.ID {
+			previousGuild.Roles[i] = role
+			updated = true
+			break
+		}
+	}
+	if !updated {
+		previousGuild.Roles = append(previousGuild.Roles, role)
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+	if err != nil {
+		return err
+	}
+
+	if role.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator ||
+		role.Permissions&discordgo.PermissionBanMembers == discordgo.PermissionBanMembers {
+		// init guild bans (async) (could be giving or revoking the bot ban permission)
+		go func(gS *discordgo.Session, gGuildID string) {
+			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			// if err != nil {
+			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
+			// }
+		}(session, guildID)
+	}
+
+	return nil
+}
+
+func (s *State) roleRemove(guildID, roleID string) (err error) {
+	// fmt.Println("running roleRemove", guildID, roleID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read role guild
+	previousGuild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	// remove role
+	for i, previousRole := range previousGuild.Roles {
+		if previousRole.ID == roleID {
+			previousGuild.Roles = append(previousGuild.Roles[:i], previousGuild.Roles[i+1:]...)
+			return nil
+		}
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+	return err
+}
+
+func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji) (err error) {
+	// fmt.Println("running emojiAdd", guildID, emoji.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read emoji guild
+	previousGuild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	// update previous guild
+	var updated bool
+	for i, previousEmoji := range previousGuild.Emojis {
+		if previousEmoji.ID == emoji.ID {
+			previousGuild.Emojis[i] = emoji
+			updated = true
+			break
+		}
+	}
+	if !updated {
+		previousGuild.Emojis = append(previousGuild.Emojis, emoji)
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+	return err
+}
+
+func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji) (err error) {
+	// fmt.Println("running emojisAdd", guildID, len(emojis))
+	for _, emoji := range emojis {
+		err = s.emojiAdd(guildID, emoji)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *State) channelAdd(channel *discordgo.Channel) (err error) {
+	// fmt.Println("running channelAdd", channel.GuildID, channel.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read channel
+	previousChannel, err := s.Channel(channel.ID)
+	if err == nil {
+		// carry over previous fields if set
+		if channel.Messages == nil {
+			channel.Messages = previousChannel.Messages
+		}
+		if channel.PermissionOverwrites == nil {
+			channel.PermissionOverwrites = previousChannel.PermissionOverwrites
+		}
+
+		// cache channel
+		err = updateStateObject(s.client, channelKey(channel.ID), channel)
+		return err
+	}
+
+	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
+		// read channel guild
+		var previousGuild *discordgo.Guild
+		previousGuild, err = s.Guild(channel.GuildID)
+		if err != nil {
+			return err
+		}
+
+		// update guild
+		previousGuild.Channels = append(previousGuild.Channels, channel)
+
+		// cache guild
+		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+		if err != nil {
+			return err
+		}
+	}
+
+	// cache channel
+	err = updateStateObject(s.client, channelKey(channel.ID), channel)
+	if err != nil {
+		return err
+	}
+	err = addToStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+	return err
+}
+
+func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
+	// fmt.Println("running channelRemove", channel.GuildID, channel.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read channel
+	previousChannel, err := s.Channel(channel.ID)
+	if err != nil {
+		return err
+	}
+
+	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
+		// read channel guild
+		var previousGuild *discordgo.Guild
+		previousGuild, err = s.Guild(previousChannel.GuildID)
+		if err != nil {
+			return err
+		}
+
+		// update guild
+		for i, previousGuildChannel := range previousGuild.Channels {
+			if previousGuildChannel.ID == channel.ID {
+				previousGuild.Channels = append(previousGuild.Channels[:i], previousGuild.Channels[i+1:]...)
+				break
+			}
+		}
+
+		// cache guild
+		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+		if err != nil {
+			return err
+		}
+	}
+
+	// cache channel
+	err = deleteStateObject(s.client, channelKey(channel.ID))
+	if err != nil {
+		return err
+	}
+	err = removeFromStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+	return err
+}
+
+func (s *State) presenceAdd(guildID string, presence *discordgo.Presence) (err error) {
+	// fmt.Println("running presenceAdd", guildID, presence.User.ID)
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	// read presence guild
+	previousGuild, err := s.Guild(guildID)
+	if err != nil {
+		return err
+	}
+
+	// update presence
+	var updated bool
+	for i, previousPresence := range previousGuild.Presences {
+		if previousPresence.User.ID == presence.User.ID {
+			// Update status
+			previousGuild.Presences[i].Game = presence.Game
+			previousGuild.Presences[i].Roles = presence.Roles
+			if presence.Status != "" {
+				previousGuild.Presences[i].Status = presence.Status
+			}
+			if presence.Nick != "" {
+				previousGuild.Presences[i].Nick = presence.Nick
+			}
+
+			// Update the optionally sent user information
+			// ID Is a mandatory field so you should not need to check if it is empty
+			previousGuild.Presences[i].User.ID = presence.User.ID
+
+			if presence.User.Avatar != "" {
+				previousGuild.Presences[i].User.Avatar = presence.User.Avatar
+			}
+			if presence.User.Discriminator != "" {
+				previousGuild.Presences[i].User.Discriminator = presence.User.Discriminator
+			}
+			if presence.User.Email != "" {
+				previousGuild.Presences[i].User.Email = presence.User.Email
+			}
+			if presence.User.Token != "" {
+				previousGuild.Presences[i].User.Token = presence.User.Token
+			}
+			if presence.User.Username != "" {
+				previousGuild.Presences[i].User.Username = presence.User.Username
+			}
+
+			updated = true
+		}
+	}
+	if !updated {
+		previousGuild.Presences = append(previousGuild.Presences, presence)
+	}
+
+	// cache guild
+	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+	return err
+}
+
+func (s *State) banAdd(session *discordgo.Session, guildID string, user *discordgo.User) (err error) {
+	// check if bot is allowed to see bans
+	apermissions, err := s.UserPermissions(session.State.User.ID, guildID)
+	if err != nil {
+		return err
+	}
+	if apermissions&discordgo.PermissionBanMembers != discordgo.PermissionBanMembers {
+		return nil
+	}
+
+	// add ban
+	err = addToStateSet(s.client, guildBannedUserIDsSetKey(guildID), user.ID)
+	return err
+}
+
+func (s *State) banRemove(guildID string, user *discordgo.User) (err error) {
+	err = removeFromStateSet(s.client, guildBannedUserIDsSetKey(guildID), user.ID)
+	return err
+}
+
+func (s *State) messageCreate(message *discordgo.MessageCreate) (err error) {
+	var marshalled string
+	marshalled, err = jsoniter.MarshalToString(message)
+	if err != nil {
+		return err
+	}
+
+	err = addToStateList(s.client, messagesListKey(message.ChannelID), marshalled)
+	// fmt.Println("added", message.Content, "to", messagesListKey(message.ChannelID))
+	if err != nil {
+		return err
+	}
+
+	err = trimStateList(s.client, messagesListKey(message.ChannelID), int64(messagesLimit-1))
+	return err
+}
+
+// SharedStateEventHandler receives events from a discordgo Websocket and updates the shared state with them
+func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{}) error {
+	ready, ok := i.(*discordgo.Ready)
+	if ok {
+		return s.onReady(session, ready)
+	}
+
+	switch t := i.(type) {
+	case *discordgo.GuildCreate:
+		return s.guildAdd(session, t.Guild)
+	case *discordgo.GuildUpdate:
+		return s.guildAdd(session, t.Guild)
+	case *discordgo.GuildDelete:
+		return s.guildRemove(session, t.Guild)
+	case *discordgo.GuildMemberAdd:
+		return s.memberAdd(session, t.Member)
+	case *discordgo.GuildMemberUpdate:
+		return s.memberAdd(session, t.Member)
+	case *discordgo.GuildMemberRemove:
+		return s.memberRemove(t.Member)
+	case *discordgo.GuildMembersChunk:
+		for i := range t.Members {
+			t.Members[i].GuildID = t.GuildID
+			err := s.memberAdd(session, t.Members[i])
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	case *discordgo.GuildRoleCreate:
+		return s.roleAdd(session, t.GuildID, t.Role)
+	case *discordgo.GuildRoleUpdate:
+		return s.roleAdd(session, t.GuildID, t.Role)
+	case *discordgo.GuildRoleDelete:
+		return s.roleRemove(t.GuildID, t.RoleID)
+	case *discordgo.GuildEmojisUpdate:
+		return s.emojisAdd(t.GuildID, t.Emojis)
+	case *discordgo.ChannelCreate:
+		return s.channelAdd(t.Channel)
+	case *discordgo.ChannelUpdate:
+		return s.channelAdd(t.Channel)
+	case *discordgo.ChannelDelete:
+		return s.channelRemove(t.Channel)
+	case *discordgo.GuildBanAdd:
+		return s.banAdd(session, t.GuildID, t.User)
+	case *discordgo.GuildBanRemove:
+		return s.banRemove(t.GuildID, t.User)
+	case *discordgo.MessageCreate:
+		return s.messageCreate(t)
+	case *discordgo.PresenceUpdate:
+		err := s.presenceAdd(t.GuildID, &t.Presence)
+		if err != nil {
+			return err
+		}
+
+		previousMember, err := s.Member(t.GuildID, t.User.ID)
+		if err != nil {
+			// Member not found; this is a user coming online
+			previousMember = &discordgo.Member{
+				GuildID: t.GuildID,
+				Nick:    t.Nick,
+				User:    t.User,
+				Roles:   t.Roles,
+			}
+
+		} else {
+			if t.Nick != "" {
+				previousMember.Nick = t.Nick
+			}
+
+			if t.User.Username != "" {
+				previousMember.User.Username = t.User.Username
+			}
+
+			if t.User.Discriminator != "" {
+				previousMember.User.Discriminator = t.User.Discriminator
+			}
+
+			if t.User.Avatar != "" {
+				previousMember.User.Avatar = t.User.Avatar
+			}
+
+			// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
+			previousMember.Roles = t.Roles
+
+		}
+
+		return s.memberAdd(session, previousMember)
+		/*
+		   case *discordgo.MessageCreate:
+		       if s.MaxMessageCount != 0 {
+		           err = s.MessageAdd(t.Message)
+		       }
+		   case *discordgo.MessageUpdate:
+		       if s.MaxMessageCount != 0 {
+		           err = s.MessageAdd(t.Message)
+		       }
+		   case *discordgo.MessageDelete:
+		       if s.MaxMessageCount != 0 {
+		           err = s.MessageRemove(t.Message)
+		       }
+		   case *discordgo.MessageDeleteBulk:
+		       if s.MaxMessageCount != 0 {
+		           for _, mID := range t.Messages {
+		               s.messageRemoveByID(t.ChannelID, mID)
+		           }
+		       }
+		   case *discordgo.VoiceStateUpdate:
+		       if s.TrackVoice {
+		           err = s.voiceStateUpdate(t)
+		       }
+		*/
+
+	}
+
+	return nil
+}

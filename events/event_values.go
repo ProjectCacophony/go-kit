@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/interfaces"
+	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
 
@@ -79,4 +80,14 @@ func (e *Event) WithDB(db *gorm.DB) {
 // DB retrieves the GORM DB from the event
 func (e *Event) DB() *gorm.DB {
 	return e.db
+}
+
+// WithState stores the State in the event
+func (e *Event) WithState(state *state.State) {
+	e.state = state
+}
+
+// State retrieves the State from the event
+func (e *Event) State() *state.State {
+	return e.state
 }
