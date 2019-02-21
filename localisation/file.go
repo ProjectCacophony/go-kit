@@ -2,6 +2,7 @@ package localisation
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
 	"text/template"
 	"time"
@@ -68,6 +69,7 @@ func (l *FileSource) load() error {
 
 					translation, err := newTemplate(key, vString)
 					if err != nil {
+						fmt.Println(err.Error())
 						panic(err) // TODO: handle error better
 						// continue
 					}
@@ -119,6 +121,7 @@ func (l *FileSource) TranslateMap(key string, values map[interface{}]interface{}
 	var buffer bytes.Buffer
 	err := translation.Execute(&buffer, values)
 	if err != nil {
+		fmt.Println(err.Error())
 		// TODO: handle error
 		return key
 	}
