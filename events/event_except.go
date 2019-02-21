@@ -32,7 +32,10 @@ func (e *Event) Except(err error) {
 	// do not log state errors
 	if err == state.ErrStateNotFound ||
 		err == state.ErrTargetWrongServer ||
-		err == state.ErrTargetWrongType {
+		err == state.ErrTargetWrongType ||
+		err == state.ErrUserNotFound ||
+		err == state.ErrChannelNotFound ||
+		err == state.ErrRoleNotFound {
 		doLog = false
 	}
 
