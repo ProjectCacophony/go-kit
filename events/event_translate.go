@@ -8,7 +8,6 @@ func (e *Event) Translate(key string, values ...interface{}) string {
 
 	values = append(values,
 		"prefix", e.prefix,
-		"translate", e.Translate,
 	)
 
 	var translation string
