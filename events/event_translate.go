@@ -6,7 +6,10 @@ func (e *Event) Translate(key string, values ...interface{}) string {
 		return key
 	}
 
-	values = append(values, "prefix", e.prefix)
+	values = append(values,
+		"prefix", e.prefix,
+		"translate", e.Translate,
+	)
 
 	var translation string
 	for _, localisation := range e.Localisations() {
