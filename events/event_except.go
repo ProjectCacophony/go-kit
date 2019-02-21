@@ -54,7 +54,13 @@ func (e *Event) Except(err error) {
 	}
 
 	if doLog {
-		e.Logger().Error("received error while executing event", zap.Error(err))
+		e.Logger().Error("error occurred while executing event", zap.Error(err))
 		// TODO: send to sentry…
+	}
+}
+
+func (e *Event) ExceptSilent(err error) {
+	if e.logger != nil {
+		e.Logger().Error("silent occurred error while executing event", zap.Error(err))
 	}
 }
