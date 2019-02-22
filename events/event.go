@@ -76,8 +76,9 @@ const (
 
 // BucketUpdate represents Bucket Update event data
 type BucketUpdate struct {
-	Type    BucketType
-	Tag     string
-	GuildID string
-	Values  []string
+	Type      BucketType
+	Tag       string
+	GuildID   string
+	Values    []string
+	KeySuffix string
 }
