@@ -16,6 +16,7 @@ type Event struct {
 	Type       Type
 	ReceivedAt time.Time
 	BotUserID  string
+	GuildID    string `json:",omitempty"`
 
 	// discordgo event data
 	ChannelCreate            *discordgo.ChannelCreate            `json:",omitempty"`
