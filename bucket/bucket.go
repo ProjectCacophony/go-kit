@@ -13,13 +13,16 @@ func key(suffix string) string {
 
 // TODO: add bucket limit?
 
-// Add adds an item to a leaky bucket, and returns the amount of items in the leaky bucket
-// Source: https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/
-func Add(
+// Algorithm Source: https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/
+
+// Add adds an item with a specific value to a leaky bucket,
+// and returns the amount of items in the leaky bucket
+func AddWithValue(
 	client *redis.Client,
 	keySuffix string,
+	value interface{},
 	decay time.Duration,
-) (int, error) {
+) ([]redis.Z, error) {
 	key := key(keySuffix)
 
 	now := time.Now().UTC().UnixNano()
@@ -33,7 +36,7 @@ func Add(
 	// add item to bucket
 	pipeline.ZAdd(key, redis.Z{
 		Score:  float64(now),
-		Member: now,
+		Member: value,
 	})
 	// count number of items in the bucket
 	items := pipeline.ZRangeWithScores(key, 0, -1)
@@ -42,8 +45,18 @@ func Add(
 
 	_, err := pipeline.Exec()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return len(items.Val()), nil
+	return items.Val(), nil
+}
+
+// Add adds an item to a leaky bucket,
+// and returns the amount of items in the leaky bucket
+func Add(
+	client *redis.Client,
+	keySuffix string,
+	decay time.Duration,
+) ([]redis.Z, error) {
+	return AddWithValue(client, keySuffix, time.Now().UnixNano(), decay)
 }
