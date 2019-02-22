@@ -64,7 +64,19 @@ type Event struct {
 	tokens         map[string]string
 }
 
+// BucketType specifies the scope of a bucket
+type BucketType string
+
+// defines various bucket scopes
+const (
+	GuildBucketType   BucketType = "guild_bucket"
+	ChannelBucketType BucketType = "channel_bucket"
+	UserBucketType    BucketType = "user_bucket"
+)
+
+// BucketUpdate represents Bucket Update event data
 type BucketUpdate struct {
+	Type    BucketType
 	Tag     string
 	GuildID string
 	Values  []string
