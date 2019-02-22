@@ -69,6 +69,8 @@ type Event struct {
 }
 
 type BucketUpdate struct {
-	Tag   string
-	Value int
+	Tag     string
+	GuildID string
+	Length  int
+	Values  []string
 }
