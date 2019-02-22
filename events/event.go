@@ -50,6 +50,8 @@ type Event struct {
 	VoiceStateUpdate         *discordgo.VoiceStateUpdate         `json:",omitempty"`
 	VoiceServerUpdate        *discordgo.VoiceServerUpdate        `json:",omitempty"`
 	WebhooksUpdate           *discordgo.WebhooksUpdate           `json:",omitempty"`
+	// Cacophony Event Data
+	BucketUpdate *BucketUpdate `json:",omitempty"`
 
 	// non marshalled events
 
@@ -64,4 +66,9 @@ type Event struct {
 	fields         []string
 	tokens         map[string]string
 	db             *gorm.DB
+}
+
+type BucketUpdate struct {
+	Tag   string
+	Value int
 }

@@ -5,6 +5,7 @@ type Type string
 
 // defines various Event Types
 const (
+	// Discord Events
 	ChannelCreateType            Type = "channel_create"
 	ChannelDeleteType            Type = "channel_delete"
 	ChannelPinsUpdateType        Type = "channel_pins_update"
@@ -35,4 +36,6 @@ const (
 	VoiceStateUpdateType         Type = "voice_state_update"
 	VoiceServerUpdateType        Type = "voice_server_update"
 	WebhooksUpdateType           Type = "webhooks_update"
+	// Cacophony Events
+	CacophonyBucketUpdate Type = "bucket_update"
 )
