@@ -51,9 +51,13 @@ func (e *Event) Parse() {
 		return
 	}
 
+	for i := range args {
+		args[i] = strings.ToLower(args[i])
+	}
+
 	// extract fields of command without prefix
 	e.command = true
-	e.prefix = commandPrefix
+	e.prefix = strings.ToLower(commandPrefix)
 	e.fields = args
 }
 
