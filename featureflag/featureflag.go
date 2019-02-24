@@ -49,7 +49,7 @@ func (ff *FeatureFlagger) IsEnabled(key string, fallback bool) bool {
 		return fallback
 	}
 
-	return unleash.IsEnabled(key, unleash.WithFallback(fallback))
+	return ff.unleashClient.IsEnabled(key, unleash.WithFallback(fallback))
 }
 
 // UnleashListener is our listener for Unleash events
