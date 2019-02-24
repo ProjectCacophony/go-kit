@@ -1,6 +1,8 @@
 package events
 
 import (
+	"strconv"
+
 	"github.com/bwmarrin/discordgo"
 	raven "github.com/getsentry/raven-go"
 	"gitlab.com/Cacophony/go-kit/state"
@@ -60,13 +62,7 @@ func (e *Event) Except(err error) {
 		if raven.DefaultClient != nil {
 			raven.CaptureError(
 				err,
-				map[string]string{
-					"event_id":    e.ID,
-					"event_type:": string(e.Type),
-					"bot_id":      e.BotUserID,
-					"guild_id":    e.GuildID,
-					"silent":      "false",
-				},
+				generateRavenTags(e, false),
 				&raven.User{
 					ID: e.UserID,
 				},
@@ -83,16 +79,26 @@ func (e *Event) ExceptSilent(err error) {
 	if raven.DefaultClient != nil {
 		raven.CaptureError(
 			err,
-			map[string]string{
-				"event_id":    e.ID,
-				"event_type:": string(e.Type),
-				"bot_id":      e.BotUserID,
-				"guild_id":    e.GuildID,
-				"silent":      "true",
-			},
+			generateRavenTags(e, true),
 			&raven.User{
 				ID: e.UserID,
 			},
 		)
 	}
+}
+
+func generateRavenTags(event *Event, silent bool) map[string]string {
+	tags := map[string]string{
+		"event_id":    event.ID,
+		"event_type:": string(event.Type),
+		"bot_id":      event.BotUserID,
+		"guild_id":    event.GuildID,
+		"silent":      strconv.FormatBool(silent),
+	}
+
+	if event.Type == MessageCreateType {
+		tags["message_content"] = event.MessageCreate.Content
+	}
+
+	return tags
 }
