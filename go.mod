@@ -4,7 +4,9 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Unleash/unleash-client-go v0.0.0-20181121205122-ae068e0ad68c
 	github.com/bwmarrin/discordgo v0.19.0
+	github.com/certifi/gocertifi v0.0.0-20190105021004-abcd57078448 // indirect
 	github.com/dustin/go-humanize v1.0.0
+	github.com/getsentry/raven-go v0.2.0
 	github.com/go-chi/chi v4.0.1+incompatible
 	github.com/go-redis/redis v6.15.1+incompatible
 	github.com/json-iterator/go v1.1.5

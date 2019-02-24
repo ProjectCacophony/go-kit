@@ -2,6 +2,7 @@ package events
 
 import (
 	"github.com/bwmarrin/discordgo"
+	raven "github.com/getsentry/raven-go"
 	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
@@ -55,12 +56,43 @@ func (e *Event) Except(err error) {
 
 	if doLog {
 		e.Logger().Error("error occurred while executing event", zap.Error(err))
-		// TODO: send to sentry…
+
+		if raven.DefaultClient != nil {
+			raven.CaptureError(
+				err,
+				map[string]string{
+					"event_id":    e.ID,
+					"event_type:": string(e.Type),
+					"bot_id":      e.BotUserID,
+					"guild_id":    e.GuildID,
+					"silent":      "false",
+				},
+				&raven.User{
+					ID: e.UserID,
+				},
+			)
+		}
 	}
 }
 
 func (e *Event) ExceptSilent(err error) {
 	if e.logger != nil {
 		e.Logger().Error("silent occurred error while executing event", zap.Error(err))
+	}
+
+	if raven.DefaultClient != nil {
+		raven.CaptureError(
+			err,
+			map[string]string{
+				"event_id":    e.ID,
+				"event_type:": string(e.Type),
+				"bot_id":      e.BotUserID,
+				"guild_id":    e.GuildID,
+				"silent":      "true",
+			},
+			&raven.User{
+				ID: e.UserID,
+			},
+		)
 	}
 }

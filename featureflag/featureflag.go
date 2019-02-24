@@ -7,8 +7,8 @@ import (
 	unleash "github.com/Unleash/unleash-client-go"
 )
 
-// FeatureFlaggerConfig represents a Feature Flagger Configuration
-type FeatureFlaggerConfig struct {
+// Config represents a Feature Flagger Configuration
+type Config struct {
 	Environment string `envconfig:"ENVIRONMENT"`
 
 	UnleashURL        string `envconfig:"UNLEASH_URL"`
@@ -20,8 +20,8 @@ type FeatureFlagger struct {
 	unleashClient *unleash.Client
 }
 
-// NewFeatureFlagger creates a new FeatureFlagger
-func NewFeatureFlagger(config *FeatureFlaggerConfig) (*FeatureFlagger, error) {
+// New creates a new FeatureFlagger
+func New(config *Config) (*FeatureFlagger, error) {
 	if config.Environment == "development" {
 		return &FeatureFlagger{}, nil
 	}
