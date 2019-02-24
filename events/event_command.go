@@ -51,8 +51,8 @@ func (e *Event) Parse() {
 		return
 	}
 
-	for i := range args {
-		args[i] = strings.ToLower(args[i])
+	if len(args) >= 1 {
+		args[0] = strings.ToLower(args[0])
 	}
 
 	// extract fields of command without prefix
