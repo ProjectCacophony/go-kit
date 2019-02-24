@@ -2,8 +2,8 @@ module gitlab.com/Cacophony/go-kit
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/Unleash/unleash-client-go v0.0.0-20181121205122-ae068e0ad68c
 	github.com/bwmarrin/discordgo v0.19.0
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/go-chi/chi v4.0.1+incompatible
 	github.com/go-redis/redis v6.15.1+incompatible
@@ -25,5 +25,6 @@ require (
 	golang.org/x/sys v0.0.0-20190222072716-a9d3bda3a223 // indirect
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/h2non/gock.v1 v1.0.14 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 )
