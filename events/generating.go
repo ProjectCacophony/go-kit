@@ -34,7 +34,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 	case *discordgo.GuildCreate:
 		event.Type = GuildCreateType
 		event.GuildCreate = t
-		event.GuildID = t.Guild.ID
+		if t.Guild != nil {
+			event.GuildID = t.Guild.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -42,7 +44,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 	case *discordgo.GuildUpdate:
 		event.Type = GuildUpdateType
 		event.GuildUpdate = t
-		event.GuildID = t.Guild.ID
+		if t.Guild != nil {
+			event.GuildID = t.Guild.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -50,7 +54,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 	case *discordgo.GuildDelete:
 		event.Type = GuildDeleteType
 		event.GuildDelete = t
-		event.GuildID = t.Guild.ID
+		if t.Guild != nil {
+			event.GuildID = t.Guild.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -59,7 +65,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = GuildMemberAddType
 		event.GuildMemberAdd = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -68,7 +76,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = GuildMemberUpdateType
 		event.GuildMemberUpdate = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -77,7 +87,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = GuildMemberRemoveType
 		event.GuildMemberRemove = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -126,7 +138,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = ChannelCreateType
 		event.ChannelCreate = t
 		event.GuildID = t.GuildID
-		event.ChannelID = t.Channel.ID
+		if t.Channel != nil {
+			event.ChannelID = t.Channel.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -135,7 +149,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = ChannelUpdateType
 		event.ChannelUpdate = t
 		event.GuildID = t.GuildID
-		event.ChannelID = t.Channel.ID
+		if t.Channel != nil {
+			event.ChannelID = t.Channel.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -144,7 +160,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = ChannelDeleteType
 		event.ChannelDelete = t
 		event.GuildID = t.GuildID
-		event.ChannelID = t.Channel.ID
+		if t.Channel != nil {
+			event.ChannelID = t.Channel.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -154,7 +172,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.MessageCreate = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.UserID = t.Author.ID
+		if t.Author != nil {
+			event.UserID = t.Author.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -164,7 +184,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.MessageUpdate = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.UserID = t.Author.ID
+		if t.Author != nil {
+			event.UserID = t.Author.ID
+		}
 		event.ID, err = hash(t.ID + t.Content)
 		if err != nil {
 			return nil, err
@@ -174,7 +196,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.MessageDelete = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.UserID = t.Author.ID
+		if t.Author != nil {
+			event.UserID = t.Author.ID
+		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
 			return nil, err
@@ -192,7 +216,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = GuildBanAddType
 		event.GuildBanAdd = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -201,7 +227,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = GuildBanRemoveType
 		event.GuildBanRemove = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -248,7 +276,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.Type = PresenceUpdateType
 		event.PresenceUpdate = t
 		event.GuildID = t.GuildID
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
@@ -265,7 +295,9 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 	case *discordgo.UserUpdate:
 		event.Type = UserUpdateType
 		event.UserUpdate = t
-		event.UserID = t.User.ID
+		if t.User != nil {
+			event.UserID = t.User.ID
+		}
 		event.ID, err = hash(t)
 		if err != nil {
 			return nil, err
