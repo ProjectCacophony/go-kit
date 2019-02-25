@@ -60,3 +60,14 @@ func Add(
 ) ([]redis.Z, error) {
 	return AddWithValue(client, keySuffix, time.Now().UnixNano(), decay)
 }
+
+// Reset resets the given leaky bucket
+func Reset(
+	client *redis.Client,
+	keySuffix string,
+) error {
+	key := key(keySuffix)
+
+	_, err := client.Del(key).Result()
+	return err
+}
