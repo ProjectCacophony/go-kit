@@ -3,17 +3,23 @@ package events
 import (
 	"strings"
 
-	"gitlab.com/Cacophony/go-kit/discord"
+	"gitlab.com/Cacophony/go-kit/permissions"
 )
 
-// Require calls the callback if the user has all required permissions
-func (e *Event) Require(callback func(), firstPermission int, permissions ...int) {
-	if !discord.UserHasPermission(
-		e.state, e.UserID, e.ChannelID, firstPermission, permissions...,
-	) {
+// Require calls the callback if the user has all of the required permissions
+func (e *Event) Require(
+	callback func(),
+	firstPermission permissions.PermissionInterface,
+	permissions ...permissions.PermissionInterface,
+) {
+	for _, permission := range append(permissions, firstPermission) {
+		if permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID) {
+			continue
+		}
+
 		var permissionsText string
 		for _, permission := range append(permissions, firstPermission) {
-			permissionsText += discord.PermissionName(permission) + ", "
+			permissionsText += permission.Name() + ", "
 		}
 		permissionsText = strings.TrimRight(permissionsText, ", ")
 
@@ -28,14 +34,28 @@ func (e *Event) Require(callback func(), firstPermission int, permissions ...int
 	callback()
 }
 
-// Require calls the callback if the user has all required permissions
-func (e *Event) RequireOr(callback func(), firstPermission int, permissions ...int) {
-	if !discord.UserHasPermissionOr(
-		e.state, e.UserID, e.ChannelID, firstPermission, permissions...,
-	) {
+// RequireOr calls the callback if the user has one of the required permissions
+func (e *Event) RequireOr(
+	callback func(),
+	firstPermission permissions.PermissionInterface,
+	permissions ...permissions.PermissionInterface,
+) {
+	var matched bool
+
+	for _, permission := range append(permissions, firstPermission) {
+		if !permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID) {
+			continue
+		}
+
+		matched = true
+		break
+	}
+
+	if !matched {
+
 		var permissionsText string
 		for _, permission := range append(permissions, firstPermission) {
-			permissionsText += discord.PermissionName(permission) + ", "
+			permissionsText += permission.Name() + ", "
 		}
 		permissionsText = strings.TrimRight(permissionsText, ", ")
 
