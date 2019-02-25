@@ -6,6 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/Cacophony/go-kit/interfaces"
+	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
 
@@ -17,6 +18,7 @@ type Event struct {
 	ReceivedAt time.Time
 	BotUserID  string
 	GuildID    string `json:",omitempty"`
+	ChannelID  string `json:",omitempty"`
 	UserID     string `json:",omitempty"`
 
 	// discordgo event data
@@ -64,6 +66,7 @@ type Event struct {
 	prefix         string
 	fields         []string
 	tokens         map[string]string
+	state          *state.State
 }
 
 // BucketType specifies the scope of a bucket

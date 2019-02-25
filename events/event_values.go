@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/interfaces"
+	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
 
@@ -68,4 +69,14 @@ func (e *Event) WithLocalisations(localisations []interfaces.Localisation) {
 // Localisations retrieves the localisations from the event
 func (e *Event) Localisations() []interfaces.Localisation {
 	return e.localisations
+}
+
+// WithState stores the state in the event
+func (e *Event) WithState(state *state.State) {
+	e.state = state
+}
+
+// State retrieves the state from the event
+func (e *Event) State() *state.State {
+	return e.state
 }
