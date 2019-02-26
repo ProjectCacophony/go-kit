@@ -44,10 +44,10 @@ var (
 		"sad": []string{
 			"a:ablobsadcloud:437572939701944322",
 			"a:ablobcry:393869333740126219",
+			":blobsad:317033054931648517",
 		},
 		"reach": []string{
 			"a:ablobreach:437572330026434560",
-			":blobsad:317033054931648517",
 		},
 		"thinking": []string{
 			"a:ablobthinkingeyes:427405268603633664",
