@@ -24,7 +24,7 @@ func (e *Event) Require(
 		permissionsText = strings.TrimRight(permissionsText, ", ")
 
 		message := "**Looks like you do not have the right permissions to do this.**" +
-			"\nYou need the following permission:" +
+			"\nYou need all of the following permissions:" +
 			"\n```\n" + permissionsText + "\n```"
 
 		e.Respond(message) // nolint: errcheck
@@ -60,7 +60,7 @@ func (e *Event) RequireOr(
 		permissionsText = strings.TrimRight(permissionsText, ", ")
 
 		message := "**Looks like you do not have the right permissions to do this.**" +
-			"\nYou need the following permission:" +
+			"\nYou need one of the following permissions:" +
 			"\n```\n" + permissionsText + "\n```"
 
 		e.Respond(message) // nolint: errcheck
