@@ -3,7 +3,7 @@ stages:
 
 Go Lint:
   stage: test
-  image: golang:1.11
+  image: golang:1.12
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
