@@ -23,12 +23,18 @@ func GenerateRoutingKey(eventType Type) string {
 
 // GenerateEventFromDiscordgoEvent generates an Event from a Discordgo Event
 // nolint: gocyclo
-func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*Event, error) {
+func GenerateEventFromDiscordgoEvent(
+	botUserID string, eventItem interface{},
+) (
+	*Event, time.Duration, error,
+) {
 	var err error
 	event := &Event{
 		ReceivedAt: time.Now().UTC(),
 		BotUserID:  botUserID,
 	}
+
+	expiration := time.Minute * 15
 
 	switch t := eventItem.(type) {
 	case *discordgo.GuildCreate:
@@ -39,7 +45,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildUpdate:
 		event.Type = GuildUpdateType
@@ -49,7 +55,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildDelete:
 		event.Type = GuildDeleteType
@@ -59,7 +65,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildMemberAdd:
 		event.Type = GuildMemberAddType
@@ -70,7 +76,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildMemberUpdate:
 		event.Type = GuildMemberUpdateType
@@ -81,7 +87,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildMemberRemove:
 		event.Type = GuildMemberRemoveType
@@ -92,7 +98,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildMembersChunk:
 		event.Type = GuildMembersChunkType
@@ -100,7 +106,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildRoleCreate:
 		event.Type = GuildRoleCreateType
@@ -108,7 +114,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t.Role.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildRoleUpdate:
 		event.Type = GuildRoleUpdateType
@@ -116,7 +122,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildRoleDelete:
 		event.Type = GuildRoleDeleteType
@@ -124,7 +130,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t.RoleID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildEmojisUpdate:
 		event.Type = GuildEmojisUpdateType
@@ -132,7 +138,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.ChannelCreate:
 		event.Type = ChannelCreateType
@@ -143,7 +149,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.ChannelUpdate:
 		event.Type = ChannelUpdateType
@@ -154,7 +160,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.ChannelDelete:
 		event.Type = ChannelDeleteType
@@ -165,7 +171,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageCreate:
 		event.Type = MessageCreateType
@@ -177,7 +183,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageUpdate:
 		event.Type = MessageUpdateType
@@ -189,7 +195,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID + t.Content)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageDelete:
 		event.Type = MessageDeleteType
@@ -201,7 +207,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t.ID)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.ChannelPinsUpdate:
 		event.Type = ChannelPinsUpdateType
@@ -210,7 +216,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.ChannelID = t.ChannelID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildBanAdd:
 		event.Type = GuildBanAddType
@@ -221,7 +227,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildBanRemove:
 		event.Type = GuildBanRemoveType
@@ -232,7 +238,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageReactionAdd:
 		event.Type = MessageReactionAddType
@@ -240,9 +246,12 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(t)
+		event.ID, err = hash(
+			t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
+		)
+		expiration = time.Second * 5
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageReactionRemove:
 		event.Type = MessageReactionRemoveType
@@ -250,9 +259,12 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(t)
+		event.ID, err = hash(
+			t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
+		)
+		expiration = time.Second * 5
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageReactionRemoveAll:
 		event.Type = MessageReactionRemoveAllType
@@ -262,7 +274,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.UserID = t.UserID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.GuildIntegrationsUpdate:
 		event.Type = GuildIntegrationsUpdateType
@@ -270,7 +282,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.PresenceUpdate:
 		event.Type = PresenceUpdateType
@@ -281,7 +293,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.MessageDeleteBulk:
 		event.Type = MessageDeleteBulkType
@@ -290,7 +302,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.ChannelID = t.ChannelID
 		event.ID, err = hash(strings.Join(t.Messages, ""))
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.UserUpdate:
 		event.Type = UserUpdateType
@@ -300,7 +312,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		}
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.VoiceStateUpdate:
 		event.Type = VoiceStateUpdateType
@@ -310,7 +322,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.UserID = t.UserID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.VoiceServerUpdate:
 		event.Type = VoiceServerUpdateType
@@ -318,7 +330,7 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.GuildID = t.GuildID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.WebhooksUpdate:
 		event.Type = WebhooksUpdateType
@@ -327,18 +339,18 @@ func GenerateEventFromDiscordgoEvent(botUserID string, eventItem interface{}) (*
 		event.ChannelID = t.ChannelID
 		event.ID, err = hash(t)
 		if err != nil {
-			return nil, err
+			return nil, expiration, err
 		}
 	case *discordgo.TypingStart, *discordgo.Ready, *discordgo.Event, *discordgo.Connect:
 		// ignored events
-		return nil, nil
+		return nil, expiration, nil
 	}
 
 	if event.Type == "" {
-		return nil, errors.New("received unexpected event")
+		return nil, expiration, errors.New("received unexpected event")
 	}
 
-	return event, nil
+	return event, expiration, nil
 }
 
 func hash(data interface{}) (string, error) {
