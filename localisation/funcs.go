@@ -48,5 +48,8 @@ var (
 
 		// HumanizeNumber64 adds commas after every three orders of magnitude
 		"HumanizeNumber64": humanize.Comma,
+
+		// HumanizeTime formats a time into a relative string, eg 3 days ago
+		"HumanizeTime": humanize.Time,
 	}
 )
