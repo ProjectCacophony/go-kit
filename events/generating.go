@@ -249,7 +249,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.ID, err = hash(
 			t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
-		expiration = time.Second * 5
+		expiration = time.Millisecond * 500
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -262,7 +262,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.ID, err = hash(
 			t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
-		expiration = time.Second * 5
+		expiration = time.Millisecond * 500
 		if err != nil {
 			return nil, expiration, err
 		}
