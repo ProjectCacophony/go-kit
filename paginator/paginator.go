@@ -98,7 +98,7 @@ func (p *Paginator) getEmbedFooter(message *PagedEmbedMessage) *discordgo.Messag
 	footer := &discordgo.MessageEmbedFooter{}
 
 	if message.FullEmbed.Footer != nil {
-		footer = message.FullEmbed.Footer
+		footer.IconURL = message.FullEmbed.Footer.IconURL
 	}
 
 	footerText := fmt.Sprintf(
