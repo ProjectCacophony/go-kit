@@ -44,7 +44,7 @@ func (e *Event) Except(err error) {
 				message,
 			)
 		} else if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionAddReactions) {
-			e.React(e.ChannelID, e.MessageCreate.ID, // nolint: errcheck
+			e.React( // nolint: errcheck
 				":stop:", ":shh:", ":nogood:", ":speaknoevil:",
 			)
 		}

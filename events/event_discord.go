@@ -1,6 +1,9 @@
 package events
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
@@ -65,6 +68,10 @@ func (e *Event) Typing() {
 func (e *Event) React(emojiID string, emojiIDs ...string) error {
 	if e.Type != MessageCreateType {
 		return nil
+	}
+
+	if len(emojiIDs) > 0 {
+		emojiID = append(emojiIDs, emojiID)[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(emojiIDs)+1)]
 	}
 
 	return e.Discord().MessageReactionAdd( // nolint: errcheck
