@@ -20,15 +20,57 @@ func SendComplexWithVars(
 	send *discordgo.MessageSend,
 	values ...interface{},
 ) ([]*discordgo.Message, error) {
-	send.Content = localisation.Translate(
+	send = TranslateMessageSend(
 		localisations,
-		send.Content,
+		send,
 		values...,
 	)
 
 	var err error
 	var message *discordgo.Message
 	var messages []*discordgo.Message
+
+	if send.Embed != nil {
+		send.Embed = TrimEmbed(send.Embed)
+	}
+
+	pages := Pagify(send.Content)
+	if len(pages) > 0 {
+		for i, page := range pages {
+			if i+1 < len(pages) {
+				message, err = session.ChannelMessageSend(channelID, page)
+			} else {
+				send.Content = page
+				message, err = session.ChannelMessageSendComplex(channelID, send)
+			}
+			if err != nil {
+				return messages, err
+			}
+			messages = append(messages, message)
+		}
+
+		return messages, nil
+	}
+
+	message, err = session.ChannelMessageSendComplex(channelID, send)
+	if err != nil {
+		return messages, err
+	}
+	messages = append(messages, message)
+
+	return messages, nil
+
+}
+
+func TranslateMessageSend(
+	localisations []interfaces.Localisation,
+	send *discordgo.MessageSend,
+	values ...interface{}) *discordgo.MessageSend {
+	send.Content = localisation.Translate(
+		localisations,
+		send.Content,
+		values...,
+	)
 
 	send.Content = EscapeDiscordContent(send.Content)
 	send.Content = emoji.Replace(send.Content) // TODO: replace emoji in other fields
@@ -131,34 +173,5 @@ func SendComplexWithVars(
 		}
 	}
 
-	if send.Embed != nil {
-		send.Embed = TrimEmbed(send.Embed)
-	}
-
-	pages := Pagify(send.Content)
-	if len(pages) > 0 {
-		for i, page := range pages {
-			if i+1 < len(pages) {
-				message, err = session.ChannelMessageSend(channelID, page)
-			} else {
-				send.Content = page
-				message, err = session.ChannelMessageSendComplex(channelID, send)
-			}
-			if err != nil {
-				return messages, err
-			}
-			messages = append(messages, message)
-		}
-
-		return messages, nil
-	}
-
-	message, err = session.ChannelMessageSendComplex(channelID, send)
-	if err != nil {
-		return messages, err
-	}
-	messages = append(messages, message)
-
-	return messages, nil
-
+	return send
 }

@@ -3,6 +3,8 @@ package events
 import (
 	"context"
 
+	"gitlab.com/Cacophony/go-kit/paginator"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
@@ -89,4 +91,14 @@ func (e *Event) WithBotOwnerIDs(botOwnerIDs []string) {
 // BotOwnerIDs retrieves the Bot Owner IDs from the event
 func (e *Event) BotOwnerIDs() []string {
 	return e.botOwnerIDs
+}
+
+// WithPaginator stores the Paginator in the event
+func (e *Event) WithPaginator(paginator *paginator.Paginator) {
+	e.paginator = paginator
+}
+
+// Paginator retrieves the Paginator from the event
+func (e *Event) Paginator() *paginator.Paginator {
+	return e.paginator
 }

@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"gitlab.com/Cacophony/go-kit/paginator"
+
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/state"
@@ -68,6 +70,7 @@ type Event struct {
 	tokens         map[string]string
 	state          *state.State
 	botOwnerIDs    []string
+	paginator      *paginator.Paginator
 }
 
 // BucketType specifies the scope of a bucket
