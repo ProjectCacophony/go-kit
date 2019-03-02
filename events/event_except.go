@@ -3,6 +3,8 @@ package events
 import (
 	"strconv"
 
+	"gitlab.com/Cacophony/go-kit/permissions"
+
 	"github.com/bwmarrin/discordgo"
 	raven "github.com/getsentry/raven-go"
 	"gitlab.com/Cacophony/go-kit/state"
@@ -20,40 +22,33 @@ func (e *Event) Except(err error) {
 
 	errorMessage := err.Error()
 
+	if ignoreError(err) {
+		doLog = false
+	}
+
 	// do not log discord permission errors
 	if errD, ok := err.(*discordgo.RESTError); ok && errD != nil && errD.Message != nil {
-		if errD.Message.Code == discordgo.ErrCodeMissingPermissions ||
-			errD.Message.Code == discordgo.ErrCodeMissingAccess ||
-			errD.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
-			doLog = false
-		}
-
 		if errD.Message.Message != "" {
 			errorMessage = errD.Message.Message
 		}
 	}
-	// do not log state errors
-	if err == state.ErrStateNotFound ||
-		err == state.ErrTargetWrongServer ||
-		err == state.ErrTargetWrongType ||
-		err == state.ErrUserNotFound ||
-		err == state.ErrChannelNotFound ||
-		err == state.ErrRoleNotFound {
-		doLog = false
-	}
 
 	if e.Type == MessageCreateType {
-		// TODO: send reaction instead if we are not allowed to send messages (check permissions from state)
-		// TODO: better message, emoji, translation, …
+		if e.Has(permissions.DiscordSendMessages) {
+			message := "**Something went wrong.** :sad:" + "\n```\nError: " + errorMessage + "\n```"
+			if doLog {
+				message += "I sent our top people to fix the issue as soon as possible."
+			}
 
-		message := "**Something went wrong.** " + "\n```\nError: " + errorMessage + "\n```"
-		if doLog {
-			message += "I sent our top people to fix the issue as soon as possible."
+			e.Respond( // nolint: errcheck
+				message,
+			)
+		} else if e.Has(permissions.DiscordAddReactions) {
+			e.React(e.ChannelID, e.MessageCreate.ID, // nolint: errcheck
+				":stop:", ":shh:", ":nogood:", ":speaknoevil:",
+			)
 		}
 
-		e.Respond( // nolint: errcheck
-			message,
-		)
 	}
 
 	if doLog {
@@ -72,6 +67,10 @@ func (e *Event) Except(err error) {
 }
 
 func (e *Event) ExceptSilent(err error) {
+	if ignoreError(err) {
+		return
+	}
+
 	if e.logger != nil {
 		e.Logger().Error("silent occurred error while executing event", zap.Error(err))
 	}
@@ -101,4 +100,31 @@ func generateRavenTags(event *Event, silent bool) map[string]string {
 	}
 
 	return tags
+}
+
+func ignoreError(err error) bool {
+	if err == nil {
+		return true
+	}
+
+	// discord permission errors
+	if errD, ok := err.(*discordgo.RESTError); ok && errD != nil && errD.Message != nil {
+		if errD.Message.Code == discordgo.ErrCodeMissingPermissions ||
+			errD.Message.Code == discordgo.ErrCodeMissingAccess ||
+			errD.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
+			return true
+		}
+	}
+
+	// state errors
+	if err == state.ErrStateNotFound ||
+		err == state.ErrTargetWrongServer ||
+		err == state.ErrTargetWrongType ||
+		err == state.ErrUserNotFound ||
+		err == state.ErrChannelNotFound ||
+		err == state.ErrRoleNotFound {
+		return true
+	}
+
+	return false
 }

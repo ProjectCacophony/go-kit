@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
+	"gitlab.com/Cacophony/go-kit/discord/emoji"
 )
 
 // Respond sends a message to the source channel, translates it if possible
@@ -59,4 +60,14 @@ func (e *Event) Typing() {
 	}
 
 	e.Discord().ChannelTyping(e.MessageCreate.ChannelID) // nolint: errcheck
+}
+
+func (e *Event) React(emojiID string, emojiIDs ...string) error {
+	if e.Type != MessageCreateType {
+		return nil
+	}
+
+	return e.Discord().MessageReactionAdd( // nolint: errcheck
+		e.MessageCreate.ChannelID, e.MessageCreate.ID, emoji.GetWithout(emojiID),
+	)
 }
