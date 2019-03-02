@@ -1,6 +1,7 @@
 package paginator
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"math"
@@ -51,30 +52,43 @@ func (p *Paginator) FieldsPaginator(
 
 // ImagePaginator creates the paged image messages
 func (p *Paginator) ImagePaginator(
-	guildID, channelID, userID string, msgSend *discordgo.MessageSend, fieldsPerPage int,
+	guildID, channelID, userID string, embed *discordgo.MessageEmbed, files []*File,
 ) error {
-	if msgSend.Embed == nil {
-		return errors.New("parameter msgSend must contain an embed")
+	if embed == nil || len(files) == 0 {
+		return nil
 	}
 
-	// make sure the image url is set to the name of the first file incease it wasn't set
-	msgSend.Embed.Image.URL = fmt.Sprintf("attachment://%s", msgSend.Files[0].Name)
+	if embed.Image == nil {
+		embed.Image = &discordgo.MessageEmbedImage{}
+	}
+	embed.Image.URL = fmt.Sprintf("attachment://%s", files[0].Name)
 
-	// check if there are multiple Files, not just send it normally
-	if len(msgSend.Files) < 2 {
-		_, err := p.sendComplex(guildID, channelID, msgSend)
+	if len(files) < 2 {
+		var _, err = p.sendComplex(guildID, channelID, &discordgo.MessageSend{
+			Content: "",
+			Embed:   embed,
+			Tts:     false,
+			Files: []*discordgo.File{
+				{
+					Name:        files[0].Name,
+					ContentType: files[0].ContentType,
+					Reader:      bytes.NewReader(files[0].Data),
+				},
+			},
+			File: nil,
+		})
 		return err
 	}
 
 	// create paged message
 	pagedMessage := &PagedEmbedMessage{
-		FullEmbed:       msgSend.Embed,
+		FullEmbed:       embed,
 		ChannelID:       channelID,
 		GuildID:         guildID,
 		CurrentPage:     1,
-		FieldsPerPage:   fieldsPerPage,
-		TotalNumOfPages: len(msgSend.Files),
-		Files:           msgSend.Files,
+		FieldsPerPage:   20,
+		TotalNumOfPages: len(files),
+		Files:           files,
 		UserID:          userID,
 		Type:            ImageType,
 	}

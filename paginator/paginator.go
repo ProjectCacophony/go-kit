@@ -95,22 +95,22 @@ func (p *Paginator) editComplex(
 
 // getEmbedFooter is a simlple helper function to return the footer for the embed message
 func (p *Paginator) getEmbedFooter(message *PagedEmbedMessage) *discordgo.MessageEmbedFooter {
-	var footerText string
+	footer := &discordgo.MessageEmbedFooter{}
 
-	// check if embed had a footer, if so attach to page count
-	if message.FullEmbed.Footer != nil && message.FullEmbed.Footer.Text != "" {
-		footerText = fmt.Sprintf(
-			"Page %d / %d • %s",
-			message.CurrentPage, message.TotalNumOfPages, message.FullEmbed.Footer.Text,
-		)
-	} else {
-		footerText = fmt.Sprintf(
-			"Page %d / %d",
-			message.CurrentPage, message.TotalNumOfPages,
-		)
+	if message.FullEmbed.Footer != nil {
+		footer = message.FullEmbed.Footer
 	}
 
-	return &discordgo.MessageEmbedFooter{Text: footerText}
+	footerText := fmt.Sprintf(
+		"Page %d / %d",
+		message.CurrentPage, message.TotalNumOfPages,
+	)
+	if message.FullEmbed.Footer.Text != "" {
+		footerText += " • " + message.FullEmbed.Footer.Text
+	}
+
+	footer.Text = footerText
+	return footer
 }
 
 func (p *Paginator) addReactionsToMessage(message *PagedEmbedMessage) error {

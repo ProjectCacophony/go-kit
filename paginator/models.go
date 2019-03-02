@@ -3,7 +3,7 @@ package paginator
 import "github.com/bwmarrin/discordgo"
 
 type PagedEmbedMessage struct {
-	Files           []*discordgo.File
+	Files           []*File
 	FullEmbed       *discordgo.MessageEmbed
 	TotalNumOfPages int
 	CurrentPage     int
@@ -15,6 +15,12 @@ type PagedEmbedMessage struct {
 	UserID          string // user who triggered the message
 	Type            Type
 	Embeds          []*discordgo.MessageEmbed
+}
+
+type File struct {
+	Name        string
+	ContentType string
+	Data        []byte
 }
 
 type Type int

@@ -3,7 +3,6 @@ package paginator
 import (
 	"bytes"
 	"fmt"
-	"io"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -55,10 +54,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 	case ImageType:
 		// image embeds can't be edited, need to delete and remake it
-		err = session.ChannelMessageDelete(message.ChannelID, message.MessageID)
-		if err != nil {
-			return err
-		}
+		session.ChannelMessageDelete(message.ChannelID, message.MessageID) // nolint: errcheck
 
 		// if fields were sent with image embed, handle those
 		if len(message.FullEmbed.Fields) > 0 {
@@ -73,11 +69,6 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 			tempEmbed.Fields = tempEmbed.Fields[startField:endField]
 		}
 
-		// we need to split and reset the reader since a reader can only be used once
-		var buf bytes.Buffer
-		newReader := io.TeeReader(message.Files[message.CurrentPage-1].Reader, &buf)
-		message.Files[message.CurrentPage-1].Reader = &buf
-
 		// change the url of the embed to point to the new image
 		tempEmbed.Image.URL = fmt.Sprintf("attachment://%s", message.Files[message.CurrentPage-1].Name)
 
@@ -87,8 +78,9 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 			message.GuildID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 				Files: []*discordgo.File{{
-					Name:   message.Files[message.CurrentPage-1].Name,
-					Reader: newReader,
+					Name:        message.Files[message.CurrentPage-1].Name,
+					ContentType: message.Files[message.CurrentPage-1].ContentType,
+					Reader:      bytes.NewReader(message.Files[message.CurrentPage-1].Data),
 				}},
 			})
 		if err != nil {

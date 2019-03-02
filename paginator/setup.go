@@ -3,7 +3,6 @@ package paginator
 import (
 	"bytes"
 	"fmt"
-	"io"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -49,17 +48,14 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 			tempEmbed.Fields = tempEmbed.Fields[startField:endField]
 		}
 
-		var buf bytes.Buffer
-		newReader := io.TeeReader(message.Files[message.CurrentPage-1].Reader, &buf)
-		message.Files[message.CurrentPage-1].Reader = &buf
-
 		tempEmbed.Image.URL = fmt.Sprintf("attachment://%s", message.Files[message.CurrentPage-1].Name)
 		sentMessage, err = p.sendComplex(
 			message.GuildID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 				Files: []*discordgo.File{{
-					Name:   message.Files[message.CurrentPage-1].Name,
-					Reader: newReader,
+					Name:        message.Files[message.CurrentPage-1].Name,
+					ContentType: message.Files[message.CurrentPage-1].ContentType,
+					Reader:      bytes.NewReader(message.Files[message.CurrentPage-1].Data),
 				}},
 			})
 		if err != nil {
