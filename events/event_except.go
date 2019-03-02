@@ -3,7 +3,7 @@ package events
 import (
 	"strconv"
 
-	"gitlab.com/Cacophony/go-kit/permissions"
+	"gitlab.com/Cacophony/go-kit/discord"
 
 	"github.com/bwmarrin/discordgo"
 	raven "github.com/getsentry/raven-go"
@@ -34,7 +34,7 @@ func (e *Event) Except(err error) {
 	}
 
 	if e.Type == MessageCreateType {
-		if e.Has(permissions.DiscordSendMessages) {
+		if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionSendMessages) {
 			message := "**Something went wrong.** :sad:" + "\n```\nError: " + errorMessage + "\n```"
 			if doLog {
 				message += "I sent our top people to fix the issue as soon as possible."
@@ -43,7 +43,7 @@ func (e *Event) Except(err error) {
 			e.Respond( // nolint: errcheck
 				message,
 			)
-		} else if e.Has(permissions.DiscordAddReactions) {
+		} else if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionAddReactions) {
 			e.React(e.ChannelID, e.MessageCreate.ID, // nolint: errcheck
 				":stop:", ":shh:", ":nogood:", ":speaknoevil:",
 			)
