@@ -1,8 +1,8 @@
 package feed
 
 type CheckStatus struct {
-	Status  Status
-	Message string
+	CheckStatus  Status
+	CheckMessage string
 }
 
 type Status string
