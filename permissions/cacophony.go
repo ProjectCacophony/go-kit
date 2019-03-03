@@ -18,7 +18,8 @@ func (p *CacophonyBotOwner) Name() string {
 	return p.name
 }
 
-func (p *CacophonyBotOwner) Match(state *state.State, botOwnerIDs []string, userID, channelID string) bool {
+func (p *CacophonyBotOwner) Match(
+	state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
 	for _, botOwnerID := range botOwnerIDs {
 		if botOwnerID != userID {
 			continue

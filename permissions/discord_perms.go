@@ -22,7 +22,11 @@ func (p *Discord) Name() string {
 	return p.name
 }
 
-func (p *Discord) Match(state *state.State, botOwnerIDs []string, userID, channelID string) bool {
+func (p *Discord) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
+	if dm {
+		return false
+	}
+
 	return discord.UserHasPermission(state, userID, channelID, p.id)
 }
 

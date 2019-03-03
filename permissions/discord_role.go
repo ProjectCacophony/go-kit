@@ -33,7 +33,11 @@ func (p *DiscordRole) Name() string {
 	return guildPrefix + "@" + role.Name
 }
 
-func (p *DiscordRole) Match(state *state.State, botOwnerIDs []string, userID, channelID string) bool {
+func (p *DiscordRole) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
+	if dm {
+		return false
+	}
+
 	member, err := state.Member(p.guildID, userID)
 	if err != nil {
 		return false

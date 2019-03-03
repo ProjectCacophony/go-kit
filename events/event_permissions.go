@@ -16,7 +16,7 @@ func (e *Event) Has(
 	}
 
 	for _, permission := range append(permissions, firstPermission) {
-		if permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID) {
+		if permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID, e.DM()) {
 			continue
 		}
 
@@ -36,7 +36,7 @@ func (e *Event) HasOr(
 	}
 
 	for _, permission := range append(permissions, firstPermission) {
-		if !permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID) {
+		if !permission.Match(e.state, e.BotOwnerIDs(), e.UserID, e.ChannelID, e.dm) {
 			continue
 		}
 
