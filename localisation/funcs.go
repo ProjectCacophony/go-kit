@@ -6,8 +6,6 @@ import (
 	"text/template"
 	"time"
 
-	"gitlab.com/Cacophony/go-kit/feed"
-
 	"github.com/pkg/errors"
 
 	humanize "github.com/dustin/go-humanize"
@@ -70,8 +68,6 @@ var (
 				return v, nil
 			case int:
 				return strconv.Itoa(v), nil
-			case feed.Status:
-				return string(v), nil
 			default:
 				return "", errors.New("unable to convert into string")
 			}
