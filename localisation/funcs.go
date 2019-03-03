@@ -1,9 +1,12 @@
 package localisation
 
 import (
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/pkg/errors"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -57,6 +60,17 @@ var (
 			}
 
 			return humanize.Time(then)
+		},
+
+		"ToString": func(value interface{}) (string, error) {
+			switch v := value.(type) {
+			case string:
+				return v, nil
+			case int:
+				return strconv.Itoa(v), nil
+			default:
+				return "", errors.New("unable to convert into string")
+			}
 		},
 	}
 )
