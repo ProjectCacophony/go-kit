@@ -1,6 +1,6 @@
 package feed
 
-type CheckStatus struct {
+type Check struct {
 	CheckStatus  Status
 	CheckMessage string
 }
