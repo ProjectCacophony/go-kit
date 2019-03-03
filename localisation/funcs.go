@@ -3,6 +3,7 @@ package localisation
 import (
 	"strings"
 	"text/template"
+	"time"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -50,6 +51,12 @@ var (
 		"HumanizeNumber64": humanize.Comma,
 
 		// HumanizeTime formats a time into a relative string, eg 3 days ago
-		"HumanizeTime": humanize.Time,
+		"HumanizeTime": func(then time.Time) string {
+			if then.IsZero() {
+				return "Never"
+			}
+
+			return humanize.Time(then)
+		},
 	}
 )
