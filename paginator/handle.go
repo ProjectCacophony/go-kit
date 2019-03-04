@@ -86,6 +86,10 @@ func (p *Paginator) HandleMessageCreate(messageCreate *discordgo.MessageCreate) 
 	if err != nil {
 		return err
 	}
-	return discord.Delete(
-		p.redis, session, channelID, messageCreate.ID, dm)
+
+	if !dm {
+		return discord.Delete(
+			p.redis, session, channelID, messageCreate.ID, dm)
+	}
+	return nil
 }
