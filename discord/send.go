@@ -38,6 +38,17 @@ func SendComplexWithVars(
 		send.Embed = TrimEmbed(send.Embed)
 	}
 
+	if dm {
+		if redis == nil {
+			return nil, errors.New("sending DMs required redis")
+		}
+
+		channelID, err = DMChannel(redis, session, channelID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	pages := Pagify(send.Content)
 	if len(pages) > 0 {
 		for i, page := range pages {
@@ -54,17 +65,6 @@ func SendComplexWithVars(
 		}
 
 		return messages, nil
-	}
-
-	if dm {
-		if redis == nil {
-			return nil, errors.New("sending DMs required redis")
-		}
-
-		channelID, err = DMChannel(redis, session, channelID)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	message, err = session.ChannelMessageSendComplex(channelID, send)
