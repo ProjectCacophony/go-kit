@@ -26,7 +26,7 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 		tempEmbed.Fields = tempEmbed.Fields[:message.FieldsPerPage]
 
 		sentMessage, err = p.sendComplex(
-			message.GuildID, message.ChannelID, &discordgo.MessageSend{
+			message.BotID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 			},
 			message.DM,
@@ -52,7 +52,7 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 
 		tempEmbed.Image.URL = fmt.Sprintf("attachment://%s", message.Files[message.CurrentPage-1].Name)
 		sentMessage, err = p.sendComplex(
-			message.GuildID, message.ChannelID, &discordgo.MessageSend{
+			message.BotID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 				Files: []*discordgo.File{{
 					Name:        message.Files[message.CurrentPage-1].Name,
@@ -70,7 +70,7 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 		tempEmbed.Footer = p.getEmbedFooter(message)
 
 		sentMessage, err = p.sendComplex(
-			message.GuildID, message.ChannelID, &discordgo.MessageSend{
+			message.BotID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 			},
 			message.DM,

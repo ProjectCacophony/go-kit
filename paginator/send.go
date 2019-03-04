@@ -11,16 +11,15 @@ import (
 
 // CreatePagedMessage creates the paged messages
 func (p *Paginator) FieldsPaginator(
-	guildID string,
+	botID string,
 	channelID string,
 	userID string,
 	embed *discordgo.MessageEmbed,
 	fieldsPerPage int,
+	dm bool,
 ) error {
-	var dm bool
-	if guildID == "" {
+	if dm {
 		channelID = userID
-		dm = true
 	}
 
 	// if there aren't multiple fields to be paged through,
@@ -28,7 +27,7 @@ func (p *Paginator) FieldsPaginator(
 	// just send a normal embed
 	if len(embed.Fields) < 2 || len(embed.Fields) <= fieldsPerPage {
 		_, err := p.sendComplex(
-			guildID, channelID, &discordgo.MessageSend{
+			botID, channelID, &discordgo.MessageSend{
 				Embed: embed,
 			},
 			dm,
@@ -45,13 +44,13 @@ func (p *Paginator) FieldsPaginator(
 	pagedMessage := &PagedEmbedMessage{
 		FullEmbed:       embed,
 		ChannelID:       channelID,
-		GuildID:         guildID,
 		CurrentPage:     1,
 		FieldsPerPage:   fieldsPerPage,
 		TotalNumOfPages: int(math.Ceil(float64(len(embed.Fields)) / float64(fieldsPerPage))),
 		UserID:          userID,
 		Type:            FieldType,
 		DM:              dm,
+		BotID:           botID,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)
@@ -65,20 +64,19 @@ func (p *Paginator) FieldsPaginator(
 
 // ImagePaginator creates the paged image messages
 func (p *Paginator) ImagePaginator(
-	guildID,
-	channelID,
+	botID string,
+	channelID string,
 	userID string,
 	embed *discordgo.MessageEmbed,
 	files []*File,
+	dm bool,
 ) error {
 	if embed == nil || len(files) == 0 {
 		return nil
 	}
 
-	var dm bool
-	if guildID == "" {
+	if dm {
 		channelID = userID
-		dm = true
 	}
 
 	if embed.Image == nil {
@@ -87,7 +85,7 @@ func (p *Paginator) ImagePaginator(
 	embed.Image.URL = fmt.Sprintf("attachment://%s", files[0].Name)
 
 	if len(files) < 2 {
-		var _, err = p.sendComplex(guildID, channelID, &discordgo.MessageSend{
+		var _, err = p.sendComplex(botID, channelID, &discordgo.MessageSend{
 			Content: "",
 			Embed:   embed,
 			Tts:     false,
@@ -109,7 +107,6 @@ func (p *Paginator) ImagePaginator(
 	pagedMessage := &PagedEmbedMessage{
 		FullEmbed:       embed,
 		ChannelID:       channelID,
-		GuildID:         guildID,
 		CurrentPage:     1,
 		FieldsPerPage:   20,
 		TotalNumOfPages: len(files),
@@ -117,6 +114,7 @@ func (p *Paginator) ImagePaginator(
 		UserID:          userID,
 		Type:            ImageType,
 		DM:              dm,
+		BotID:           botID,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)
@@ -129,23 +127,22 @@ func (p *Paginator) ImagePaginator(
 }
 
 func (p *Paginator) EmbedPaginator(
-	guildID,
-	channelID,
+	botID string,
+	channelID string,
 	userID string,
+	dm bool,
 	embeds ...*discordgo.MessageEmbed,
 ) error {
 	if len(embeds) == 0 {
 		return nil
 	}
 
-	var dm bool
-	if guildID == "" {
+	if dm {
 		channelID = userID
-		dm = true
 	}
 
 	if len(embeds) < 2 {
-		_, err := p.sendComplex(guildID, channelID, &discordgo.MessageSend{
+		_, err := p.sendComplex(botID, channelID, &discordgo.MessageSend{
 			Embed: embeds[0],
 		},
 			dm,
@@ -156,13 +153,13 @@ func (p *Paginator) EmbedPaginator(
 	pagedMessage := &PagedEmbedMessage{
 		FullEmbed:       embeds[0],
 		ChannelID:       channelID,
-		GuildID:         guildID,
 		CurrentPage:     1,
 		TotalNumOfPages: len(embeds),
 		UserID:          userID,
 		Embeds:          embeds,
 		Type:            EmbedType,
 		DM:              dm,
+		BotID:           botID,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)

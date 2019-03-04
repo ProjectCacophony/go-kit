@@ -58,19 +58,14 @@ var (
 	}
 )
 
-func (p *Paginator) getSession(guildID string) (*discordgo.Session, error) {
-	botID, err := p.state.BotForGuild(guildID)
-	if err != nil {
-		return nil, err
-	}
-
+func (p *Paginator) getSession(botID string) (*discordgo.Session, error) {
 	return discord.NewSession(p.tokens, botID)
 }
 
 func (p *Paginator) sendComplex(
-	guildID, channelID string, send *discordgo.MessageSend, dm bool,
+	botID, channelID string, send *discordgo.MessageSend, dm bool,
 ) ([]*discordgo.Message, error) {
-	session, err := p.getSession(guildID)
+	session, err := p.getSession(botID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +81,8 @@ func (p *Paginator) sendComplex(
 }
 
 func (p *Paginator) editComplex(
-	guildID string, edit *discordgo.MessageEdit) (*discordgo.Message, error) {
-	session, err := p.getSession(guildID)
+	botID string, edit *discordgo.MessageEdit) (*discordgo.Message, error) {
+	session, err := p.getSession(botID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +111,7 @@ func (p *Paginator) getEmbedFooter(message *PagedEmbedMessage) *discordgo.Messag
 }
 
 func (p *Paginator) addReactionsToMessage(message *PagedEmbedMessage) error {
-	session, err := p.getSession(message.GuildID)
+	session, err := p.getSession(message.BotID)
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discordgo.MessageReactionAdd) error {
-	session, err := p.getSession(message.GuildID)
+	session, err := p.getSession(message.BotID)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 		}
 
 		resp, err := p.sendComplex(
-			message.GuildID, message.ChannelID, &discordgo.MessageSend{
+			message.BotID, message.ChannelID, &discordgo.MessageSend{
 				Content: "<@" + message.UserID + "> Which page would you like to open? <:blobidea:317047867036663809>",
 			},
 			message.DM,

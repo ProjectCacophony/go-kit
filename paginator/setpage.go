@@ -18,7 +18,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 	message.CurrentPage = page
 
-	session, err := p.getSession(message.GuildID)
+	session, err := p.getSession(message.BotID)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 		tempEmbed.Fields = tempEmbed.Fields[startField:endField]
 		tempEmbed.Footer = p.getEmbedFooter(message)
-		_, err = p.editComplex(message.GuildID, &discordgo.MessageEdit{
+		_, err = p.editComplex(message.BotID, &discordgo.MessageEdit{
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,
@@ -75,7 +75,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 		// update footer and send message
 		tempEmbed.Footer = p.getEmbedFooter(message)
 		sentMessage, err := p.sendComplex(
-			message.GuildID, message.ChannelID, &discordgo.MessageSend{
+			message.BotID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
 				Files: []*discordgo.File{{
 					Name:        message.Files[message.CurrentPage-1].Name,
@@ -111,7 +111,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 		tempEmbed = message.Embeds[message.CurrentPage-1]
 		tempEmbed.Footer = p.getEmbedFooter(message)
 
-		_, err = p.editComplex(message.GuildID, &discordgo.MessageEdit{
+		_, err = p.editComplex(message.BotID, &discordgo.MessageEdit{
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,

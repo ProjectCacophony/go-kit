@@ -12,12 +12,12 @@ type PagedEmbedMessage struct {
 	FieldsPerPage   int
 	Color           int
 	MessageID       string
-	GuildID         string
 	ChannelID       string
 	UserID          string // user who triggered the message
 	Type            Type
 	Embeds          []*discordgo.MessageEmbed
 	DM              bool
+	BotID           string
 }
 
 type File struct {
