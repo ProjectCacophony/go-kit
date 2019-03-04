@@ -19,7 +19,8 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 			return err
 		}
 
-		err = session.ChannelMessageDelete(message.ChannelID, message.MessageID)
+		err = discord.Delete(
+			p.redis, session, message.ChannelID, message.MessageID, message.DM)
 		if err != nil {
 			return err
 		}

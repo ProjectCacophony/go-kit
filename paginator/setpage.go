@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"gitlab.com/Cacophony/go-kit/discord"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -42,7 +44,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,
-		})
+		}, message.DM)
 		if err != nil {
 			return err
 		}
@@ -54,7 +56,8 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 	case ImageType:
 		// image embeds can't be edited, need to delete and remake it
-		session.ChannelMessageDelete(message.ChannelID, message.MessageID) // nolint: errcheck
+		discord.Delete( // nolint: errcheck
+			p.redis, session, message.ChannelID, message.MessageID, message.DM)
 
 		// if fields were sent with image embed, handle those
 		if len(message.FullEmbed.Fields) > 0 {
@@ -115,7 +118,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,
-		})
+		}, message.DM)
 		if err != nil {
 			return err
 		}

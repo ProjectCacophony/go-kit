@@ -81,13 +81,19 @@ func (p *Paginator) sendComplex(
 }
 
 func (p *Paginator) editComplex(
-	botID string, edit *discordgo.MessageEdit) (*discordgo.Message, error) {
+	botID string, edit *discordgo.MessageEdit, dm bool) (*discordgo.Message, error) {
 	session, err := p.getSession(botID)
 	if err != nil {
 		return nil, err
 	}
 
-	return session.ChannelMessageEditComplex(edit)
+	return discord.EditComplexWithVars(
+		p.redis,
+		session,
+		nil,
+		edit,
+		dm,
+	)
 }
 
 // getEmbedFooter is a simlple helper function to return the footer for the embed message

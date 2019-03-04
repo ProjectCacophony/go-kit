@@ -3,6 +3,8 @@ package paginator
 import (
 	"strconv"
 
+	"gitlab.com/Cacophony/go-kit/discord"
+
 	"github.com/go-redis/redis"
 
 	"github.com/bwmarrin/discordgo"
@@ -72,11 +74,11 @@ func (p *Paginator) HandleMessageCreate(messageCreate *discordgo.MessageCreate) 
 	}
 
 	// clean up
-	err = session.ChannelMessageDelete(messageCreate.ChannelID, listener.MessageID)
+	err = discord.Delete(
+		p.redis, session, messageCreate.ChannelID, listener.MessageID, messageCreate.GuildID == "")
 	if err != nil {
 		return err
 	}
-	return session.ChannelMessageDelete(messageCreate.ChannelID, messageCreate.ID)
+	return discord.Delete(
+		p.redis, session, messageCreate.ChannelID, messageCreate.ID, messageCreate.GuildID == "")
 }
-
-// TODO: update ChannelMessageDelete to support DM (add helper in discord package)
