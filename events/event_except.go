@@ -34,7 +34,9 @@ func (e *Event) Except(err error) {
 	}
 
 	if e.Type == MessageCreateType {
-		if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionSendMessages) {
+		if e.DM() ||
+			discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionSendMessages) {
+
 			message := "**Something went wrong.** :sad:" + "\n```\nError: " + errorMessage + "\n```"
 			if doLog {
 				message += "I sent our top people to fix the issue as soon as possible."
@@ -43,7 +45,9 @@ func (e *Event) Except(err error) {
 			e.Respond( // nolint: errcheck
 				message,
 			)
+
 		} else if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionAddReactions) {
+
 			e.React( // nolint: errcheck
 				":stop:", ":shh:", ":nogood:", ":speaknoevil:",
 			)
