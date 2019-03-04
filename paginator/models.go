@@ -1,6 +1,8 @@
 package paginator
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"github.com/bwmarrin/discordgo"
+)
 
 type PagedEmbedMessage struct {
 	Files           []*File
@@ -15,6 +17,7 @@ type PagedEmbedMessage struct {
 	UserID          string // user who triggered the message
 	Type            Type
 	Embeds          []*discordgo.MessageEmbed
+	DM              bool // TODO: set field, support DMs
 }
 
 type File struct {

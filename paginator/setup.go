@@ -28,7 +28,9 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 		sentMessage, err = p.sendComplex(
 			message.GuildID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
-			})
+			},
+			message.DM,
+		)
 		if err != nil {
 			return err
 		}
@@ -57,7 +59,9 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 					ContentType: message.Files[message.CurrentPage-1].ContentType,
 					Reader:      bytes.NewReader(message.Files[message.CurrentPage-1].Data),
 				}},
-			})
+			},
+			message.DM,
+		)
 		if err != nil {
 			return err
 		}
@@ -68,7 +72,9 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 		sentMessage, err = p.sendComplex(
 			message.GuildID, message.ChannelID, &discordgo.MessageSend{
 				Embed: tempEmbed,
-			})
+			},
+			message.DM,
+		)
 		if err != nil {
 			return err
 		}

@@ -68,7 +68,7 @@ func (p *Paginator) getSession(guildID string) (*discordgo.Session, error) {
 }
 
 func (p *Paginator) sendComplex(
-	guildID, channelID string, send *discordgo.MessageSend,
+	guildID, channelID string, send *discordgo.MessageSend, dm bool,
 ) ([]*discordgo.Message, error) {
 	session, err := p.getSession(guildID)
 	if err != nil {
@@ -76,10 +76,12 @@ func (p *Paginator) sendComplex(
 	}
 
 	return discord.SendComplexWithVars(
+		p.redis,
 		session,
 		nil,
 		channelID,
 		send,
+		dm,
 	)
 }
 

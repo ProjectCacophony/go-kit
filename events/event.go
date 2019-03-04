@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-redis/redis"
+
 	"gitlab.com/Cacophony/go-kit/paginator"
 
 	"github.com/bwmarrin/discordgo"
@@ -71,6 +73,7 @@ type Event struct {
 	state          *state.State
 	botOwnerIDs    []string
 	paginator      *paginator.Paginator
+	redisClient    *redis.Client
 }
 
 // BucketType specifies the scope of a bucket

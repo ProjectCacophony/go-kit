@@ -18,9 +18,12 @@ func (p *Paginator) FieldsPaginator(
 	// or if the amount of fields is less than the requested fields per page
 	// just send a normal embed
 	if len(embed.Fields) < 2 || len(embed.Fields) <= fieldsPerPage {
-		_, err := p.sendComplex(guildID, channelID, &discordgo.MessageSend{
-			Embed: embed,
-		})
+		_, err := p.sendComplex(
+			guildID, channelID, &discordgo.MessageSend{
+				Embed: embed,
+			},
+			false, // TODO: allow DMs
+		)
 		return err
 	}
 
@@ -76,7 +79,9 @@ func (p *Paginator) ImagePaginator(
 				},
 			},
 			File: nil,
-		})
+		},
+			false, // TODO: allow DMs
+		)
 		return err
 	}
 
@@ -112,7 +117,9 @@ func (p *Paginator) EmbedPaginator(
 	if len(embeds) < 2 {
 		_, err := p.sendComplex(guildID, channelID, &discordgo.MessageSend{
 			Embed: embeds[0],
-		})
+		},
+			false, // TODO: allow DMs
+		)
 		return err
 	}
 

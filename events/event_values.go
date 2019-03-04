@@ -3,6 +3,8 @@ package events
 import (
 	"context"
 
+	"github.com/go-redis/redis"
+
 	"gitlab.com/Cacophony/go-kit/paginator"
 
 	"github.com/bwmarrin/discordgo"
@@ -101,4 +103,14 @@ func (e *Event) WithPaginator(paginator *paginator.Paginator) {
 // Paginator retrieves the Paginator from the event
 func (e *Event) Paginator() *paginator.Paginator {
 	return e.paginator
+}
+
+// WithRedis stores the Redis Client in the event
+func (e *Event) WithRedis(redisClient *redis.Client) {
+	e.redisClient = redisClient
+}
+
+// Redis retrieves the Redis Client from the event
+func (e *Event) Redis() *redis.Client {
+	return e.redisClient
 }

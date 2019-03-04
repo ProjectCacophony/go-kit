@@ -82,7 +82,9 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 					ContentType: message.Files[message.CurrentPage-1].ContentType,
 					Reader:      bytes.NewReader(message.Files[message.CurrentPage-1].Data),
 				}},
-			})
+			},
+			message.DM,
+		)
 		if err != nil {
 			return err
 		}

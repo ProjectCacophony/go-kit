@@ -32,12 +32,14 @@ func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interfa
 // TODO: check language
 func (e *Event) Send(channelID, message string, values ...interface{}) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
+		e.Redis(),
 		e.Discord(),
 		e.Localisations(),
 		channelID,
 		&discordgo.MessageSend{
 			Content: message,
 		},
+		e.DM(),
 		append(values, "prefix", e.Prefix())...,
 	)
 }
@@ -48,10 +50,12 @@ func (e *Event) SendComplex(
 	channelID string, message *discordgo.MessageSend, values ...interface{},
 ) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
+		e.Redis(),
 		e.Discord(),
 		e.Localisations(),
 		channelID,
 		message,
+		e.DM(),
 		append(values, "prefix", e.Prefix())...,
 	)
 }

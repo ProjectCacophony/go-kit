@@ -2,6 +2,8 @@ package discord
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/go-redis/redis"
+	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord/emoji"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/localisation"
@@ -14,10 +16,12 @@ import (
 // - escapes @ everyone, and @ here
 // TODO: make DMs possible
 func SendComplexWithVars(
+	redis *redis.Client,
 	session *discordgo.Session,
 	localisations []interfaces.Localisation,
 	channelID string,
 	send *discordgo.MessageSend,
+	dm bool,
 	values ...interface{},
 ) ([]*discordgo.Message, error) {
 	send = TranslateMessageSend(
@@ -50,6 +54,17 @@ func SendComplexWithVars(
 		}
 
 		return messages, nil
+	}
+
+	if dm {
+		if redis == nil {
+			return nil, errors.New("sending DMs required redis")
+		}
+
+		channelID, err = DMChannel(redis, session, channelID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	message, err = session.ChannelMessageSendComplex(channelID, send)
