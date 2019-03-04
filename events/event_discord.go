@@ -16,7 +16,12 @@ func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Mes
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	return e.Send(e.MessageCreate.ChannelID, message, values...)
+	channelID := e.MessageCreate.ChannelID
+	if e.DM() {
+		channelID = e.MessageCreate.Author.ID
+	}
+
+	return e.Send(channelID, message, e.DM(), values...)
 }
 
 // RespondComplex sends a message to the source channel, translates it if possible
@@ -25,12 +30,17 @@ func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interfa
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	return e.SendComplex(e.MessageCreate.ChannelID, message, values...)
+	channelID := e.MessageCreate.ChannelID
+	if e.DM() {
+		channelID = e.MessageCreate.Author.ID
+	}
+
+	return e.SendComplex(channelID, message, e.DM(), values...)
 }
 
 // Send sends a message to the given channel, translates it if possible
 // TODO: check language
-func (e *Event) Send(channelID, message string, values ...interface{}) ([]*discordgo.Message, error) {
+func (e *Event) Send(channelID, message string, dm bool, values ...interface{}) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
 		e.Redis(),
 		e.Discord(),
@@ -39,7 +49,7 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 		&discordgo.MessageSend{
 			Content: message,
 		},
-		e.DM(),
+		dm,
 		append(values, "prefix", e.Prefix())...,
 	)
 }
@@ -47,7 +57,7 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 // SendComplex sends a message to the given channel, translates it if possible
 // TODO: check language
 func (e *Event) SendComplex(
-	channelID string, message *discordgo.MessageSend, values ...interface{},
+	channelID string, message *discordgo.MessageSend, dm bool, values ...interface{},
 ) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
 		e.Redis(),
@@ -55,7 +65,7 @@ func (e *Event) SendComplex(
 		e.Localisations(),
 		channelID,
 		message,
-		e.DM(),
+		dm,
 		append(values, "prefix", e.Prefix())...,
 	)
 }
