@@ -51,8 +51,8 @@ func RemoveReact(
 	var err error
 
 	if dm {
-		if userID != session.State.User.ID {
-			return errors.New("can only remove Reactions from Bot in DMs")
+		if dm {
+			return errors.New("cannot perform action in DMs")
 		}
 
 		if redis == nil {
