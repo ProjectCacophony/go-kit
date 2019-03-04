@@ -14,7 +14,6 @@ import (
 // - pagifies the message content
 // - trims the embed
 // - escapes @ everyone, and @ here
-// TODO: make DMs possible
 func SendComplexWithVars(
 	redis *redis.Client,
 	session *discordgo.Session,
@@ -40,7 +39,7 @@ func SendComplexWithVars(
 
 	if dm {
 		if redis == nil {
-			return nil, errors.New("sending DMs required redis")
+			return nil, errors.New("sending DMs requires redis")
 		}
 
 		channelID, err = DMChannel(redis, session, channelID)

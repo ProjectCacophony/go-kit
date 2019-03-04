@@ -2,6 +2,7 @@ package paginator
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/discord"
 )
 
 func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discordgo.MessageReactionAdd) error {
@@ -46,8 +47,8 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 			return err
 		}
 
-		session.MessageReactionRemove( // nolint: errcheck
-			message.ChannelID, message.MessageID, NumbersEmoji, message.UserID,
+		discord.RemoveReact( // nolint: errcheck
+			p.redis, session, message.ChannelID, message.MessageID, reaction.UserID, message.DM, NumbersEmoji,
 		)
 
 	case LeftArrowEmoji:
@@ -57,8 +58,8 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 		}
 
 		if message.Type != ImageType {
-			session.MessageReactionRemove( // nolint: errcheck
-				reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID,
+			discord.RemoveReact( // nolint: errcheck
+				p.redis, session, message.ChannelID, reaction.MessageID, reaction.UserID, message.DM, reaction.Emoji.Name,
 			)
 		}
 
@@ -69,15 +70,12 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 		}
 
 		if message.Type != ImageType {
-			session.MessageReactionRemove( // nolint: errcheck
-				reaction.ChannelID, reaction.MessageID, reaction.Emoji.Name, reaction.UserID,
+			discord.RemoveReact( // nolint: errcheck
+				p.redis, session, message.ChannelID, reaction.MessageID, reaction.UserID, message.DM, reaction.Emoji.Name,
 			)
 		}
 
 	}
-
-	// TODO: add MessageReactionAdd, MessageReactionRemove helper to discord package
-	//       adds DM support
 
 	return nil
 }

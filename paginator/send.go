@@ -11,8 +11,17 @@ import (
 
 // CreatePagedMessage creates the paged messages
 func (p *Paginator) FieldsPaginator(
-	guildID, channelID, userID string, embed *discordgo.MessageEmbed, fieldsPerPage int,
+	guildID string,
+	channelID string,
+	userID string,
+	embed *discordgo.MessageEmbed,
+	fieldsPerPage int,
 ) error {
+	var dm bool
+	if guildID == "" {
+		channelID = userID
+		dm = true
+	}
 
 	// if there aren't multiple fields to be paged through,
 	// or if the amount of fields is less than the requested fields per page
@@ -22,7 +31,7 @@ func (p *Paginator) FieldsPaginator(
 			guildID, channelID, &discordgo.MessageSend{
 				Embed: embed,
 			},
-			false, // TODO: allow DMs
+			dm,
 		)
 		return err
 	}
@@ -42,6 +51,7 @@ func (p *Paginator) FieldsPaginator(
 		TotalNumOfPages: int(math.Ceil(float64(len(embed.Fields)) / float64(fieldsPerPage))),
 		UserID:          userID,
 		Type:            FieldType,
+		DM:              dm,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)
@@ -55,10 +65,20 @@ func (p *Paginator) FieldsPaginator(
 
 // ImagePaginator creates the paged image messages
 func (p *Paginator) ImagePaginator(
-	guildID, channelID, userID string, embed *discordgo.MessageEmbed, files []*File,
+	guildID,
+	channelID,
+	userID string,
+	embed *discordgo.MessageEmbed,
+	files []*File,
 ) error {
 	if embed == nil || len(files) == 0 {
 		return nil
+	}
+
+	var dm bool
+	if guildID == "" {
+		channelID = userID
+		dm = true
 	}
 
 	if embed.Image == nil {
@@ -80,7 +100,7 @@ func (p *Paginator) ImagePaginator(
 			},
 			File: nil,
 		},
-			false, // TODO: allow DMs
+			dm,
 		)
 		return err
 	}
@@ -96,6 +116,7 @@ func (p *Paginator) ImagePaginator(
 		Files:           files,
 		UserID:          userID,
 		Type:            ImageType,
+		DM:              dm,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)
@@ -108,17 +129,26 @@ func (p *Paginator) ImagePaginator(
 }
 
 func (p *Paginator) EmbedPaginator(
-	guildID, channelID, userID string, embeds ...*discordgo.MessageEmbed,
+	guildID,
+	channelID,
+	userID string,
+	embeds ...*discordgo.MessageEmbed,
 ) error {
 	if len(embeds) == 0 {
 		return nil
+	}
+
+	var dm bool
+	if guildID == "" {
+		channelID = userID
+		dm = true
 	}
 
 	if len(embeds) < 2 {
 		_, err := p.sendComplex(guildID, channelID, &discordgo.MessageSend{
 			Embed: embeds[0],
 		},
-			false, // TODO: allow DMs
+			dm,
 		)
 		return err
 	}
@@ -132,6 +162,7 @@ func (p *Paginator) EmbedPaginator(
 		UserID:          userID,
 		Embeds:          embeds,
 		Type:            EmbedType,
+		DM:              dm,
 	}
 
 	err := p.setupAndSendFirstMessage(pagedMessage)

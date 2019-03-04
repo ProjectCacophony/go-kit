@@ -78,3 +78,5 @@ func (p *Paginator) HandleMessageCreate(messageCreate *discordgo.MessageCreate) 
 	}
 	return session.ChannelMessageDelete(messageCreate.ChannelID, messageCreate.ID)
 }
+
+// TODO: update ChannelMessageDelete to support DM (add helper in discord package)

@@ -121,21 +121,25 @@ func (p *Paginator) addReactionsToMessage(message *PagedEmbedMessage) error {
 		return err
 	}
 
-	err = session.MessageReactionAdd(message.ChannelID, message.MessageID, LeftArrowEmoji)
+	err = discord.React(
+		p.redis, session, message.ChannelID, message.MessageID, message.DM, LeftArrowEmoji)
 	if err != nil {
 		return err
 	}
-	err = session.MessageReactionAdd(message.ChannelID, message.MessageID, RightArrowEmoji)
+	err = discord.React(
+		p.redis, session, message.ChannelID, message.MessageID, message.DM, RightArrowEmoji)
 	if err != nil {
 		return err
 	}
 
 	if message.TotalNumOfPages > 4 {
-		err = session.MessageReactionAdd(message.ChannelID, message.MessageID, NumbersEmoji)
+		err = discord.React(
+			p.redis, session, message.ChannelID, message.MessageID, message.DM, NumbersEmoji)
 		if err != nil {
 			return err
 		}
 	}
 
-	return session.MessageReactionAdd(message.ChannelID, message.MessageID, CloseEmoji)
+	return discord.React(
+		p.redis, session, message.ChannelID, message.MessageID, message.DM, CloseEmoji)
 }

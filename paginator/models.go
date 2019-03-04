@@ -17,7 +17,7 @@ type PagedEmbedMessage struct {
 	UserID          string // user who triggered the message
 	Type            Type
 	Embeds          []*discordgo.MessageEmbed
-	DM              bool // TODO: set field, support DMs
+	DM              bool
 }
 
 type File struct {

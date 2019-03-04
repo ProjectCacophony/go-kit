@@ -1,13 +1,9 @@
 package events
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
-	"gitlab.com/Cacophony/go-kit/discord/emoji"
 )
 
 // Respond sends a message to the source channel, translates it if possible
@@ -84,11 +80,17 @@ func (e *Event) React(emojiID string, emojiIDs ...string) error {
 		return nil
 	}
 
-	if len(emojiIDs) > 0 {
-		emojiID = append(emojiIDs, emojiID)[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(emojiIDs)+1)]
+	channelID := e.MessageCreate.ChannelID
+	if e.DM() {
+		channelID = e.MessageCreate.Author.ID
 	}
 
-	return e.Discord().MessageReactionAdd( // nolint: errcheck
-		e.MessageCreate.ChannelID, e.MessageCreate.ID, emoji.GetWithout(emojiID),
+	return discord.React(
+		e.Redis(),
+		e.Discord(),
+		channelID,
+		e.MessageCreate.Message.ID,
+		e.DM(),
+		emojiID, emojiIDs...,
 	)
 }
