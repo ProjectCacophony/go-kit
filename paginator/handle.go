@@ -45,9 +45,11 @@ func (p *Paginator) HandleMessageCreate(messageCreate *discordgo.MessageCreate) 
 		return err
 	}
 
+	var dm bool
 	channelID := messageCreate.ChannelID
 	if messageCreate.GuildID == "" { // DMs
 		channelID = messageCreate.Author.ID
+		dm = true
 	}
 
 	if !isNumbersListening(
@@ -73,17 +75,17 @@ func (p *Paginator) HandleMessageCreate(messageCreate *discordgo.MessageCreate) 
 		return err
 	}
 
-	session, err := p.getSession(messageCreate.GuildID)
+	session, err := p.getSession(message.BotID)
 	if err != nil {
 		return err
 	}
 
 	// clean up
 	err = discord.Delete(
-		p.redis, session, channelID, listener.MessageID, messageCreate.GuildID == "")
+		p.redis, session, channelID, listener.MessageID, dm)
 	if err != nil {
 		return err
 	}
 	return discord.Delete(
-		p.redis, session, messageCreate.ChannelID, messageCreate.ID, messageCreate.GuildID == "")
+		p.redis, session, channelID, messageCreate.ID, dm)
 }
