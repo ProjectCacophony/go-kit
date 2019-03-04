@@ -11,7 +11,8 @@ import (
 
 // nolint: gochecknoglobals
 var (
-	dmChannelExpiry = time.Hour * 1
+	dmChannelExpirySuccessful = time.Hour * 24 * 7
+	dmChannelExpiryError      = time.Hour * 1
 )
 
 func DMChannel(
@@ -34,12 +35,12 @@ func DMChannel(
 
 	channel, err := session.UserChannelCreate(userID)
 	if err != nil {
-		redisClient.Set(key, "", dmChannelExpiry)
+		redisClient.Set(key, "", dmChannelExpiryError)
 
 		return "", err
 	}
 
-	redisClient.Set(key, channel.ID, dmChannelExpiry)
+	redisClient.Set(key, channel.ID, dmChannelExpirySuccessful)
 
 	return channel.ID, nil
 }
