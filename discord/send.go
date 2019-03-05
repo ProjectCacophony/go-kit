@@ -16,7 +16,7 @@ import (
 // - escapes @ everyone, and @ here
 func SendComplexWithVars(
 	redis *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	localisations []interfaces.Localisation,
 	channelID string,
 	send *discordgo.MessageSend,
@@ -52,10 +52,10 @@ func SendComplexWithVars(
 	if len(pages) > 0 {
 		for i, page := range pages {
 			if i+1 < len(pages) {
-				message, err = session.ChannelMessageSend(channelID, page)
+				message, err = session.Client.ChannelMessageSend(channelID, page)
 			} else {
 				send.Content = page
-				message, err = session.ChannelMessageSendComplex(channelID, send)
+				message, err = session.Client.ChannelMessageSendComplex(channelID, send)
 			}
 			if err != nil {
 				return messages, err
@@ -66,7 +66,7 @@ func SendComplexWithVars(
 		return messages, nil
 	}
 
-	message, err = session.ChannelMessageSendComplex(channelID, send)
+	message, err = session.Client.ChannelMessageSendComplex(channelID, send)
 	if err != nil {
 		return messages, err
 	}

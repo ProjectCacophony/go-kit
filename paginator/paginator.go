@@ -58,7 +58,7 @@ var (
 	}
 )
 
-func (p *Paginator) getSession(botID string) (*discordgo.Session, error) {
+func (p *Paginator) getSession(botID string) (*discord.Session, error) {
 	return discord.NewSession(p.tokens, botID)
 }
 

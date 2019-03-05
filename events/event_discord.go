@@ -72,7 +72,7 @@ func (e *Event) Typing() {
 		return
 	}
 
-	e.Discord().ChannelTyping(e.MessageCreate.ChannelID) // nolint: errcheck
+	e.Discord().Client.ChannelTyping(e.MessageCreate.ChannelID) // nolint: errcheck
 }
 
 func (e *Event) React(emojiID string, emojiIDs ...string) error {

@@ -1,14 +1,13 @@
 package discord
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 	"github.com/pkg/errors"
 )
 
 func Delete(
 	redis *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	channelID string,
 	messageID string,
 	dm bool,
@@ -26,5 +25,5 @@ func Delete(
 		}
 	}
 
-	return session.ChannelMessageDelete(channelID, messageID)
+	return session.Client.ChannelMessageDelete(channelID, messageID)
 }

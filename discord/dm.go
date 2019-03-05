@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 )
 
@@ -17,10 +16,10 @@ var (
 
 func DMChannel(
 	redisClient *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	userID string,
 ) (string, error) {
-	key := "cacophony:discord:dm-channel:" + userID
+	key := "cacophony:discord:dm-channel:" + session.BotID + ":" + userID
 
 	res, err := redisClient.Get(key).Result()
 	if err != nil && err != redis.Nil {
@@ -33,7 +32,7 @@ func DMChannel(
 		return res, nil
 	}
 
-	channel, err := session.UserChannelCreate(userID)
+	channel, err := session.Client.UserChannelCreate(userID)
 	if err != nil {
 		redisClient.Set(key, "", dmChannelExpiryError)
 

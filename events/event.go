@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"gitlab.com/Cacophony/go-kit/discord"
+
 	"github.com/go-redis/redis"
 
 	"gitlab.com/Cacophony/go-kit/paginator"
@@ -62,7 +64,7 @@ type Event struct {
 	// non marshalled events
 
 	ctx            context.Context
-	discordSession *discordgo.Session
+	discordSession *discord.Session
 	logger         *zap.Logger
 	localisations  []interfaces.Localisation
 	command        bool

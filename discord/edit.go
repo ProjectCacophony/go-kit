@@ -9,7 +9,7 @@ import (
 
 func EditComplexWithVars(
 	redis *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	localisations []interfaces.Localisation,
 	edit *discordgo.MessageEdit,
 	dm bool,
@@ -38,6 +38,6 @@ func EditComplexWithVars(
 		}
 	}
 
-	return session.ChannelMessageEditComplex(edit)
+	return session.Client.ChannelMessageEditComplex(edit)
 
 }

@@ -6,14 +6,13 @@ import (
 
 	"gitlab.com/Cacophony/go-kit/discord/emoji"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 	"github.com/pkg/errors"
 )
 
 func React(
 	redis *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	channelID string,
 	messageID string,
 	dm bool,
@@ -36,12 +35,12 @@ func React(
 		}
 	}
 
-	return session.MessageReactionAdd(channelID, messageID, emoji.GetWithout(emojiID))
+	return session.Client.MessageReactionAdd(channelID, messageID, emoji.GetWithout(emojiID))
 }
 
 func RemoveReact(
 	redis *redis.Client,
-	session *discordgo.Session,
+	session *Session,
 	channelID string,
 	messageID string,
 	userID string,
@@ -65,5 +64,5 @@ func RemoveReact(
 		}
 	}
 
-	return session.MessageReactionRemove(channelID, messageID, emoji.GetWithout(emojiID), userID)
+	return session.Client.MessageReactionRemove(channelID, messageID, emoji.GetWithout(emojiID), userID)
 }

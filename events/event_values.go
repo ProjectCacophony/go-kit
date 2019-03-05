@@ -7,7 +7,6 @@ import (
 
 	"gitlab.com/Cacophony/go-kit/paginator"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/interfaces"
@@ -36,7 +35,7 @@ func (e *Event) WithTokens(tokens map[string]string) {
 }
 
 // Discord gets the Discord API client for the events bot
-func (e *Event) Discord() *discordgo.Session {
+func (e *Event) Discord() *discord.Session {
 	if e.discordSession != nil {
 		return e.discordSession
 	}
