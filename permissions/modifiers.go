@@ -1,6 +1,8 @@
 package permissions
 
 import (
+	"strings"
+
 	"gitlab.com/Cacophony/go-kit/state"
 )
 
@@ -36,6 +38,15 @@ func Or(
 	}
 }
 
+func (p *OrModifier) Name() string {
+	names := make([]string, len(p.permissions))
+	for i, permission := range p.permissions {
+		names[i] = permission.Name()
+	}
+
+	return "(" + strings.Join(names, " or ") + ")"
+}
+
 func (p *OrModifier) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
 	for _, permission := range p.permissions {
 		if !permission.Match(state, botOwnerIDs, userID, channelID, dm) {
@@ -60,6 +71,15 @@ func And(
 	return &AndModifier{
 		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions),
 	}
+}
+
+func (p *AndModifier) Name() string {
+	names := make([]string, len(p.permissions))
+	for i, permission := range p.permissions {
+		names[i] = permission.Name()
+	}
+
+	return "(" + strings.Join(names, " and ") + ")"
 }
 
 func (p *AndModifier) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
