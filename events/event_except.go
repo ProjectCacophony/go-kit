@@ -92,7 +92,7 @@ func (e *Event) ExceptSilent(err error) {
 
 func generateRavenTags(event *Event, silent bool) map[string]string {
 	tags := map[string]string{
-		"event_id":    event.ID,
+		// "event_id":    event.ID, TODO
 		"event_type:": string(event.Type),
 		"bot_id":      event.BotUserID,
 		"guild_id":    event.GuildID,

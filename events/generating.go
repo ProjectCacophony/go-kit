@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
 
 	// nolint: gosec
 	"crypto/md5"
@@ -28,13 +29,18 @@ func GenerateEventFromDiscordgoEvent(
 ) (
 	*Event, time.Duration, error,
 ) {
-	var err error
 	event := &Event{
 		ReceivedAt: time.Now().UTC(),
 		BotUserID:  botUserID,
 	}
 
 	expiration := time.Minute * 15
+
+	eventID, err := uuid.NewRandom()
+	if err != nil {
+		return nil, expiration, err
+	}
+	event.ID = eventID.String()
 
 	switch t := eventItem.(type) {
 	case *discordgo.GuildCreate:
@@ -43,7 +49,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		event.ID, err = hash("guildcreate" + t.ID)
+		event.CacheKey, err = hash("guildcreate" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -53,7 +59,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -63,7 +69,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		event.ID, err = hash("guilddelete" + t.ID)
+		event.CacheKey, err = hash("guilddelete" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -74,7 +80,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -85,7 +91,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -96,7 +102,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -104,7 +110,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildMembersChunkType
 		event.GuildMembersChunk = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -112,7 +118,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildRoleCreateType
 		event.GuildRoleCreate = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash("guildrolecreate" + t.Role.ID)
+		event.CacheKey, err = hash("guildrolecreate" + t.Role.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -120,7 +126,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildRoleUpdateType
 		event.GuildRoleUpdate = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -128,7 +134,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildRoleDeleteType
 		event.GuildRoleDelete = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash("guildroledelete" + t.RoleID)
+		event.CacheKey, err = hash("guildroledelete" + t.RoleID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -136,7 +142,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildEmojisUpdateType
 		event.GuildEmojisUpdate = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -147,7 +153,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Channel != nil {
 			event.ChannelID = t.Channel.ID
 		}
-		event.ID, err = hash("channelcreate" + t.ID)
+		event.CacheKey, err = hash("channelcreate" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -158,7 +164,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Channel != nil {
 			event.ChannelID = t.Channel.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -169,7 +175,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Channel != nil {
 			event.ChannelID = t.Channel.ID
 		}
-		event.ID, err = hash("channeldelete" + t.ID)
+		event.CacheKey, err = hash("channeldelete" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -181,7 +187,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
-		event.ID, err = hash("messagecreate" + t.ID)
+		event.CacheKey, err = hash("messagecreate" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -193,7 +199,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
-		event.ID, err = hash("messageupdate" + t.ID + t.Content)
+		event.CacheKey, err = hash("messageupdate" + t.ID + t.Content)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -205,7 +211,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
-		event.ID, err = hash("messagedelete" + t.ID)
+		event.CacheKey, err = hash("messagedelete" + t.ID)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -214,7 +220,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.ChannelPinsUpdate = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -225,7 +231,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -236,7 +242,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -246,7 +252,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(
+		event.CacheKey, err = hash(
 			"messagereactionadd" + t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
 		expiration = time.Second * 1
@@ -259,7 +265,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(
+		event.CacheKey, err = hash(
 			"messagereactionremove" + t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
 		expiration = time.Second * 1
@@ -272,7 +278,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -280,7 +286,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildIntegrationsUpdateType
 		event.GuildIntegrationsUpdate = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -291,7 +297,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -300,7 +306,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.MessageDeleteBulk = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.ID, err = hash("messagedeletebulk" + strings.Join(t.Messages, ""))
+		event.CacheKey, err = hash("messagedeletebulk" + strings.Join(t.Messages, ""))
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -310,7 +316,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -320,7 +326,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -328,7 +334,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = VoiceServerUpdateType
 		event.VoiceServerUpdate = t
 		event.GuildID = t.GuildID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -337,7 +343,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.WebhooksUpdate = t
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
-		event.ID, err = hash(t)
+		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err
 		}
