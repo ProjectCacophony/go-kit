@@ -187,6 +187,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
+		event.MessageID = t.ID
 		event.CacheKey, err = hash("messagecreate" + t.ID)
 		if err != nil {
 			return nil, expiration, err
@@ -199,6 +200,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
+		event.MessageID = t.ID
 		event.CacheKey, err = hash("messageupdate" + t.ID + t.Content)
 		if err != nil {
 			return nil, expiration, err
@@ -211,6 +213,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Author != nil {
 			event.UserID = t.Author.ID
 		}
+		event.MessageID = t.ID
 		event.CacheKey, err = hash("messagedelete" + t.ID)
 		if err != nil {
 			return nil, expiration, err
@@ -252,6 +255,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
+		event.MessageID = t.MessageID
 		event.CacheKey, err = hash(
 			"messagereactionadd" + t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
@@ -265,6 +269,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
+		event.MessageID = t.MessageID
 		event.CacheKey, err = hash(
 			"messagereactionremove" + t.GuildID + t.ChannelID + t.MessageID + t.Emoji.ID + t.Emoji.Name,
 		)
@@ -278,6 +283,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.UserID = t.UserID
+		event.MessageID = t.MessageID
 		event.CacheKey, err = hash(t)
 		if err != nil {
 			return nil, expiration, err

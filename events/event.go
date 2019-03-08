@@ -27,6 +27,7 @@ type Event struct {
 	GuildID    string    `json:"guild_id,omitempty"`
 	ChannelID  string    `json:"channel_id,omitempty"`
 	UserID     string    `json:"user_id,omitempty"`
+	MessageID  string    `json:"message_id,omitempty"`
 
 	// discordgo event data
 	ChannelCreate            *discordgo.ChannelCreate            `json:"discord_channel_create,omitempty"`
