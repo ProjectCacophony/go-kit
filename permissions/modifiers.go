@@ -31,10 +31,10 @@ type OrModifier struct {
 func Or(
 	firstPermission PermissionInterface,
 	secondPermission PermissionInterface,
-	additionalPermissions PermissionInterface,
+	additionalPermissions ...PermissionInterface,
 ) *OrModifier {
 	return &OrModifier{
-		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions),
+		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 
@@ -66,10 +66,10 @@ type AndModifier struct {
 func And(
 	firstPermission PermissionInterface,
 	secondPermission PermissionInterface,
-	additionalPermissions PermissionInterface,
+	additionalPermissions ...PermissionInterface,
 ) *AndModifier {
 	return &AndModifier{
-		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions),
+		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 
