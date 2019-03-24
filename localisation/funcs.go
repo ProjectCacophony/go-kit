@@ -1,15 +1,43 @@
 package localisation
 
 import (
+	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
+
+	polr "github.com/Seklfreak/polr-go"
 
 	"github.com/pkg/errors"
 
 	humanize "github.com/dustin/go-humanize"
 )
+
+// nolint: gochecknoglobals
+var (
+	polrClient             *polr.Polr
+	shortenedLinkCache     = make(map[string]string)
+	shortenedLinkCacheLock sync.Mutex
+)
+
+// nolint: gochecknoinits
+func init() {
+
+	if os.Getenv("POLR_BASE_URL") != "" &&
+		os.Getenv("POLR_API_KEY") != "" {
+
+		polrClient, _ = polr.New(
+			os.Getenv("POLR_BASE_URL"),
+			os.Getenv("POLR_API_KEY"),
+			&http.Client{
+				Timeout: 30 * time.Second,
+			},
+		)
+	}
+}
 
 // nolint: gochecknoglobals
 var (
@@ -71,6 +99,28 @@ var (
 			default:
 				return "", errors.New("unable to convert into string")
 			}
+		},
+
+		"Shorten": func(value string) string {
+			if polrClient == nil {
+				return value
+			}
+
+			shortenedLinkCacheLock.Lock()
+			defer shortenedLinkCacheLock.Unlock()
+
+			if shortenedLinkCache[value] != "" {
+				return shortenedLinkCache[value]
+			}
+
+			shortened, err := polrClient.Shorten(value, "", false)
+			if err != nil {
+				return value
+			}
+
+			shortenedLinkCache[value] = shortened
+
+			return shortened
 		},
 	}
 )
