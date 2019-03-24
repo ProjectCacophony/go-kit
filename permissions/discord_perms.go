@@ -11,7 +11,7 @@ type Discord struct {
 	id   int
 }
 
-func newDiscordPermission(name string, id int) *Discord {
+func NewDiscordPermission(name string, id int) *Discord {
 	return &Discord{
 		name: name,
 		id:   id,
@@ -32,118 +32,118 @@ func (p *Discord) Match(state *state.State, botOwnerIDs []string, userID, channe
 
 // nolint: gochecknoglobals
 var (
-	DiscordReadMessages = newDiscordPermission(
+	DiscordReadMessages = NewDiscordPermission(
 		"Read Messages",
 		discordgo.PermissionReadMessages,
 	)
-	DiscordSendMessages = newDiscordPermission(
+	DiscordSendMessages = NewDiscordPermission(
 		"Send Messages",
 		discordgo.PermissionSendMessages,
 	)
-	DiscordSendTTSMessages = newDiscordPermission(
+	DiscordSendTTSMessages = NewDiscordPermission(
 		"Send TTS Messages",
 		discordgo.PermissionSendTTSMessages,
 	)
-	DiscordManageMessages = newDiscordPermission(
+	DiscordManageMessages = NewDiscordPermission(
 		"Manage Messages",
 		discordgo.PermissionManageMessages,
 	)
-	DiscordEmbedLinks = newDiscordPermission(
+	DiscordEmbedLinks = NewDiscordPermission(
 		"Embed Links",
 		discordgo.PermissionEmbedLinks,
 	)
-	DiscordAttachFiles = newDiscordPermission(
+	DiscordAttachFiles = NewDiscordPermission(
 		"Attach Files",
 		discordgo.PermissionAttachFiles,
 	)
-	DiscordReadMessageHistory = newDiscordPermission(
+	DiscordReadMessageHistory = NewDiscordPermission(
 		"Read Message History",
 		discordgo.PermissionReadMessageHistory,
 	)
-	DiscordMentionEveryone = newDiscordPermission(
+	DiscordMentionEveryone = NewDiscordPermission(
 		"Mention Everyone",
 		discordgo.PermissionMentionEveryone,
 	)
-	DiscordUseExternalEmojis = newDiscordPermission(
+	DiscordUseExternalEmojis = NewDiscordPermission(
 		"Use External Emojis",
 		discordgo.PermissionUseExternalEmojis,
 	)
 
-	DiscordVoiceConnect = newDiscordPermission(
+	DiscordVoiceConnect = NewDiscordPermission(
 		"Voice Connect",
 		discordgo.PermissionVoiceConnect,
 	)
-	DiscordVoiceSpeak = newDiscordPermission(
+	DiscordVoiceSpeak = NewDiscordPermission(
 		"Voice Speak",
 		discordgo.PermissionVoiceSpeak,
 	)
-	DiscordVoiceMuteMembers = newDiscordPermission(
+	DiscordVoiceMuteMembers = NewDiscordPermission(
 		"Voice Mute Members",
 		discordgo.PermissionVoiceMuteMembers,
 	)
-	DiscordVoiceDeafenMembers = newDiscordPermission(
+	DiscordVoiceDeafenMembers = NewDiscordPermission(
 		"Voice Deafen Members",
 		discordgo.PermissionVoiceDeafenMembers,
 	)
-	DiscordVoiceMoveMembers = newDiscordPermission(
+	DiscordVoiceMoveMembers = NewDiscordPermission(
 		"Voice Move Members",
 		discordgo.PermissionVoiceMoveMembers,
 	)
-	DiscordVoiceUseVAD = newDiscordPermission(
+	DiscordVoiceUseVAD = NewDiscordPermission(
 		"Voice Use VAD",
 		discordgo.PermissionVoiceUseVAD,
 	)
 
-	DiscordChangeNickname = newDiscordPermission(
+	DiscordChangeNickname = NewDiscordPermission(
 		"Change Nickname",
 		discordgo.PermissionChangeNickname,
 	)
-	DiscordManageNicknames = newDiscordPermission(
+	DiscordManageNicknames = NewDiscordPermission(
 		"Manage Nicknames",
 		discordgo.PermissionManageNicknames,
 	)
-	DiscordManageRoles = newDiscordPermission(
+	DiscordManageRoles = NewDiscordPermission(
 		"Manage Roles",
 		discordgo.PermissionManageRoles,
 	)
-	DiscordManageWebhooks = newDiscordPermission(
+	DiscordManageWebhooks = NewDiscordPermission(
 		"Manage Webhooks",
 		discordgo.PermissionManageWebhooks,
 	)
-	DiscordManageEmojis = newDiscordPermission(
+	DiscordManageEmojis = NewDiscordPermission(
 		"Manage Emojis",
 		discordgo.PermissionManageEmojis,
 	)
 
-	DiscordCreateInstantInvite = newDiscordPermission(
+	DiscordCreateInstantInvite = NewDiscordPermission(
 		"Create Instant Invite",
 		discordgo.PermissionCreateInstantInvite,
 	)
-	DiscordKickMembers = newDiscordPermission(
+	DiscordKickMembers = NewDiscordPermission(
 		"Kick Members",
 		discordgo.PermissionKickMembers,
 	)
-	DiscordBanMembers = newDiscordPermission(
+	DiscordBanMembers = NewDiscordPermission(
 		"Ban Members",
 		discordgo.PermissionBanMembers,
 	)
-	DiscordAdministrator = newDiscordPermission(
+	DiscordAdministrator = NewDiscordPermission(
 		"Administrator",
 		discordgo.PermissionAdministrator,
 	)
-	DiscordManageChannels = newDiscordPermission(
+	DiscordManageChannels = NewDiscordPermission(
 		"Manage Channels",
 		discordgo.PermissionManageChannels,
 	)
-	DiscordManageServer = newDiscordPermission(
+	DiscordManageServer = NewDiscordPermission(
 		"Manage Server",
 		discordgo.PermissionManageServer,
 	)
-	DiscordAddReactions = newDiscordPermission(
+	DiscordAddReactions = NewDiscordPermission(
 		"Add Reactions",
 		discordgo.PermissionAddReactions,
 	)
-	DiscordViewAuditLogs = newDiscordPermission(
+	DiscordViewAuditLogs = NewDiscordPermission(
 		"View Audit Logs",
 		discordgo.PermissionViewAuditLogs,
 	)
