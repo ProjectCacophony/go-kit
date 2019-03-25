@@ -37,7 +37,9 @@ func (s *State) ChannelFromMention(guildID, mention string) (*discordgo.Channel,
 }
 
 // ChannelFromMention finds a channel on the same server in an mention, can be direct ID input
-func (s *State) ChannelFromMentionTypes(guildID, mention string, types ...discordgo.ChannelType) (*discordgo.Channel, error) {
+func (s *State) ChannelFromMentionTypes(
+	guildID, mention string, types ...discordgo.ChannelType,
+) (*discordgo.Channel, error) {
 	result := ChannelRegex.FindStringSubmatch(mention)
 	if len(result) != 4 {
 		return nil, ErrChannelNotFound

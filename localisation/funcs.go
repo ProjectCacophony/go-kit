@@ -124,5 +124,7 @@ var (
 		},
 
 		"Contains": strings.Contains,
+
+		"Join": strings.Join,
 	}
 )
