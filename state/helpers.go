@@ -32,7 +32,12 @@ func (s *State) UserFromMention(mention string) (*discordgo.User, error) {
 }
 
 // ChannelFromMention finds a text channel on the same server in an mention, can be direct ID input
-func (s *State) ChannelFromMention(guildID string, mention string) (*discordgo.Channel, error) {
+func (s *State) ChannelFromMention(guildID, mention string) (*discordgo.Channel, error) {
+	return s.ChannelFromMentionTypes(guildID, mention, discordgo.ChannelTypeGuildText)
+}
+
+// ChannelFromMention finds a channel on the same server in an mention, can be direct ID input
+func (s *State) ChannelFromMentionTypes(guildID, mention string, types ...discordgo.ChannelType) (*discordgo.Channel, error) {
 	result := ChannelRegex.FindStringSubmatch(mention)
 	if len(result) != 4 {
 		return nil, ErrChannelNotFound
@@ -47,7 +52,7 @@ func (s *State) ChannelFromMention(guildID string, mention string) (*discordgo.C
 		return nil, ErrTargetWrongServer
 	}
 
-	if channel.Type != discordgo.ChannelTypeGuildText {
+	if !channelTypesMatch(channel.Type, types) {
 		return nil, ErrTargetWrongType
 	}
 
@@ -62,4 +67,16 @@ func (s *State) RoleFromMention(guildID string, mention string) (*discordgo.Role
 	}
 
 	return s.Role(guildID, result[2])
+}
+
+func channelTypesMatch(t discordgo.ChannelType, types []discordgo.ChannelType) bool {
+	for _, sT := range types {
+		if sT != t {
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }
