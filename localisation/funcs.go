@@ -123,8 +123,6 @@ var (
 			return shortened
 		},
 
-		"Contains": func(s, substr string) bool {
-			return strings.Contains(s, substr)
-		},
+		"Contains": strings.Contains,
 	}
 )
