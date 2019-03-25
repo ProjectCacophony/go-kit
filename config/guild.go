@@ -53,3 +53,25 @@ func GuildGetBool(db *gorm.DB, guildID, key string) (bool, error) {
 
 	return getBool(db, guildNamespace(guildID), key)
 }
+
+func GuildSetInterface(db *gorm.DB, guildID, key string, value interface{}) error {
+	if guildID == "" {
+		return errors.New("invalid Guild ID")
+	}
+	if key == "" {
+		return errors.New("invalid configuration key")
+	}
+
+	return setInterface(db, guildNamespace(guildID), key, value)
+}
+
+func GuildGetInterface(db *gorm.DB, guildID, key string, value interface{}) error {
+	if guildID == "" {
+		return errors.New("invalid Guild ID")
+	}
+	if key == "" {
+		return errors.New("invalid configuration key")
+	}
+
+	return getInterface(db, guildNamespace(guildID), key, value)
+}
