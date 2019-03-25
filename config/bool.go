@@ -5,30 +5,21 @@ import (
 )
 
 func setBool(db *gorm.DB, namespace, key string, value bool) error {
-	var item Item
-
 	var val byte
 	if value {
 		val = 1
 	}
 
-	return db.Where(&Item{
-		Namespace: namespace,
-		Key:       key,
-	}).Assign(&Item{
-		Value: []byte{val},
-	}).FirstOrCreate(&item).Error
+	return setByte(db, namespace, key, []byte{val})
 }
 
 func getBool(db *gorm.DB, namespace, key string) (bool, error) {
-	var item Item
-
-	err := db.Where("namespace = ? AND key = ?", namespace, key).First(&item).Error
+	value, err := getByte(db, namespace, key)
 	if err != nil {
 		return false, err
 	}
 
-	if len(item.Value) > 0 && item.Value[0] > 0 {
+	if len(value) > 0 && value[0] > 0 {
 		return true, nil
 	}
 
