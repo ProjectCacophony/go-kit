@@ -7,4 +7,5 @@ stages:
   - prepare
 
 Go Lint:
+  stage: prepare
   extends: .Go Service - Go Lint
