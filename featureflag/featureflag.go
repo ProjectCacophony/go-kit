@@ -22,7 +22,8 @@ type FeatureFlagger struct {
 
 // New creates a new FeatureFlagger
 func New(config *Config) (*FeatureFlagger, error) {
-	if config.Environment == "development" {
+	if config.UnleashInstanceID == "" ||
+		config.UnleashURL == "" {
 		return &FeatureFlagger{}, nil
 	}
 
@@ -31,7 +32,7 @@ func New(config *Config) (*FeatureFlagger, error) {
 		unleash.WithInstanceId(config.UnleashInstanceID),
 		unleash.WithAppName(config.Environment),
 		unleash.WithHttpClient(&http.Client{
-			Timeout: time.Second * 10,
+			Timeout: 15 * time.Second,
 		}),
 		unleash.WithListener(&UnleashListener{}),
 	)
