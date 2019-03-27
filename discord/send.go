@@ -79,7 +79,8 @@ func SendComplexWithVars(
 func TranslateMessageSend(
 	localisations []interfaces.Localisation,
 	send *discordgo.MessageSend,
-	values ...interface{}) *discordgo.MessageSend {
+	values ...interface{},
+) *discordgo.MessageSend {
 	send.Content = localisation.Translate(
 		localisations,
 		send.Content,
@@ -87,105 +88,121 @@ func TranslateMessageSend(
 	)
 
 	send.Content = EscapeDiscordContent(send.Content)
-	send.Content = emoji.Replace(send.Content) // TODO: replace emoji in other fields
+	send.Content = emoji.Replace(send.Content)
+
 	if send.Embed != nil {
-		send.Embed.URL = localisation.Translate(
+		send.Embed = TranslateEmbed(
 			localisations,
-			send.Embed.URL,
+			send.Embed,
 			values...,
 		)
-		send.Embed.Title = localisation.Translate(
-			localisations,
-			send.Embed.Title,
-			values...,
-		)
-		send.Embed.Title = emoji.Replace(send.Embed.Title)
-		send.Embed.Description = localisation.Translate(
-			localisations,
-			send.Embed.Description,
-			values...,
-		)
-		send.Embed.Description = emoji.Replace(send.Embed.Description)
-		if send.Embed.Footer != nil {
-			send.Embed.Footer.IconURL = localisation.Translate(
-				localisations,
-				send.Embed.Footer.IconURL,
-				values...,
-			)
-			send.Embed.Footer.Text = localisation.Translate(
-				localisations,
-				send.Embed.Footer.Text,
-				values...,
-			)
-			send.Embed.Footer.Text = emoji.Replace(send.Embed.Footer.Text)
-		}
-		if send.Embed.Image != nil {
-			send.Embed.Image.URL = localisation.Translate(
-				localisations,
-				send.Embed.Image.URL,
-				values...,
-			)
-		}
-		if send.Embed.Thumbnail != nil {
-			send.Embed.Thumbnail.URL = localisation.Translate(
-				localisations,
-				send.Embed.Thumbnail.URL,
-				values...,
-			)
-		}
-		if send.Embed.Video != nil {
-			send.Embed.Video.URL = localisation.Translate(
-				localisations,
-				send.Embed.Video.URL,
-				values...,
-			)
-		}
-		if send.Embed.Provider != nil {
-			send.Embed.Provider.URL = localisation.Translate(
-				localisations,
-				send.Embed.Provider.URL,
-				values...,
-			)
-			send.Embed.Provider.Name = localisation.Translate(
-				localisations,
-				send.Embed.Provider.Name,
-				values...,
-			)
-			send.Embed.Provider.Name = emoji.Replace(send.Embed.Provider.Name)
-		}
-		if send.Embed.Author != nil {
-			send.Embed.Author.URL = localisation.Translate(
-				localisations,
-				send.Embed.Author.URL,
-				values...,
-			)
-			send.Embed.Author.IconURL = localisation.Translate(
-				localisations,
-				send.Embed.Author.IconURL,
-				values...,
-			)
-			send.Embed.Author.Name = localisation.Translate(
-				localisations,
-				send.Embed.Author.Name,
-				values...,
-			)
-			send.Embed.Author.Name = emoji.Replace(send.Embed.Author.Name)
-		}
-		for i := range send.Embed.Fields {
-			send.Embed.Fields[i].Name = localisation.Translate(
-				localisations,
-				send.Embed.Fields[i].Name,
-				values...,
-			)
-			send.Embed.Fields[i].Name = emoji.Replace(send.Embed.Fields[i].Name)
-			send.Embed.Fields[i].Value = localisation.Translate(
-				localisations,
-				send.Embed.Fields[i].Value,
-				values...,
-			)
-			send.Embed.Fields[i].Value = emoji.Replace(send.Embed.Fields[i].Value)
-		}
 	}
 
 	return send
+}
+
+// TODO: replace emoji
+func TranslateEmbed(
+	localisations []interfaces.Localisation,
+	embed *discordgo.MessageEmbed,
+	values ...interface{},
+) *discordgo.MessageEmbed {
+	embed.URL = localisation.Translate(
+		localisations,
+		embed.URL,
+		values...,
+	)
+	embed.Title = localisation.Translate(
+		localisations,
+		embed.Title,
+		values...,
+	)
+	embed.Title = emoji.Replace(embed.Title)
+	embed.Description = localisation.Translate(
+		localisations,
+		embed.Description,
+		values...,
+	)
+	embed.Description = emoji.Replace(embed.Description)
+	if embed.Footer != nil {
+		embed.Footer.IconURL = localisation.Translate(
+			localisations,
+			embed.Footer.IconURL,
+			values...,
+		)
+		embed.Footer.Text = localisation.Translate(
+			localisations,
+			embed.Footer.Text,
+			values...,
+		)
+		embed.Footer.Text = emoji.Replace(embed.Footer.Text)
+	}
+	if embed.Image != nil {
+		embed.Image.URL = localisation.Translate(
+			localisations,
+			embed.Image.URL,
+			values...,
+		)
+	}
+	if embed.Thumbnail != nil {
+		embed.Thumbnail.URL = localisation.Translate(
+			localisations,
+			embed.Thumbnail.URL,
+			values...,
+		)
+	}
+	if embed.Video != nil {
+		embed.Video.URL = localisation.Translate(
+			localisations,
+			embed.Video.URL,
+			values...,
+		)
+	}
+	if embed.Provider != nil {
+		embed.Provider.URL = localisation.Translate(
+			localisations,
+			embed.Provider.URL,
+			values...,
+		)
+		embed.Provider.Name = localisation.Translate(
+			localisations,
+			embed.Provider.Name,
+			values...,
+		)
+		embed.Provider.Name = emoji.Replace(embed.Provider.Name)
+	}
+	if embed.Author != nil {
+		embed.Author.URL = localisation.Translate(
+			localisations,
+			embed.Author.URL,
+			values...,
+		)
+		embed.Author.IconURL = localisation.Translate(
+			localisations,
+			embed.Author.IconURL,
+			values...,
+		)
+		embed.Author.Name = localisation.Translate(
+			localisations,
+			embed.Author.Name,
+			values...,
+		)
+		embed.Author.Name = emoji.Replace(embed.Author.Name)
+	}
+	for i := range embed.Fields {
+		embed.Fields[i].Name = localisation.Translate(
+			localisations,
+			embed.Fields[i].Name,
+			values...,
+		)
+		embed.Fields[i].Name = emoji.Replace(embed.Fields[i].Name)
+		embed.Fields[i].Value = localisation.Translate(
+			localisations,
+			embed.Fields[i].Value,
+			values...,
+		)
+		embed.Fields[i].Value = emoji.Replace(embed.Fields[i].Value)
+	}
+
+	return embed
 }
