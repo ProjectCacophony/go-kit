@@ -49,8 +49,8 @@ func (e *Event) Parse() {
 		}
 
 		// Replace starting mentions with prefix
-		content = strings.Replace(content, "<@"+session.State.User.ID+">", e.Prefix(), -1)
-		content = strings.Replace(content, "<@!"+session.State.User.ID+">", e.Prefix(), -1)
+		content = strings.Replace(content, "<@"+e.BotUserID+">", e.Prefix(), -1)
+		content = strings.Replace(content, "<@!"+e.BotUserID+">", e.Prefix(), -1)
 	}
 
 	args, err := text.ToArgv(content[len(e.Prefix()):])
