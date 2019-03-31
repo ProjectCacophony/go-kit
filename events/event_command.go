@@ -40,20 +40,20 @@ func (e *Event) Parse() {
 		return
 	}
 
-	cmdBeginning := e.Prefix()
-
 	// ignore messages without prefix
 	if !strings.HasPrefix(content, e.Prefix()) {
 
-		// if message doesn't have a prefix check to see if it starts with bot mention
+		// if message doesn't have a prefix, check to see if it starts with bot mention
 		if !strings.HasPrefix(content, "<@") || len(e.MessageCreate.Mentions) == 0 || e.MessageCreate.Mentions[0].ID != e.BotUserID {
 			return
 		}
 
-		cmdBeginning = e.MessageCreate.Mentions[0].Mention()
+		// Replace starting mentions with prefix
+		content = strings.Replace(content, "<@"+session.State.User.ID+">", e.Prefix(), -1)
+		content = strings.Replace(content, "<@!"+session.State.User.ID+">", e.Prefix(), -1)
 	}
 
-	args, err := text.ToArgv(content[len(cmdBeginning):])
+	args, err := text.ToArgv(content[len(e.Prefix()):])
 	if err != nil {
 		return
 	}
