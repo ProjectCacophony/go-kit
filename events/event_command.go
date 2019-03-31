@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	// TODO: load command prefix from guild configuration
-	commandPrefix = "/"
+	defaultPrefix = "."
 )
 
 // Parse parses the content of a message into fields
@@ -41,12 +40,20 @@ func (e *Event) Parse() {
 		return
 	}
 
+	cmdBeginning := e.Prefix()
+
 	// ignore messages without prefix
-	if !strings.HasPrefix(content, commandPrefix) {
-		return
+	if !strings.HasPrefix(content, e.Prefix()) {
+
+		// if message doesn't have a prefix check to see if it starts with bot mention
+		if !strings.HasPrefix(content, "<@") || len(e.MessageCreate.Mentions) == 0 || e.MessageCreate.Mentions[0].ID != e.BotUserID {
+			return
+		}
+
+		cmdBeginning = e.MessageCreate.Mentions[0].Mention()
 	}
 
-	args, err := text.ToArgv(content[len(commandPrefix):])
+	args, err := text.ToArgv(content[len(cmdBeginning):])
 	if err != nil {
 		return
 	}
@@ -57,7 +64,6 @@ func (e *Event) Parse() {
 
 	// extract fields of command without prefix
 	e.command = true
-	e.prefix = strings.ToLower(commandPrefix)
 	e.fields = args
 }
 
@@ -73,6 +79,12 @@ func (e *Event) Command() bool {
 
 // Prefix returns the prefix of a command, if event is a command
 func (e *Event) Prefix() string {
+	if e.prefix == "" {
+		// TODO: check for guild prefix
+
+		e.prefix = defaultPrefix
+	}
+
 	return e.prefix
 }
 
