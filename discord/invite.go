@@ -25,7 +25,7 @@ func Invite(
 
 	var invite *discordgo.Invite
 	if len(cached) > 0 {
-		err = json.Unmarshal(cached, invite)
+		err = json.Unmarshal(cached, &invite)
 		if err != nil {
 			return nil, err
 		}
