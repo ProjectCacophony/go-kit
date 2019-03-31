@@ -9,16 +9,16 @@ import (
 )
 
 func Invite(
-	redis *redis.Client,
+	redisClient *redis.Client,
 	session *Session,
 	inviteCode string,
 ) (*discordgo.Invite, error) {
 	var err error
 	var cached []byte
 
-	if redis != nil {
-		cached, err = redis.Get(inviteCacheKey(inviteCode)).Bytes()
-		if err != nil {
+	if redisClient != nil {
+		cached, err = redisClient.Get(inviteCacheKey(inviteCode)).Bytes()
+		if err != nil && err != redis.Nil {
 			return nil, err
 		}
 	}
@@ -40,10 +40,10 @@ func Invite(
 		return nil, err
 	}
 
-	if redis != nil && invite != nil && invite.Code == inviteCode {
+	if redisClient != nil && invite != nil && invite.Code == inviteCode {
 		cached, err = json.Marshal(invite)
 		if err == nil {
-			redis.Set(inviteCacheKey(inviteCode), cached, 24*time.Hour)
+			redisClient.Set(inviteCacheKey(inviteCode), cached, 24*time.Hour)
 		}
 	}
 
