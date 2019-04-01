@@ -17,7 +17,6 @@ import (
 )
 
 // Event represents an Event
-// TODO: event ID or Key
 type Event struct {
 	ID         string    `json:"id"`
 	CacheKey   string    `json:"cache_key"`
@@ -61,7 +60,8 @@ type Event struct {
 	VoiceServerUpdate        *discordgo.VoiceServerUpdate        `json:"discord_voice_server_update,omitempty"`
 	WebhooksUpdate           *discordgo.WebhooksUpdate           `json:"discord_webhooks_update,omitempty"`
 	// Cacophony Event Data
-	BucketUpdate *BucketUpdate `json:"cacophony_bucket_update,omitempty"`
+	BucketUpdate           *BucketUpdate           `json:"cacophony_bucket_update,omitempty"`
+	ServerlistServerExpire *ServerlistServerExpire `json:"cacophony_serverlist_server_expire,omitempty"`
 
 	// non marshalled events
 
@@ -90,11 +90,17 @@ const (
 	UserBucketType    BucketType = "user_bucket"
 )
 
-// BucketUpdate represents Bucket Update event data
 type BucketUpdate struct {
 	Type      BucketType
 	Tag       string
 	GuildID   string
 	Values    []string
 	KeySuffix string
+}
+
+type ServerlistServerExpire struct {
+	ID         uint
+	GuildID    string
+	InviteCode string
+	BotID      string
 }
