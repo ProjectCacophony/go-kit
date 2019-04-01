@@ -27,6 +27,7 @@ require (
 	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.8.1
+	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1
