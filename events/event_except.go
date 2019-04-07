@@ -121,7 +121,9 @@ func ignoreError(err error) bool {
 	}
 
 	// state errors
-	if err == state.ErrStateNotFound ||
+	if err == state.ErrPresenceStateNotFound ||
+		err == state.ErrRoleStateNotFound ||
+		err == state.ErrEmojiStateNotFound ||
 		err == state.ErrTargetWrongServer ||
 		err == state.ErrTargetWrongType ||
 		err == state.ErrUserNotFound ||
