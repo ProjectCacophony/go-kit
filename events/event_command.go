@@ -83,14 +83,22 @@ func (e *Event) Command() bool {
 
 // Prefix returns the prefix of a command, if event is a command
 func (e *Event) Prefix() string {
-	if e.prefix == "" {
 
-		prefix, err := config.GuildGetString(e.DB(), e.GuildID, guildCmdPrefixKey)
-		if err == nil && prefix != "" {
-			e.prefix = prefix
-		} else {
-			e.prefix = defaultPrefix
-		}
+	if e.prefix != "" {
+		return e.prefix
+	}
+
+	// handle DMs or other odd situations where a guildID is not set
+	if e.GuildID == "" {
+		e.prefix = defaultPrefix
+		return e.prefix
+	}
+
+	prefix, err := config.GuildGetString(e.DB(), e.GuildID, guildCmdPrefixKey)
+	if err == nil && prefix != "" {
+		e.prefix = prefix
+	} else {
+		e.prefix = defaultPrefix
 	}
 
 	return e.prefix
