@@ -48,7 +48,9 @@ func (e *Event) Parse() {
 	if !strings.HasPrefix(content, e.Prefix()) {
 
 		// if message doesn't have a prefix, check to see if it starts with bot mention
-		if !strings.HasPrefix(content, "<@") || len(e.MessageCreate.Mentions) == 0 || e.MessageCreate.Mentions[0].ID != e.BotUserID {
+		if !strings.HasPrefix(content, "<@") ||
+			len(e.MessageCreate.Mentions) == 0 ||
+			e.MessageCreate.Mentions[0].ID != e.BotUserID {
 			return
 		}
 
