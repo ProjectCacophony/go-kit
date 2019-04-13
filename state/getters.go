@@ -42,7 +42,7 @@ func (s *State) Presence(guildID, userID string) (presence *discordgo.Presence, 
 		}
 	}
 
-	return nil, ErrStateNotFound
+	return nil, ErrPresenceStateNotFound
 }
 
 // Member returns the specified Member from the shard state, returns ErrStateNotFound if not found
@@ -69,7 +69,7 @@ func (s *State) Role(guildID, roleID string) (role *discordgo.Role, err error) {
 		}
 	}
 
-	return nil, ErrStateNotFound
+	return nil, ErrRoleStateNotFound
 }
 
 // Channel returns the specified Channel from the shard state, returns ErrStateNotFound if not found
@@ -96,7 +96,7 @@ func (s *State) Emoji(guildID, emojiID string) (emoji *discordgo.Emoji, err erro
 		}
 	}
 
-	return nil, ErrStateNotFound
+	return nil, ErrEmojiStateNotFound
 }
 
 // User returns the specified User from the shard state, returns ErrStateNotFound if not found
@@ -145,7 +145,7 @@ func (s *State) BotForGuild(guildID string) (botID string, err error) {
 	if len(botIDs) > 0 {
 		return botIDs[0], nil
 	}
-	return "", ErrStateNotFound
+	return "", ErrBotForGuildStateNotFound
 }
 
 // GuildBannedUserIDs returns the banned user of a server

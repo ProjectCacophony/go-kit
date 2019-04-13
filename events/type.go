@@ -37,5 +37,6 @@ const (
 	VoiceServerUpdateType        Type = "discord_voice_server_update"
 	WebhooksUpdateType           Type = "discord_webhooks_update"
 	// Cacophony Events
-	CacophonyBucketUpdate Type = "cacophony_bucket_update"
+	CacophonyBucketUpdate           Type = "cacophony_bucket_update"
+	CacophonyServerlistServerExpire Type = "cacophony_serverlist_server_expire"
 )

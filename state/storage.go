@@ -85,10 +85,6 @@ func deleteStateObject(client *redis.Client, key string) error {
 func readStateObject(client *redis.Client, key string) (data []byte, err error) {
 	data, err = client.Get(key).Bytes()
 
-	if err == redis.Nil {
-		return nil, ErrStateNotFound
-	}
-
 	return data, err
 }
 
