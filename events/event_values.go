@@ -3,6 +3,8 @@ package events
 import (
 	"context"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/go-redis/redis"
 
 	"gitlab.com/Cacophony/go-kit/paginator"
@@ -112,4 +114,14 @@ func (e *Event) WithRedis(redisClient *redis.Client) {
 // Redis retrieves the Redis Client from the event
 func (e *Event) Redis() *redis.Client {
 	return e.redisClient
+}
+
+// WithDB stores the DB Client in the event
+func (e *Event) WithDB(db *gorm.DB) {
+	e.db = db
+}
+
+// DB retrieves the DB Client from the event
+func (e *Event) DB() *gorm.DB {
+	return e.db
 }

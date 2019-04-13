@@ -7,6 +7,7 @@ import (
 	"gitlab.com/Cacophony/go-kit/discord"
 
 	"github.com/go-redis/redis"
+	"github.com/jinzhu/gorm"
 
 	"gitlab.com/Cacophony/go-kit/paginator"
 
@@ -78,6 +79,7 @@ type Event struct {
 	botOwnerIDs    []string
 	paginator      *paginator.Paginator
 	redisClient    *redis.Client
+	db             *gorm.DB
 }
 
 // BucketType specifies the scope of a bucket
