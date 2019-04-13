@@ -3,11 +3,15 @@ package events
 import (
 	"strings"
 
+	"gitlab.com/Cacophony/go-kit/config"
 	"gitlab.com/Cacophony/go-kit/text"
 )
 
 const (
 	defaultPrefix = "."
+
+	// TODO: cleanup - this is declared here and in the prefix plugin
+	guildCmdPrefixKey = "cacophony:processor:prefix:guild-cmd-prefix"
 )
 
 // Parse parses the content of a message into fields
@@ -80,9 +84,13 @@ func (e *Event) Command() bool {
 // Prefix returns the prefix of a command, if event is a command
 func (e *Event) Prefix() string {
 	if e.prefix == "" {
-		// TODO: check for guild prefix
 
-		e.prefix = defaultPrefix
+		prefix, err := config.GuildGetString(e.DB(), e.GuildID, guildCmdPrefixKey)
+		if err == nil && prefix != "" {
+			e.prefix = prefix
+		} else {
+			e.prefix = defaultPrefix
+		}
 	}
 
 	return e.prefix
