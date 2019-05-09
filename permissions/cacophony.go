@@ -4,6 +4,11 @@ import (
 	"gitlab.com/Cacophony/go-kit/state"
 )
 
+// TODO (snake): change to bot permission? ex: bot owner, bot staff, bot mod
+//     type CacophonyBotPermission
+//     newBotPermission
+//     ...
+
 type CacophonyBotOwner struct {
 	name string
 }
