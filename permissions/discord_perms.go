@@ -35,7 +35,6 @@ func (p *Discord) Match(
 	return discord.UserHasPermission(state, userID, channelID, p.id)
 }
 
-// nolint: gochecknoglobals
 var (
 	DiscordReadMessages = NewDiscordPermission(
 		"Read Messages",

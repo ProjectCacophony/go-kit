@@ -8,7 +8,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// nolint: gochecknoglobals
 var (
 	dmChannelExpirySuccessful = time.Hour * 24 * 7
 	dmChannelExpiryError      = time.Hour * 1

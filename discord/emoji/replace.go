@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-// nolint: gochecknoglobals
 var (
 	colonRegex = regexp.MustCompile(":[A-Za-z0-9-_]+:")
 )

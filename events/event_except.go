@@ -42,13 +42,13 @@ func (e *Event) Except(err error) {
 				message += "I sent our top people to fix the issue as soon as possible."
 			}
 
-			e.Respond( // nolint: errcheck
+			e.Respond(
 				message,
 			)
 
 		} else if discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionAddReactions) {
 
-			e.React( // nolint: errcheck
+			e.React(
 				":stop:", ":shh:", ":nogood:", ":speaknoevil:",
 			)
 		}

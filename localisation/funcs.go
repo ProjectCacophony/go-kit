@@ -16,14 +16,12 @@ import (
 	humanize "github.com/dustin/go-humanize"
 )
 
-// nolint: gochecknoglobals
 var (
 	polrClient             *polr.Polr
 	shortenedLinkCache     = make(map[string]string)
 	shortenedLinkCacheLock sync.Mutex
 )
 
-// nolint: gochecknoinits
 func init() {
 
 	if os.Getenv("POLR_BASE_URL") != "" &&
@@ -39,7 +37,6 @@ func init() {
 	}
 }
 
-// nolint: gochecknoglobals
 var (
 	// the additional functions to use in the template engine
 	translationFuncs = template.FuncMap{

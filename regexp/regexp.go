@@ -4,7 +4,6 @@ import (
 	"regexp"
 )
 
-// nolint: gochecknoglobals
 var (
 	// DiscordInviteRegexp matches a linked Discord Invite
 	DiscordInviteRegexp = regexp.MustCompile(

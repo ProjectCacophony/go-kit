@@ -11,7 +11,7 @@ import (
 func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/status", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte("OK")) // nolint: errcheck, gosec
+		w.Write([]byte("OK"))
 	})
 
 	return router

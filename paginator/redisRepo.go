@@ -7,7 +7,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// nolint: gochecknoglobals
 var expiration = time.Hour
 
 func pagedMessageKey(messageID string) string {
@@ -64,7 +63,7 @@ func addNumbersListener(redis *redis.Client, channelID, userID string, listener 
 }
 
 func isNumbersListening(redis *redis.Client, channelID, userID string) bool {
-	res, _ := redis.Exists(numbersListenerKey(channelID, userID)).Result() // nolint: errcheck
+	res, _ := redis.Exists(numbersListenerKey(channelID, userID)).Result()
 	return res > 0
 }
 

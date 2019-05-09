@@ -8,15 +8,12 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-// nolint: gochecknoglobals
 const (
 	redisKeyPrefix = "cacophony:state:"
 )
 
-// nolint: gochecknoglobals
 var stateLock sync.Mutex
 
-// nolint: gochecknoglobals
 var stateExpire = time.Duration(0)
 
 func guildUserIDsSetKey(guildID string) string {

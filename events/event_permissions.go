@@ -67,7 +67,7 @@ func (e *Event) Require(
 		"\nYou need all of the following permissions:" +
 		"\n```\n" + permissionsText + "\n```"
 
-	e.Respond(message) // nolint: errcheck
+	e.Respond(message)
 }
 
 // RequireOr calls the callback if the user has one of the required permissions
@@ -91,5 +91,5 @@ func (e *Event) RequireOr(
 		"\nYou need one of the following permissions:" +
 		"\n```\n" + permissionsText + "\n```"
 
-	e.Respond(message) // nolint: errcheck
+	e.Respond(message)
 }

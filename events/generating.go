@@ -1,6 +1,7 @@
 package events
 
 import (
+	"crypto/md5"
 	"encoding/gob"
 	"encoding/hex"
 	"errors"
@@ -10,9 +11,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
-
-	// nolint: gosec
-	"crypto/md5"
 )
 
 // TODO: fix event struct hashing
@@ -23,7 +21,6 @@ func GenerateRoutingKey(eventType Type) string {
 }
 
 // GenerateEventFromDiscordgoEvent generates an Event from a Discordgo Event
-// nolint: gocyclo
 func GenerateEventFromDiscordgoEvent(
 	botUserID string, eventItem interface{},
 ) (
@@ -366,7 +363,6 @@ func GenerateEventFromDiscordgoEvent(
 }
 
 func hash(data interface{}) (string, error) {
-	// nolint: gosec
 	md5Hasher := md5.New()
 
 	enc := gob.NewEncoder(md5Hasher)

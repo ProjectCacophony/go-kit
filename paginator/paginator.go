@@ -44,11 +44,10 @@ func NewPaginator(
 	}
 
 	var err error
-	p.messageRegexp, err = regexp.Compile("^[0-9]+$") // nolint: gocritic
+	p.messageRegexp, err = regexp.Compile("^[0-9]+$")
 	return p, err
 }
 
-// nolint: gochecknoglobals
 var (
 	validReactions = map[string]bool{
 		LeftArrowEmoji:  true,

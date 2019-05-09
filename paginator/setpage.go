@@ -56,7 +56,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 	case ImageType:
 		// image embeds can't be edited, need to delete and remake it
-		discord.Delete( // nolint: errcheck
+		discord.Delete(
 			p.redis, session, message.ChannelID, message.MessageID, message.DM)
 
 		// if fields were sent with image embed, handle those
@@ -95,7 +95,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 		// update map with new message id since
 		originalmsgID := message.MessageID
 		message.MessageID = sentMessage[0].ID
-		p.addReactionsToMessage(message) // nolint: errcheck
+		p.addReactionsToMessage(message)
 		err = setPagedMessage(p.redis, sentMessage[0].ID, message)
 		if err != nil {
 			return err

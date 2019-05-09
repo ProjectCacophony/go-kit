@@ -7,7 +7,6 @@ import (
 )
 
 // quoteReplacer are quotes which will be counted as one array element
-// nolint: gochecknoglobals
 var quoteReplacer = strings.NewReplacer("“", "\"", "”", "\"", "‘", "'", "’", "'")
 
 // ToArgv converts string s into an string array text in quotes will be counted as one array element
@@ -41,8 +40,7 @@ func ToArgv(s string) ([]string, error) {
 	for i := 0; i < L; i++ {
 		c := s[i : i+1]
 
-		//fmt.Printf("c %s state %v arg %s argv %v i %d\n", c, currentState, currentArg, args, i)
-		// nolint: gocritic
+		// fmt.Printf("c %s state %v arg %s argv %v i %d\n", c, currentState, currentArg, args, i)
 		if isQuote(c) {
 			switch currentState {
 			case OutOfArg:

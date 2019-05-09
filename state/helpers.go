@@ -6,7 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// nolint: gochecknoglobals
 var (
 	// MentionRegex matches Discord User Mentions
 	// Source: https://github.com/b1naryth1ef/disco/blob/master/disco/bot/command.py#L15, modified to accept IDs

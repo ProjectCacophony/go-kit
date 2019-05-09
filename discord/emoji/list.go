@@ -1,6 +1,5 @@
 package emoji
 
-// nolint: gochecknoglobals
 var (
 	// List is the List of all emoji known by the bot
 	// they are on these servers: https://discord.is/RobyulEmotes1 https://discord.is/RobyulEmotes2

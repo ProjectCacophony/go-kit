@@ -24,7 +24,6 @@ func (p *DiscordDM) Match(
 	return dm
 }
 
-// nolint: gochecknoglobals
 var (
 	DiscordChannelDM = newDiscordDM()
 )

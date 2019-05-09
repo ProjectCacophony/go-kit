@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// nolint: gochecknoglobals
 var (
 	messagesLimit = 10
 )
@@ -135,7 +134,7 @@ func (s *State) onReady(session *discordgo.Session, ready *discordgo.Ready) (err
 
 		// init guild bans (async)
 		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			s.initGuildBans(gS, gGuildID)
 			// if err != nil {
 			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 			// }
@@ -229,7 +228,7 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 
 	// init guild bans (async)
 	go func(gS *discordgo.Session, gGuildID string) {
-		s.initGuildBans(gS, gGuildID) // nolint: errcheck
+		s.initGuildBans(gS, gGuildID)
 		// if err != nil {
 		// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 		// }
@@ -332,7 +331,7 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) 
 	if member.User.ID == session.State.User.ID {
 		// init guild bans (async) (could be giving or revoking the bot ban permission)
 		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			s.initGuildBans(gS, gGuildID)
 			// if err != nil {
 			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 			// }
@@ -439,7 +438,7 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 		role.Permissions&discordgo.PermissionBanMembers == discordgo.PermissionBanMembers {
 		// init guild bans (async) (could be giving or revoking the bot ban permission)
 		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID) // nolint: errcheck
+			s.initGuildBans(gS, gGuildID)
 			// if err != nil {
 			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 			// }
@@ -699,7 +698,6 @@ func (s *State) messageCreate(message *discordgo.MessageCreate) (err error) {
 }
 
 // SharedStateEventHandler receives events from a discordgo Websocket and updates the shared state with them
-// nolint: gocyclo
 func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{}) error {
 	var err error
 	ready, ok := i.(*discordgo.Ready)

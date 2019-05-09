@@ -48,7 +48,7 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 			return err
 		}
 
-		discord.RemoveReact( // nolint: errcheck
+		discord.RemoveReact(
 			p.redis, session, message.ChannelID, message.MessageID, reaction.UserID, message.DM, NumbersEmoji,
 		)
 
@@ -59,7 +59,7 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 		}
 
 		if message.Type != ImageType {
-			discord.RemoveReact( // nolint: errcheck
+			discord.RemoveReact(
 				p.redis, session, message.ChannelID, reaction.MessageID, reaction.UserID, message.DM, reaction.Emoji.Name,
 			)
 		}
@@ -71,7 +71,7 @@ func (p *Paginator) handleReaction(message *PagedEmbedMessage, reaction *discord
 		}
 
 		if message.Type != ImageType {
-			discord.RemoveReact( // nolint: errcheck
+			discord.RemoveReact(
 				p.redis, session, message.ChannelID, reaction.MessageID, reaction.UserID, message.DM, reaction.Emoji.Name,
 			)
 		}
