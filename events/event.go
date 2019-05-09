@@ -76,7 +76,6 @@ type Event struct {
 	fields         []string
 	tokens         map[string]string
 	state          *state.State
-	botOwnerIDs    []string
 	paginator      *paginator.Paginator
 	redisClient    *redis.Client
 	db             *gorm.DB

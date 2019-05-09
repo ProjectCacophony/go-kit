@@ -86,16 +86,6 @@ func (e *Event) State() *state.State {
 	return e.state
 }
 
-// WithBotOwnerIDs stores the Bot Owner IDs in the event
-func (e *Event) WithBotOwnerIDs(botOwnerIDs []string) {
-	e.botOwnerIDs = botOwnerIDs
-}
-
-// BotOwnerIDs retrieves the Bot Owner IDs from the event
-func (e *Event) BotOwnerIDs() []string {
-	return e.botOwnerIDs
-}
-
 // WithPaginator stores the Paginator in the event
 func (e *Event) WithPaginator(paginator *paginator.Paginator) {
 	e.paginator = paginator

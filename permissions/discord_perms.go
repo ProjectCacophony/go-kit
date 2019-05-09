@@ -22,7 +22,12 @@ func (p *Discord) Name() string {
 	return p.name
 }
 
-func (p *Discord) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
+func (p *Discord) Match(
+	state *state.State,
+	userID string,
+	channelID string,
+	dm bool,
+) bool {
 	if dm {
 		return false
 	}

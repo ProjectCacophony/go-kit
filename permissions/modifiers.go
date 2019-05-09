@@ -20,8 +20,13 @@ func (p *NotModifier) Name() string {
 	return "Not " + p.permission.Name()
 }
 
-func (p *NotModifier) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
-	return !p.permission.Match(state, botOwnerIDs, userID, channelID, dm)
+func (p *NotModifier) Match(
+	state *state.State,
+	userID string,
+	channelID string,
+	dm bool,
+) bool {
+	return !p.permission.Match(state, userID, channelID, dm)
 }
 
 type OrModifier struct {
@@ -47,9 +52,14 @@ func (p *OrModifier) Name() string {
 	return "(" + strings.Join(names, " or ") + ")"
 }
 
-func (p *OrModifier) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
+func (p *OrModifier) Match(
+	state *state.State,
+	userID string,
+	channelID string,
+	dm bool,
+) bool {
 	for _, permission := range p.permissions {
-		if !permission.Match(state, botOwnerIDs, userID, channelID, dm) {
+		if !permission.Match(state, userID, channelID, dm) {
 			continue
 		}
 
@@ -82,9 +92,14 @@ func (p *AndModifier) Name() string {
 	return "(" + strings.Join(names, " and ") + ")"
 }
 
-func (p *AndModifier) Match(state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
+func (p *AndModifier) Match(
+	state *state.State,
+	userID string,
+	channelID string,
+	dm bool,
+) bool {
 	for _, permission := range p.permissions {
-		if permission.Match(state, botOwnerIDs, userID, channelID, dm) {
+		if permission.Match(state, userID, channelID, dm) {
 			continue
 		}
 

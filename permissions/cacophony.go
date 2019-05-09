@@ -1,41 +1,57 @@
 package permissions
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"gitlab.com/Cacophony/go-kit/state"
 )
 
-// TODO (snake): change to bot permission? ex: bot owner, bot staff, bot mod
-//     type CacophonyBotPermission
-//     newBotPermission
-//     ...
+const (
+	// DiscordCacophonyServerGuildID is the Guild ID of the Cacophony Guild
+	DiscordCacophonyServerGuildID = "435420687906111498"
+)
 
-type CacophonyBotOwner struct {
-	name string
+type CacophonyBotPermission struct {
+	name  string
+	match func(state *state.State, userID string, channelID string, dm bool) bool
 }
 
-func newCacophonyBotOwner() *CacophonyBotOwner {
-	return &CacophonyBotOwner{
-		name: "Bot Owner",
+func newCacophonyBotAdmin() *CacophonyBotPermission {
+	return &CacophonyBotPermission{
+		name: "Bot Admin",
+		match: func(
+			state *state.State,
+			userID string,
+			channelID string,
+			dm bool,
+		) bool {
+			aPermissions, err := state.UserPermissions(userID, DiscordCacophonyServerGuildID)
+			if err != nil {
+				return false
+			}
+
+			if aPermissions&discordgo.PermissionManageServer != discordgo.PermissionManageServer {
+				return false
+			}
+
+			return true
+		},
 	}
 }
 
-func (p *CacophonyBotOwner) Name() string {
+func (p *CacophonyBotPermission) Name() string {
 	return p.name
 }
 
-func (p *CacophonyBotOwner) Match(
-	state *state.State, botOwnerIDs []string, userID, channelID string, dm bool) bool {
-	for _, botOwnerID := range botOwnerIDs {
-		if botOwnerID != userID {
-			continue
-		}
-
-		return true
-	}
-	return false
+func (p *CacophonyBotPermission) Match(
+	state *state.State,
+	userID string,
+	channelID string,
+	dm bool,
+) bool {
+	return p.match(state, userID, channelID, dm)
 }
 
-// nolint: gochecknoglobals
 var (
-	BotOwner = newCacophonyBotOwner()
+	// BotAdmin has Manage_Server permissions on the Bot Server
+	BotAdmin = newCacophonyBotAdmin()
 )
