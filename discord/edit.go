@@ -6,13 +6,13 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord/emoji"
 	"gitlab.com/Cacophony/go-kit/interfaces"
-	"gitlab.com/Cacophony/go-kit/localisation"
+	"gitlab.com/Cacophony/go-kit/localization"
 )
 
 func EditComplexWithVars(
 	redis *redis.Client,
 	session *Session,
-	localisations []interfaces.Localisation,
+	localizations []interfaces.Localization,
 	edit *discordgo.MessageEdit,
 	dm bool,
 	values ...interface{},
@@ -24,7 +24,7 @@ func EditComplexWithVars(
 	var err error
 
 	edit = TranslateMessageEdit(
-		localisations,
+		localizations,
 		edit,
 		values...,
 	)
@@ -49,13 +49,13 @@ func EditComplexWithVars(
 }
 
 func TranslateMessageEdit(
-	localisations []interfaces.Localisation,
+	localizations []interfaces.Localization,
 	edit *discordgo.MessageEdit,
 	values ...interface{},
 ) *discordgo.MessageEdit {
 	if edit.Content != nil {
-		newContent := localisation.Translate(
-			localisations,
+		newContent := localization.Translate(
+			localizations,
 			*edit.Content,
 			values...,
 		)
@@ -66,7 +66,7 @@ func TranslateMessageEdit(
 
 	if edit.Embed != nil {
 		edit.Embed = TranslateEmbed(
-			localisations,
+			localizations,
 			edit.Embed,
 			values...,
 		)

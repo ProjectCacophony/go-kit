@@ -66,14 +66,14 @@ func (e *Event) Logger() *zap.Logger {
 	return e.logger
 }
 
-// WithLocalisations stores the localisations in the event
-func (e *Event) WithLocalisations(localisations []interfaces.Localisation) {
-	e.localisations = localisations
+// WithLocalizations stores the localizations in the event
+func (e *Event) WithLocalizations(localizations []interfaces.Localization) {
+	e.localizations = localizations
 }
 
-// Localisations retrieves the localisations from the event
-func (e *Event) Localisations() []interfaces.Localisation {
-	return e.localisations
+// Localizations retrieves the localizations from the event
+func (e *Event) Localizations() []interfaces.Localization {
+	return e.localizations
 }
 
 // WithState stores the state in the event

@@ -1,4 +1,4 @@
-package localisation
+package localization
 
 import "text/template"
 

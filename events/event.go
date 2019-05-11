@@ -69,7 +69,7 @@ type Event struct {
 	ctx            context.Context
 	discordSession *discord.Session
 	logger         *zap.Logger
-	localisations  []interfaces.Localisation
+	localizations  []interfaces.Localization
 	command        bool
 	dm             bool
 	prefix         string

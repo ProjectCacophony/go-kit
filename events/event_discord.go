@@ -48,7 +48,7 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 	return discord.SendComplexWithVars(
 		e.Redis(),
 		e.Discord(),
-		e.Localisations(),
+		e.Localizations(),
 		channelID,
 		&discordgo.MessageSend{
 			Content: message,
@@ -72,7 +72,7 @@ func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, va
 	return discord.SendComplexWithVars(
 		e.Redis(),
 		e.Discord(),
-		e.Localisations(),
+		e.Localizations(),
 		channelID,
 		message,
 		append(values, "prefix", e.Prefix())...,

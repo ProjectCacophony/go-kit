@@ -1,4 +1,4 @@
-package localisation
+package localization
 
 import (
 	"net/http"

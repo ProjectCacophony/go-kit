@@ -1,4 +1,4 @@
-package localisation
+package localization
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	toml "github.com/pelletier/go-toml"
 )
 
-// FileSource is a localisation source from a toml file
+// FileSource is a localization source from a toml file
 type FileSource struct {
 	path     string
 	language string
@@ -86,7 +86,7 @@ func (l *FileSource) load() error {
 	return nil
 }
 
-// Language returns the language of the localisations
+// Language returns the language of the localizations
 func (l *FileSource) Language() string {
 	return l.language
 }

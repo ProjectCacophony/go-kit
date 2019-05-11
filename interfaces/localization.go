@@ -1,7 +1,7 @@
 package interfaces
 
-// Localisation represents a localisation service
-type Localisation interface {
+// Localization represents a localization service
+type Localization interface {
 	Language() string
 	Translate(string) string
 	Translatef(string, ...interface{}) string
