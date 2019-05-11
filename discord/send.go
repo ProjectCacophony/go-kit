@@ -2,7 +2,6 @@ package discord
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis"
 	"gitlab.com/Cacophony/go-kit/discord/emoji"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/localization"
@@ -14,7 +13,6 @@ import (
 // - trims the embed
 // - escapes @ everyone, and @ here
 func SendComplexWithVars(
-	redis *redis.Client,
 	session *Session,
 	localizations []interfaces.Localization,
 	channelID string,

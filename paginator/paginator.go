@@ -69,13 +69,22 @@ func (p *Paginator) sendComplex(
 		return nil, err
 	}
 
+	if dm {
+		channelID, err = discord.DMChannel(
+			p.redis,
+			session,
+			channelID,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return discord.SendComplexWithVars(
-		p.redis,
 		session,
 		nil,
 		channelID,
 		send,
-		dm,
 	)
 }
 

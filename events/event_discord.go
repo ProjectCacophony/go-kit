@@ -12,12 +12,11 @@ func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Mes
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	channelID := e.MessageCreate.ChannelID
 	if e.DM() {
-		channelID = e.MessageCreate.Author.ID
+		return e.SendDM(e.MessageCreate.Author.ID, message, values...)
 	}
 
-	return e.Send(channelID, message, values...)
+	return e.Send(e.MessageCreate.ChannelID, message, values...)
 }
 
 func (e *Event) RespondDM(message string, values ...interface{}) ([]*discordgo.Message, error) {
@@ -34,19 +33,17 @@ func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interfa
 		return nil, errors.New("cannot respond to this event")
 	}
 
-	channelID := e.MessageCreate.ChannelID
 	if e.DM() {
-		channelID = e.MessageCreate.Author.ID
+		return e.SendComplexDM(e.MessageCreate.Author.ID, message, values...)
 	}
 
-	return e.SendComplex(channelID, message, values...)
+	return e.SendComplex(e.MessageCreate.ChannelID, message, values...)
 }
 
 // Send sends a message to the given channel, translates it if possible
 // TODO: check language
 func (e *Event) Send(channelID, message string, values ...interface{}) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
-		e.Redis(),
 		e.Discord(),
 		e.Localizations(),
 		channelID,
@@ -70,7 +67,6 @@ func (e *Event) SendDM(userID, message string, values ...interface{}) ([]*discor
 // TODO: check language
 func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
 	return discord.SendComplexWithVars(
-		e.Redis(),
 		e.Discord(),
 		e.Localizations(),
 		channelID,
@@ -85,7 +81,7 @@ func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, val
 		return nil, err
 	}
 
-	return e.SendComplex(channelID, message, values)
+	return e.SendComplex(channelID, message, values...)
 }
 
 // Typing starts typing in the event channel
