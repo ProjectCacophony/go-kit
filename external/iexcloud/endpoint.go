@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	apiBase = "https://cloud.iexapis.com/v1/"
+	apiBase = "https://cloud.iexapis.com/v1"
 
 	endpointRefDataSymbols = "/ref-data/symbols"
 )
@@ -28,6 +28,10 @@ func endpointStocksQuote(symbol, field string) string {
 
 func endpointStocksLogo(symbol string) string {
 	return fmt.Sprintf("/stock/%s/logo", symbol)
+}
+
+func endpointStocksHistoricalPrices(symbol, dataRange, date string) string {
+	return fmt.Sprintf("/stock/%s/chart/%s/%s", symbol, dataRange, date)
 }
 
 func endpointRefDataSymbolsInternational(region string) string {

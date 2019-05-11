@@ -162,3 +162,38 @@ func (iex *IEX) StocksLogo(ctx context.Context, symbol string) (*Logo, error) {
 
 	return &stats, err
 }
+
+type HistoricalPrice struct {
+	Date           Date    `json:"date"`
+	Open           float64 `json:"open"`
+	Close          float64 `json:"close"`
+	High           float64 `json:"high"`
+	Low            float64 `json:"low"`
+	Volume         int     `json:"volume"`
+	UOpen          float64 `json:"uOpen"`
+	UClose         float64 `json:"uClose"`
+	UHigh          float64 `json:"uHigh"`
+	ULow           float64 `json:"uLow"`
+	UVolume        int     `json:"uVolume"`
+	Change         float64 `json:"change"`
+	ChangePercent  float64 `json:"changePercent"`
+	Label          string  `json:"label"`
+	ChangeOverTime float64 `json:"changeOverTime"`
+}
+
+func (iex *IEX) StocksHistoricalPrices(
+	ctx context.Context,
+	symbol string,
+	rangeData string,
+	date string,
+) ([]*HistoricalPrice, error) {
+	raw, err := iex.get(ctx, endpointStocksHistoricalPrices(symbol, rangeData, date))
+	if err != nil {
+		return nil, err
+	}
+
+	var stats []*HistoricalPrice
+	err = json.Unmarshal(raw, &stats)
+
+	return stats, err
+}
