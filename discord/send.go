@@ -3,7 +3,6 @@ package discord
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
-	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord/emoji"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/localisation"
@@ -20,7 +19,6 @@ func SendComplexWithVars(
 	localisations []interfaces.Localisation,
 	channelID string,
 	send *discordgo.MessageSend,
-	dm bool,
 	values ...interface{},
 ) ([]*discordgo.Message, error) {
 	send = TranslateMessageSend(
@@ -35,17 +33,6 @@ func SendComplexWithVars(
 
 	if send.Embed != nil {
 		send.Embed = TrimEmbed(send.Embed)
-	}
-
-	if dm {
-		if redis == nil {
-			return nil, errors.New("sending DMs requires redis")
-		}
-
-		channelID, err = DMChannel(redis, session, channelID)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	pages := Pagify(send.Content)

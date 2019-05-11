@@ -1,9 +1,8 @@
 package discord
 
 import (
+	"errors"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/go-redis/redis"
 )
@@ -18,6 +17,11 @@ func DMChannel(
 	session *Session,
 	userID string,
 ) (string, error) {
+
+	if redisClient == nil {
+		return "", errors.New("sending DMs requires redis")
+	}
+
 	key := "cacophony:discord:dm-channel:" + session.BotID + ":" + userID
 
 	res, err := redisClient.Get(key).Result()
