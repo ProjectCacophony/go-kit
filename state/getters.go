@@ -136,18 +136,6 @@ func (s *State) IsMember(guildID, userID string) (isMember bool, err error) {
 	return isMember, err
 }
 
-// BotForGuild returns a Bot User ID for the given Guild ID
-func (s *State) BotForGuild(guildID string) (botID string, err error) {
-	botIDs, err := readStateSet(s.client, guildBotIDsSetKey(guildID))
-	if err != nil {
-		return "", err
-	}
-	if len(botIDs) > 0 {
-		return botIDs[0], nil
-	}
-	return "", ErrBotForGuildStateNotFound
-}
-
 // GuildBannedUserIDs returns the banned user of a server
 // only contains items if the bot has the Ban Members or Administrator permission
 func (s *State) GuildBannedUserIDs(guildID string) (userIDs []string, err error) {

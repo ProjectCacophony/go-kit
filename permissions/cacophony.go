@@ -2,7 +2,7 @@ package permissions
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/Cacophony/go-kit/state"
+	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
 const (
@@ -12,14 +12,14 @@ const (
 
 type CacophonyBotPermission struct {
 	name  string
-	match func(state *state.State, userID string, channelID string, dm bool) bool
+	match func(state interfaces.State, userID string, channelID string, dm bool) bool
 }
 
 func newCacophonyBotAdmin() *CacophonyBotPermission {
 	return &CacophonyBotPermission{
 		name: "Bot Admin",
 		match: func(
-			state *state.State,
+			state interfaces.State,
 			userID string,
 			channelID string,
 			dm bool,
@@ -43,7 +43,7 @@ func (p *CacophonyBotPermission) Name() string {
 }
 
 func (p *CacophonyBotPermission) Match(
-	state *state.State,
+	state interfaces.State,
 	userID string,
 	channelID string,
 	dm bool,

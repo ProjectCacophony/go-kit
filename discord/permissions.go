@@ -1,12 +1,13 @@
 package discord
 
 import (
+	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/state"
 )
 
 // UserHasPermission returns true if the User has all of th egiven permissions in the given channel
 func UserHasPermission(
-	state *state.State, userID, channelID string, firstPermission int, permissions ...int,
+	state interfaces.State, userID, channelID string, firstPermission int, permissions ...int,
 ) bool {
 	if userID == "" || channelID == "" {
 		return false

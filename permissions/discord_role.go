@@ -1,16 +1,16 @@
 package permissions
 
 import (
-	"gitlab.com/Cacophony/go-kit/state"
+	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
 type DiscordRole struct {
 	guildID string
 	roleID  string
-	state   *state.State
+	state   interfaces.State
 }
 
-func NewDiscordRole(state *state.State, guildID, roleID string) *DiscordRole {
+func NewDiscordRole(state interfaces.State, guildID, roleID string) *DiscordRole {
 	return &DiscordRole{
 		guildID: guildID,
 		roleID:  roleID,
@@ -34,7 +34,7 @@ func (p *DiscordRole) Name() string {
 }
 
 func (p *DiscordRole) Match(
-	state *state.State,
+	state interfaces.State,
 	userID string,
 	channelID string,
 	dm bool,

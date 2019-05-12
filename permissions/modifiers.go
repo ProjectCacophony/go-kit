@@ -3,14 +3,14 @@ package permissions
 import (
 	"strings"
 
-	"gitlab.com/Cacophony/go-kit/state"
+	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
 type NotModifier struct {
-	permission PermissionInterface
+	permission interfaces.PermissionInterface
 }
 
-func Not(permission PermissionInterface) *NotModifier {
+func Not(permission interfaces.PermissionInterface) *NotModifier {
 	return &NotModifier{
 		permission: permission,
 	}
@@ -21,7 +21,7 @@ func (p *NotModifier) Name() string {
 }
 
 func (p *NotModifier) Match(
-	state *state.State,
+	state interfaces.State,
 	userID string,
 	channelID string,
 	dm bool,
@@ -30,16 +30,16 @@ func (p *NotModifier) Match(
 }
 
 type OrModifier struct {
-	permissions []PermissionInterface
+	permissions []interfaces.PermissionInterface
 }
 
 func Or(
-	firstPermission PermissionInterface,
-	secondPermission PermissionInterface,
-	additionalPermissions ...PermissionInterface,
+	firstPermission interfaces.PermissionInterface,
+	secondPermission interfaces.PermissionInterface,
+	additionalPermissions ...interfaces.PermissionInterface,
 ) *OrModifier {
 	return &OrModifier{
-		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
+		permissions: append([]interfaces.PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 
@@ -53,7 +53,7 @@ func (p *OrModifier) Name() string {
 }
 
 func (p *OrModifier) Match(
-	state *state.State,
+	state interfaces.State,
 	userID string,
 	channelID string,
 	dm bool,
@@ -70,16 +70,16 @@ func (p *OrModifier) Match(
 }
 
 type AndModifier struct {
-	permissions []PermissionInterface
+	permissions []interfaces.PermissionInterface
 }
 
 func And(
-	firstPermission PermissionInterface,
-	secondPermission PermissionInterface,
-	additionalPermissions ...PermissionInterface,
+	firstPermission interfaces.PermissionInterface,
+	secondPermission interfaces.PermissionInterface,
+	additionalPermissions ...interfaces.PermissionInterface,
 ) *AndModifier {
 	return &AndModifier{
-		permissions: append([]PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
+		permissions: append([]interfaces.PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 
@@ -93,7 +93,7 @@ func (p *AndModifier) Name() string {
 }
 
 func (p *AndModifier) Match(
-	state *state.State,
+	state interfaces.State,
 	userID string,
 	channelID string,
 	dm bool,

@@ -1,13 +1,9 @@
-package permissions
-
-import (
-	"gitlab.com/Cacophony/go-kit/state"
-)
+package interfaces
 
 type PermissionInterface interface {
 	Name() string
 	Match(
-		state *state.State,
+		state State,
 		userID string,
 		channelID string,
 		dm bool,
