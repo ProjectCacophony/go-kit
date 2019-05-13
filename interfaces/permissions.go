@@ -1,6 +1,6 @@
 package interfaces
 
-type PermissionInterface interface {
+type Permission interface {
 	Name() string
 	Match(
 		state State,

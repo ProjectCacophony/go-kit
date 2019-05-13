@@ -54,7 +54,7 @@ func (s *State) BotForGuild(
 // matches the Permissions if specified
 func (s *State) BotForChannel(
 	channelID string,
-	permissions ...interfaces.PermissionInterface,
+	permissions ...interfaces.Permission,
 ) (
 	botID string,
 	err error,

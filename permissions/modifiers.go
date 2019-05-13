@@ -7,10 +7,10 @@ import (
 )
 
 type NotModifier struct {
-	permission interfaces.PermissionInterface
+	permission interfaces.Permission
 }
 
-func Not(permission interfaces.PermissionInterface) *NotModifier {
+func Not(permission interfaces.Permission) *NotModifier {
 	return &NotModifier{
 		permission: permission,
 	}
@@ -30,16 +30,16 @@ func (p *NotModifier) Match(
 }
 
 type OrModifier struct {
-	permissions []interfaces.PermissionInterface
+	permissions []interfaces.Permission
 }
 
 func Or(
-	firstPermission interfaces.PermissionInterface,
-	secondPermission interfaces.PermissionInterface,
-	additionalPermissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	secondPermission interfaces.Permission,
+	additionalPermissions ...interfaces.Permission,
 ) *OrModifier {
 	return &OrModifier{
-		permissions: append([]interfaces.PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
+		permissions: append([]interfaces.Permission{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 
@@ -70,16 +70,16 @@ func (p *OrModifier) Match(
 }
 
 type AndModifier struct {
-	permissions []interfaces.PermissionInterface
+	permissions []interfaces.Permission
 }
 
 func And(
-	firstPermission interfaces.PermissionInterface,
-	secondPermission interfaces.PermissionInterface,
-	additionalPermissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	secondPermission interfaces.Permission,
+	additionalPermissions ...interfaces.Permission,
 ) *AndModifier {
 	return &AndModifier{
-		permissions: append([]interfaces.PermissionInterface{firstPermission, secondPermission}, additionalPermissions...),
+		permissions: append([]interfaces.Permission{firstPermission, secondPermission}, additionalPermissions...),
 	}
 }
 

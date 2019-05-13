@@ -8,8 +8,8 @@ import (
 
 // Has returns true if the user has all the required permissions
 func (e *Event) Has(
-	firstPermission interfaces.PermissionInterface,
-	permissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	permissions ...interfaces.Permission,
 ) bool {
 	if e.UserID == "" {
 		return false
@@ -28,8 +28,8 @@ func (e *Event) Has(
 
 // HasOr returns true if the user has one of the required permissions
 func (e *Event) HasOr(
-	firstPermission interfaces.PermissionInterface,
-	permissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	permissions ...interfaces.Permission,
 ) bool {
 	if e.UserID == "" {
 		return false
@@ -49,8 +49,8 @@ func (e *Event) HasOr(
 // Require calls the callback if the user has all of the required permissions
 func (e *Event) Require(
 	callback func(),
-	firstPermission interfaces.PermissionInterface,
-	permissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	permissions ...interfaces.Permission,
 ) {
 	if e.Has(firstPermission, permissions...) {
 		callback()
@@ -73,8 +73,8 @@ func (e *Event) Require(
 // RequireOr calls the callback if the user has one of the required permissions
 func (e *Event) RequireOr(
 	callback func(),
-	firstPermission interfaces.PermissionInterface,
-	permissions ...interfaces.PermissionInterface,
+	firstPermission interfaces.Permission,
+	permissions ...interfaces.Permission,
 ) {
 	if e.HasOr(firstPermission, permissions...) {
 		callback()
