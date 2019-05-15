@@ -160,5 +160,9 @@ func (c *Consumer) start(ctx context.Context) error {
 
 	c.logger.Info("finished Start()")
 
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	return errors.New("unexpected shutdown")
 }
