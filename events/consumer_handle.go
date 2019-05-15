@@ -4,20 +4,17 @@ import (
 	"encoding/json"
 
 	"github.com/pkg/errors"
-	"github.com/streadway/amqp"
+	"gocloud.dev/pubsub"
 )
 
-func (p *Processor) handle(delivery amqp.Delivery) error {
+func (c *Consumer) handle(delivery *pubsub.Message) error {
 	var event Event
 	err := json.Unmarshal(delivery.Body, &event)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshal event")
 	}
 
-	err = delivery.Ack(false)
-	if err != nil {
-		return errors.Wrap(err, "failed to ack event")
-	}
+	delivery.Ack()
 
-	return p.handler(&event)
+	return c.handler(&event)
 }

@@ -1,18 +1,19 @@
 package events
 
 import (
-	"fmt"
-	"time"
+	"context"
 
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"gocloud.dev/pubsub"
+	"gocloud.dev/pubsub/rabbitpubsub"
 )
 
 // TODO: shutdown logic
 
-// Processor processes incoming events
-type Processor struct {
+// Consumer processes incoming events
+type Consumer struct {
 	logger                    *zap.Logger
 	serviceName               string
 	amqpDSN                   string
@@ -21,14 +22,12 @@ type Processor struct {
 	concurrentProcessingLimit int
 	handler                   func(*Event) error
 
-	amqpConnection   *amqp.Connection
-	amqpChannel      *amqp.Channel
-	amqpQueue        *amqp.Queue
-	amqpErrorChannel chan *amqp.Error
+	amqpConnection *amqp.Connection
+	subscription   *pubsub.Subscription
 }
 
-// NewProcessor creates a new processor
-func NewProcessor(
+// NewConsumer creates a new processor
+func NewConsumer(
 	logger *zap.Logger,
 	serviceName string,
 	amqpDSN string,
@@ -36,8 +35,8 @@ func NewProcessor(
 	amqpRoutingKey string,
 	concurrentProcessingLimit int,
 	handler func(*Event) error,
-) (*Processor, error) {
-	processor := &Processor{
+) (*Consumer, error) {
+	processor := &Consumer{
 		logger:                    logger,
 		serviceName:               serviceName,
 		amqpDSN:                   amqpDSN,
@@ -45,8 +44,6 @@ func NewProcessor(
 		amqpRoutingKey:            amqpRoutingKey,
 		concurrentProcessingLimit: concurrentProcessingLimit,
 		handler:                   handler,
-
-		amqpErrorChannel: make(chan *amqp.Error),
 	}
 
 	err := processor.init()
@@ -57,46 +54,22 @@ func NewProcessor(
 	return processor, nil
 }
 
-func (p *Processor) startErrorHandler() {
-	p.amqpConnection.NotifyClose(p.amqpErrorChannel)
-
-	for amqpErr := range p.amqpErrorChannel {
-
-		if amqpErr == nil {
-			continue
-		}
-
-		if amqpErr.Recover {
-			p.logger.Error("received recoverable error from AMQP Broker",
-				zap.Any("error", amqpErr),
-			)
-			continue
-		}
-
-		p.logger.Fatal(
-			"looks like we lost the connection to the AMQP Broker, will shut down",
-			zap.Any("error", amqpErr),
-		)
-	}
-
-}
-
 // init declares the exchange, the queue, and the queue binding
-func (p *Processor) init() error {
+func (c *Consumer) init() error {
 	var err error
 
-	p.amqpConnection, err = amqp.Dial(p.amqpDSN)
+	c.amqpConnection, err = amqp.Dial(c.amqpDSN)
 	if err != nil {
 		return errors.Wrap(err, "unable to initialise AMQP session")
 	}
 
-	p.amqpChannel, err = p.amqpConnection.Channel()
+	amqpChannel, err := c.amqpConnection.Channel()
 	if err != nil {
 		return errors.Wrap(err, "cannot open channel")
 	}
 
-	err = p.amqpChannel.ExchangeDeclare(
-		p.amqpExchangeName,
+	err = amqpChannel.ExchangeDeclare(
+		c.amqpExchangeName,
 		"topic",
 		true,
 		false,
@@ -108,8 +81,8 @@ func (p *Processor) init() error {
 		return errors.Wrap(err, "cannot declare exchange")
 	}
 
-	ampqQueue, err := p.amqpChannel.QueueDeclare(
-		p.serviceName,
+	ampqQueue, err := amqpChannel.QueueDeclare(
+		c.serviceName,
 		true,
 		false,
 		false,
@@ -119,12 +92,11 @@ func (p *Processor) init() error {
 	if err != nil {
 		return errors.Wrap(err, "cannot declare queue")
 	}
-	p.amqpQueue = &ampqQueue
 
-	err = p.amqpChannel.QueueBind(
-		p.amqpQueue.Name,
-		p.amqpRoutingKey,
-		p.amqpExchangeName,
+	err = amqpChannel.QueueBind(
+		ampqQueue.Name,
+		c.amqpRoutingKey,
+		c.amqpExchangeName,
 		false,
 		nil,
 	)
@@ -132,48 +104,46 @@ func (p *Processor) init() error {
 		return errors.Wrap(err, "cannot bind queue")
 	}
 
+	c.subscription = rabbitpubsub.OpenSubscription(
+		c.amqpConnection,
+		c.serviceName,
+		nil,
+	)
+
 	return nil
 }
 
 // Start starts processing events
-func (p *Processor) Start() error {
-	go p.startErrorHandler()
-
-	return p.start()
+func (c *Consumer) Start() error {
+	return c.start()
 }
 
-func (p *Processor) start() error {
-	deliveries, err := p.amqpChannel.Consume(
-		p.amqpQueue.Name,
-		fmt.Sprintf(
-			"%s: launched %s", p.serviceName, time.Now().UTC().Format(time.RFC3339),
-		),
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return errors.Wrap(err, "cannot consume queue")
-	}
-
+func (c *Consumer) start() error {
 	// keep semaphore channel to limit the amount of events being processed concurrently
-	semaphore := make(chan interface{}, p.concurrentProcessingLimit)
+	semaphore := make(chan interface{}, c.concurrentProcessingLimit)
 
-	for delivery := range deliveries {
+	for {
+		delivery, err := c.subscription.Receive(context.Background())
+		if err != nil {
+			c.logger.Error(
+				"error receiving event",
+				zap.Error(err),
+			)
+			break
+		}
+
 		// wait for channel if channel buffer is full
 		semaphore <- nil
 
-		go func(d amqp.Delivery) {
+		go func(d *pubsub.Message) {
 			defer func() {
 				// clear channel when completed
 				<-semaphore
 			}()
 
-			err := p.handle(d)
+			err := c.handle(d)
 			if err != nil {
-				p.logger.Error("failed to handle event",
+				c.logger.Error("failed to handle event",
 					zap.Error(err),
 				)
 			}
@@ -185,7 +155,7 @@ func (p *Processor) start() error {
 		semaphore <- nil
 	}
 
-	p.logger.Info("finished Start()")
+	c.logger.Info("finished Start()")
 
-	return nil
+	return errors.New("unexpected shutdown")
 }
