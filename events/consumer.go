@@ -114,11 +114,11 @@ func (c *Consumer) init() error {
 }
 
 // Start starts processing events
-func (c *Consumer) Start() error {
-	return c.start()
+func (c *Consumer) Start(ctx context.Context) error {
+	return c.start(ctx)
 }
 
-func (c *Consumer) start() error {
+func (c *Consumer) start(ctx context.Context) error {
 	// keep semaphore channel to limit the amount of events being processed concurrently
 	semaphore := make(chan interface{}, c.concurrentProcessingLimit)
 
@@ -132,8 +132,11 @@ func (c *Consumer) start() error {
 			break
 		}
 
-		// wait for channel if channel buffer is full
-		semaphore <- nil
+		select {
+		case semaphore <- nil:
+		case <-ctx.Done():
+			break
+		}
 
 		go func(d *pubsub.Message) {
 			defer func() {
