@@ -17,8 +17,6 @@ type Consumer struct {
 	logger                    *zap.Logger
 	serviceName               string
 	amqpDSN                   string
-	amqpExchangeName          string
-	amqpRoutingKey            string
 	concurrentProcessingLimit int
 	handler                   func(*Event) error
 
@@ -31,8 +29,6 @@ func NewConsumer(
 	logger *zap.Logger,
 	serviceName string,
 	amqpDSN string,
-	amqpExchangeName string,
-	amqpRoutingKey string,
 	concurrentProcessingLimit int,
 	handler func(*Event) error,
 ) (*Consumer, error) {
@@ -40,8 +36,6 @@ func NewConsumer(
 		logger:                    logger,
 		serviceName:               serviceName,
 		amqpDSN:                   amqpDSN,
-		amqpExchangeName:          amqpExchangeName,
-		amqpRoutingKey:            amqpRoutingKey,
 		concurrentProcessingLimit: concurrentProcessingLimit,
 		handler:                   handler,
 	}
@@ -68,15 +62,7 @@ func (c *Consumer) init() error {
 		return errors.Wrap(err, "cannot open channel")
 	}
 
-	err = amqpChannel.ExchangeDeclare(
-		c.amqpExchangeName,
-		"topic",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
+	err = declareExchange(amqpChannel)
 	if err != nil {
 		return errors.Wrap(err, "cannot declare exchange")
 	}
@@ -95,8 +81,8 @@ func (c *Consumer) init() error {
 
 	err = amqpChannel.QueueBind(
 		ampqQueue.Name,
-		c.amqpRoutingKey,
-		c.amqpExchangeName,
+		"",
+		exchangeName,
 		false,
 		nil,
 	)

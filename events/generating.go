@@ -5,7 +5,6 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -14,11 +13,6 @@ import (
 )
 
 // TODO: fix event struct hashing
-
-// GenerateRoutingKey generates an Routing Key for AMQP based on a Event Type
-func GenerateRoutingKey(eventType Type) string {
-	return fmt.Sprintf("cacophony.discord.%s", eventType)
-}
 
 // GenerateEventFromDiscordgoEvent generates an Event from a Discordgo Event
 func GenerateEventFromDiscordgoEvent(
