@@ -8,6 +8,8 @@ import (
 const (
 	// DiscordCacophonyServerGuildID is the Guild ID of the Cacophony Guild
 	DiscordCacophonyServerGuildID = "435420687906111498"
+	// DiscordCacophonyPatronRoleID is the Role ID of the Patron role on the Cacophony Guild
+	DiscordCacophonyPatronRoleID = "578650002361155626"
 )
 
 type CacophonyBotPermission struct {
@@ -15,7 +17,7 @@ type CacophonyBotPermission struct {
 	match func(state interfaces.State, userID string, channelID string, dm bool) bool
 }
 
-func newCacophonyBotAdmin() *CacophonyBotPermission {
+func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
 	return &CacophonyBotPermission{
 		name: "Bot Admin",
 		match: func(
@@ -24,7 +26,7 @@ func newCacophonyBotAdmin() *CacophonyBotPermission {
 			channelID string,
 			dm bool,
 		) bool {
-			aPermissions, err := state.UserPermissions(userID, DiscordCacophonyServerGuildID)
+			aPermissions, err := state.UserPermissions(userID, guildID)
 			if err != nil {
 				return false
 			}
@@ -34,6 +36,26 @@ func newCacophonyBotAdmin() *CacophonyBotPermission {
 			}
 
 			return true
+		},
+	}
+}
+
+func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
+	return &CacophonyBotPermission{
+		name: "Patron Supporter",
+		match: func(state interfaces.State, userID string, channelID string, dm bool) bool {
+			member, err := state.Member(guildID, userID)
+			if err != nil {
+				return false
+			}
+
+			for _, roleItemID := range member.Roles {
+				if roleItemID == roleID {
+					return true
+				}
+			}
+
+			return false
 		},
 	}
 }
@@ -53,5 +75,12 @@ func (p *CacophonyBotPermission) Match(
 
 var (
 	// BotAdmin has Manage_Server permissions on the Bot Server
-	BotAdmin = newCacophonyBotAdmin()
+	BotAdmin = newCacophonyBotAdmin(
+		DiscordCacophonyServerGuildID,
+	)
+	// Patron has the Patron Role on the Bot Server
+	Patron = newCacophonyPatron(
+		DiscordCacophonyServerGuildID,
+		DiscordCacophonyPatronRoleID,
+	)
 )
