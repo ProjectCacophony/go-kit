@@ -63,6 +63,7 @@ type Event struct {
 	// Cacophony Event Data
 	BucketUpdate           *BucketUpdate           `json:"cacophony_bucket_update,omitempty"`
 	ServerlistServerExpire *ServerlistServerExpire `json:"cacophony_serverlist_server_expire,omitempty"`
+	QuickactionRemind      *QuickactionRemind      `json:"cacophony_quickaction_remind,omitempty"`
 
 	// non marshalled events
 
@@ -104,4 +105,13 @@ type ServerlistServerExpire struct {
 	GuildID    string
 	InviteCode string
 	BotID      string
+}
+
+type QuickactionRemind struct {
+	GuildID   string
+	ChannelID string
+	MessageID string
+	Emoji     *discordgo.Emoji
+
+	ToUserID string
 }
