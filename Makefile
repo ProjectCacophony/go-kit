@@ -3,7 +3,6 @@
 SOURCE_FOLDERS := $(shell go list -f {{.Dir}} ./...)
 
 lint:
-	goimports -d $(SOURCE_FOLDERS)
 	golangci-lint run --deadline=30m --disable-all \
 	--enable=govet \
 	--enable=staticcheck \
