@@ -16,12 +16,15 @@ require (
 	github.com/jinzhu/gorm v1.9.2
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/jinzhu/now v1.0.0 // indirect
-	github.com/json-iterator/go v1.1.5
+	github.com/json-iterator/go v1.1.6
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
+	github.com/onsi/ginkgo v1.7.0 // indirect
+	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.8.1
-	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d
+	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	go.uber.org/zap v1.9.1
-	gocloud.dev v0.13.0
+	gocloud.dev v0.13.1-0.20190517223022-b207d6bbe5f8
 	gopkg.in/h2non/gock.v1 v1.0.14 // indirect
+	gopkg.in/yaml.v2 v2.2.2 // indirect
 )

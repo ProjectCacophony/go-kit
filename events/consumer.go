@@ -108,6 +108,7 @@ func (c *Consumer) start(ctx context.Context) error {
 	// keep semaphore channel to limit the amount of events being processed concurrently
 	semaphore := make(chan interface{}, c.concurrentProcessingLimit)
 
+eventLoop:
 	for {
 		delivery, err := c.subscription.Receive(context.Background())
 		if err != nil {
@@ -121,7 +122,7 @@ func (c *Consumer) start(ctx context.Context) error {
 		select {
 		case semaphore <- nil:
 		case <-ctx.Done():
-			break
+			break eventLoop
 		}
 
 		go func(d *pubsub.Message) {
