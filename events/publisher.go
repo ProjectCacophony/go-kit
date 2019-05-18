@@ -3,7 +3,9 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"gocloud.dev/pubsub"
@@ -12,12 +14,16 @@ import (
 
 type Publisher struct {
 	topic *pubsub.Topic
+	db    *gorm.DB
 }
 
 func NewPublisher(
 	amqpDSN string,
+	db *gorm.DB,
 ) (*Publisher, error) {
-	p := &Publisher{}
+	p := &Publisher{
+		db: db,
+	}
 
 	rabbitConn, err := amqp.Dial(amqpDSN)
 	if err != nil {
@@ -61,4 +67,48 @@ func (p *Publisher) Publish(
 			Body: body,
 		},
 	)
+}
+
+func (p *Publisher) PublishRaw(
+	ctx context.Context,
+	body []byte,
+) error {
+	return p.topic.Send(
+		ctx,
+		&pubsub.Message{
+			Body: body,
+		},
+	)
+}
+
+// scheduledEventModel is maintained by the Worker
+type scheduledEventModel struct {
+	gorm.Model
+	Body        []byte
+	PublishAt   time.Time
+	PublishedAt *time.Time
+}
+
+func (*scheduledEventModel) TableName() string {
+	return "events_scheduled"
+}
+
+func (p *Publisher) PublishAt(
+	ctx context.Context,
+	event *Event,
+	publishAt time.Time,
+) error {
+	body, err := json.Marshal(event)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			"error marshalling event",
+		)
+	}
+
+	return p.db.Create(&scheduledEventModel{
+		Body:        body,
+		PublishAt:   publishAt,
+		PublishedAt: nil,
+	}).Error
 }
