@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"gitlab.com/Cacophony/go-kit/discord"
@@ -80,6 +81,7 @@ type Event struct {
 	paginator      *paginator.Paginator
 	redisClient    *redis.Client
 	db             *gorm.DB
+	httpClient     *http.Client
 }
 
 // BucketType specifies the scope of a bucket

@@ -2,6 +2,7 @@ package events
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/jinzhu/gorm"
 
@@ -114,4 +115,12 @@ func (e *Event) WithDB(db *gorm.DB) {
 // DB retrieves the DB Client from the event
 func (e *Event) DB() *gorm.DB {
 	return e.db
+}
+
+func (e *Event) WithHTTPClient(client *http.Client) {
+	e.httpClient = client
+}
+
+func (e *Event) HTTPClient() *http.Client {
+	return e.httpClient
 }
