@@ -2,6 +2,8 @@ package discord
 
 import (
 	"errors"
+	"net/http"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -22,6 +24,10 @@ func NewSession(tokens map[string]string, botID string) (*Session, error) {
 	newSession, err := discordgo.New("Bot " + token)
 	if err != nil {
 		return nil, errors.New("error creating bot session")
+	}
+	// TODO: use event client or something
+	newSession.Client = &http.Client{
+		Timeout: 60 * time.Second,
 	}
 
 	return &Session{
