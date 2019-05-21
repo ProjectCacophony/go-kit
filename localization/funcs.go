@@ -1,6 +1,7 @@
 package localization
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -9,11 +10,11 @@ import (
 	"text/template"
 	"time"
 
-	polr "github.com/Seklfreak/polr-go"
-
+	"github.com/Seklfreak/polr-go"
+	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -123,5 +124,23 @@ var (
 		"Contains": strings.Contains,
 
 		"Join": strings.Join,
+
+		"MessageLink": func(message *discordgo.Message) string {
+			if message == nil {
+				return ""
+			}
+
+			guildID := message.GuildID
+			if message.GuildID == "" {
+				guildID = "@me"
+			}
+
+			return fmt.Sprintf(
+				"https://discordapp.com/channels/%s/%s/%s",
+				guildID,
+				message.ChannelID,
+				message.ID,
+			)
+		},
 	}
 )
