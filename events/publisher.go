@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
+	"gocloud.dev/gcerrors"
 	"gocloud.dev/pubsub"
 	"gocloud.dev/pubsub/rabbitpubsub"
 )
@@ -49,24 +50,33 @@ func NewPublisher(
 	return p, nil
 }
 
-func (p *Publisher) Publish(
+func (p *Publisher) Publish( // nolint: golint
 	ctx context.Context,
 	event *Event,
-) error {
+) (err error, recoverable bool) {
+	recoverable = true
+
 	body, err := json.Marshal(event)
 	if err != nil {
 		return errors.Wrap(
 			err,
 			"error marshalling event",
-		)
+		), recoverable
 	}
 
-	return p.topic.Send(
+	err = p.topic.Send(
 		ctx,
 		&pubsub.Message{
 			Body: body,
 		},
 	)
+	if err != nil {
+		if gcerrors.Code(err) == gcerrors.FailedPrecondition {
+			recoverable = false
+		}
+	}
+
+	return err, recoverable
 }
 
 func (p *Publisher) PublishRaw(
