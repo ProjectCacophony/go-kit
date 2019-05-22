@@ -40,4 +40,5 @@ const (
 	CacophonyBucketUpdate           Type = "cacophony_bucket_update"
 	CacophonyServerlistServerExpire Type = "cacophony_serverlist_server_expire"
 	CacophonyQuickactionRemind      Type = "cacophony_quickaction_remind"
+	CacophonyQuestionnaireMatch     Type = "cacophony_questionnaire_match"
 )

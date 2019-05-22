@@ -65,6 +65,7 @@ type Event struct {
 	BucketUpdate           *BucketUpdate           `json:"cacophony_bucket_update,omitempty"`
 	ServerlistServerExpire *ServerlistServerExpire `json:"cacophony_serverlist_server_expire,omitempty"`
 	QuickactionRemind      *QuickactionRemind      `json:"cacophony_quickaction_remind,omitempty"`
+	QuestionnaireMatch     *QuestionnaireMatch     `json:"cacophony_questionnaire_match,omitempty"`
 
 	// non marshalled events
 
@@ -82,6 +83,7 @@ type Event struct {
 	redisClient    *redis.Client
 	db             *gorm.DB
 	httpClient     *http.Client
+	questionnaire  *Questionnaire
 }
 
 // BucketType specifies the scope of a bucket
@@ -116,4 +118,9 @@ type QuickactionRemind struct {
 	Emoji     *discordgo.Emoji
 
 	ToUserID string
+}
+
+type QuestionnaireMatch struct {
+	Key     string
+	Payload map[string]interface{}
 }

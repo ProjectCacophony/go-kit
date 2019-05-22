@@ -124,3 +124,11 @@ func (e *Event) WithHTTPClient(client *http.Client) {
 func (e *Event) HTTPClient() *http.Client {
 	return e.httpClient
 }
+
+func (e *Event) WithQuestionnaire(questionnaire *Questionnaire) {
+	e.questionnaire = questionnaire
+}
+
+func (e *Event) Questionnaire() *Questionnaire {
+	return e.questionnaire
+}
