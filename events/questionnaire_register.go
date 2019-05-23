@@ -6,17 +6,26 @@ import (
 )
 
 const (
-	expiration = 15 * time.Minute
+	defaultExpiration = 15 * time.Minute
 )
 
 func (q *Questionnaire) Register(
 	key string,
 	filter QuestionnaireFilter,
-	Payload map[string]interface{},
+	payload map[string]interface{},
+) error {
+	return q.RegisterWithExpiration(key, filter, payload, defaultExpiration)
+}
+
+func (q *Questionnaire) RegisterWithExpiration(
+	key string,
+	filter QuestionnaireFilter,
+	payload map[string]interface{},
+	expiration time.Duration,
 ) error {
 	body, err := json.Marshal(QuestionnaireMatch{
 		Key:     key,
-		Payload: Payload,
+		Payload: payload,
 	})
 	if err != nil {
 		return err
