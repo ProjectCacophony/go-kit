@@ -65,19 +65,17 @@ func (q *Questionnaire) Do(ctx context.Context, event *Event) (bool, error) {
 			return false, err
 		}
 
-		newEvent, err := New(CacophonyQuestionnaireMatch)
+		tempEvent, err := New(CacophonyQuestionnaireMatch)
 		if err != nil {
 			return false, err
 		}
 
-		newEvent.UserID = event.UserID
-		newEvent.GuildID = event.GuildID
-		newEvent.ChannelID = event.ChannelID
-		newEvent.BotUserID = event.BotUserID
+		newEvent := &Event{}
+		*newEvent = *event
+		newEvent.ID = tempEvent.ID
+		newEvent.Type = tempEvent.Type
+		newEvent.ReceivedAt = tempEvent.ReceivedAt
 		newEvent.QuestionnaireMatch = &match
-
-		// TODO(snake): temp fix for message content being carried to new event
-		newEvent.MessageCreate = event.MessageCreate
 
 		err, recoverable = q.publisher.Publish(ctx, newEvent)
 		if err != nil {
