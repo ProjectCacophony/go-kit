@@ -76,6 +76,9 @@ func (q *Questionnaire) Do(ctx context.Context, event *Event) (bool, error) {
 		newEvent.BotUserID = event.BotUserID
 		newEvent.QuestionnaireMatch = &match
 
+		// TODO(snake): temp fix for message content being carried to new event
+		newEvent.MessageCreate = event.MessageCreate
+
 		err, recoverable = q.publisher.Publish(ctx, newEvent)
 		if err != nil {
 			if !recoverable {
