@@ -2,6 +2,7 @@ package events
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -26,6 +27,7 @@ func (q *Questionnaire) RegisterWithExpiration(
 	body, err := json.Marshal(QuestionnaireMatch{
 		Key:     key,
 		Payload: payload,
+		Filter:  filter,
 	})
 	if err != nil {
 		return err
@@ -47,4 +49,17 @@ func (q *Questionnaire) RegisterWithExpiration(
 	}
 
 	return q.redis.Expire(redisKey, expiration).Err()
+}
+
+// Redo Will register a questionnaire event again. Helper function to easily remake questionnaires with the same payloads and keys
+func (q *Questionnaire) Redo(event *Event) error {
+	if event.Type != CacophonyQuestionnaireMatch {
+		return errors.New("Can register non-questionnaire event")
+	}
+
+	return q.Register(
+		event.QuestionnaireMatch.Key,
+		event.QuestionnaireMatch.Filter,
+		event.QuestionnaireMatch.Payload,
+	)
 }

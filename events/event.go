@@ -123,4 +123,5 @@ type QuickactionRemind struct {
 type QuestionnaireMatch struct {
 	Key     string
 	Payload map[string]interface{}
+	Filter  QuestionnaireFilter
 }
