@@ -64,6 +64,15 @@ func (p *Publisher) Publish( // nolint: golint
 		), recoverable
 	}
 
+	return p.PublishRaw(ctx, body)
+}
+
+func (p *Publisher) PublishRaw( // nolint: golint
+	ctx context.Context,
+	body []byte,
+) (err error, recoverable bool) {
+	recoverable = true
+
 	err = p.topic.Send(
 		ctx,
 		&pubsub.Message{
@@ -77,18 +86,6 @@ func (p *Publisher) Publish( // nolint: golint
 	}
 
 	return err, recoverable
-}
-
-func (p *Publisher) PublishRaw(
-	ctx context.Context,
-	body []byte,
-) error {
-	return p.topic.Send(
-		ctx,
-		&pubsub.Message{
-			Body: body,
-		},
-	)
 }
 
 // scheduledEventModel is maintained by the Worker
