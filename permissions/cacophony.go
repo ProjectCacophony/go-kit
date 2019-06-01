@@ -58,6 +58,7 @@ func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 			channelID string,
 			dm bool,
 		) bool {
+			// check Patron Role on Discord
 			member, err := state.Member(guildID, userID)
 			if err != nil {
 				return false
@@ -69,7 +70,20 @@ func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 				}
 			}
 
-			return false
+			// check Patron DB
+			var results int
+			err = db.
+				Table("patrons").
+				Where(
+					"discord_user_id = ? AND patron_status = ?",
+					userID,
+					"active_patron",
+				).Count(&results).Error
+			if err != nil {
+				return false
+			}
+
+			return results > 0
 		},
 	}
 }
