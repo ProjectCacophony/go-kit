@@ -2,6 +2,7 @@ package paginator
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
@@ -81,6 +82,11 @@ func (p *Paginator) setupAndSendFirstMessage(message *PagedEmbedMessage) error {
 
 	}
 
+	if len(sentMessage) <= 0 {
+		return errors.New("no sent messages found")
+	}
+
 	message.MessageID = sentMessage[0].ID
+
 	return p.addReactionsToMessage(message)
 }
