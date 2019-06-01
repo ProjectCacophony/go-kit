@@ -2,6 +2,7 @@ package permissions
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/jinzhu/gorm"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
@@ -14,7 +15,13 @@ const (
 
 type CacophonyBotPermission struct {
 	name  string
-	match func(state interfaces.State, userID string, channelID string, dm bool) bool
+	match func(
+		state interfaces.State,
+		db *gorm.DB,
+		userID string,
+		channelID string,
+		dm bool,
+	) bool
 }
 
 func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
@@ -22,6 +29,7 @@ func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
 		name: "Bot Admin",
 		match: func(
 			state interfaces.State,
+			db *gorm.DB,
 			userID string,
 			channelID string,
 			dm bool,
@@ -43,7 +51,13 @@ func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
 func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 	return &CacophonyBotPermission{
 		name: "Patron Supporter",
-		match: func(state interfaces.State, userID string, channelID string, dm bool) bool {
+		match: func(
+			state interfaces.State,
+			db *gorm.DB,
+			userID string,
+			channelID string,
+			dm bool,
+		) bool {
 			member, err := state.Member(guildID, userID)
 			if err != nil {
 				return false
@@ -66,11 +80,18 @@ func (p *CacophonyBotPermission) Name() string {
 
 func (p *CacophonyBotPermission) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,
 ) bool {
-	return p.match(state, userID, channelID, dm)
+	return p.match(
+		state,
+		db,
+		userID,
+		channelID,
+		dm,
+	)
 }
 
 var (

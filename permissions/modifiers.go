@@ -3,6 +3,7 @@ package permissions
 import (
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
@@ -22,11 +23,12 @@ func (p *NotModifier) Name() string {
 
 func (p *NotModifier) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,
 ) bool {
-	return !p.permission.Match(state, userID, channelID, dm)
+	return !p.permission.Match(state, db, userID, channelID, dm)
 }
 
 type OrModifier struct {
@@ -54,12 +56,13 @@ func (p *OrModifier) Name() string {
 
 func (p *OrModifier) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,
 ) bool {
 	for _, permission := range p.permissions {
-		if !permission.Match(state, userID, channelID, dm) {
+		if !permission.Match(state, db, userID, channelID, dm) {
 			continue
 		}
 
@@ -94,12 +97,13 @@ func (p *AndModifier) Name() string {
 
 func (p *AndModifier) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,
 ) bool {
 	for _, permission := range p.permissions {
-		if permission.Match(state, userID, channelID, dm) {
+		if permission.Match(state, db, userID, channelID, dm) {
 			continue
 		}
 

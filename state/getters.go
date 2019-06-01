@@ -3,17 +3,20 @@ package state
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
+	"github.com/jinzhu/gorm"
 	jsoniter "github.com/json-iterator/go"
 )
 
 type State struct {
 	client *redis.Client
+	db     *gorm.DB
 	botIDs []string
 }
 
-func NewSate(client *redis.Client, botIDs []string) *State {
+func NewSate(client *redis.Client, db *gorm.DB, botIDs []string) *State {
 	return &State{
 		client: client,
+		db:     db,
 		botIDs: botIDs,
 	}
 }

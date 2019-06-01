@@ -1,6 +1,7 @@
 package permissions
 
 import (
+	"github.com/jinzhu/gorm"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 )
 
@@ -35,6 +36,7 @@ func (p *DiscordRole) Name() string {
 
 func (p *DiscordRole) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,

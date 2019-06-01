@@ -1,6 +1,9 @@
 package permissions
 
-import "gitlab.com/Cacophony/go-kit/interfaces"
+import (
+	"github.com/jinzhu/gorm"
+	"gitlab.com/Cacophony/go-kit/interfaces"
+)
 
 type DiscordDM struct {
 }
@@ -15,6 +18,7 @@ func (p *DiscordDM) Name() string {
 
 func (p *DiscordDM) Match(
 	state interfaces.State,
+	db *gorm.DB,
 	userID string,
 	channelID string,
 	dm bool,
