@@ -50,7 +50,7 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 		&discordgo.MessageSend{
 			Content: message,
 		},
-		append(values, "prefix", e.Prefix())...,
+		append(values, e.defaultParams()...)...,
 	)
 }
 
@@ -71,7 +71,7 @@ func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, va
 		e.Localizations(),
 		channelID,
 		message,
-		append(values, "prefix", e.Prefix())...,
+		append(values, e.defaultParams()...)...,
 	)
 }
 
@@ -111,4 +111,11 @@ func (e *Event) React(emojiID string, emojiIDs ...string) error {
 		e.DM(),
 		emojiID, emojiIDs...,
 	)
+}
+
+func (e *Event) defaultParams() []interface{} {
+	return []interface{}{
+		"prefix", e.Prefix(),
+		"timezone", e.Timezone(),
+	}
 }

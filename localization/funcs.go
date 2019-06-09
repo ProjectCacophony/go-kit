@@ -146,5 +146,18 @@ var (
 		"TimeIsZero": func(t time.Time) bool {
 			return t.IsZero()
 		},
+
+		"TimeFormatLong": func(t time.Time, zone *time.Location) string {
+			if t.IsZero() {
+				return "Never"
+			}
+
+			return fmt.Sprintf(
+				"`%s` (%s)",
+				t.In(zone).Format(time.RFC1123),
+				humanize.Time(t),
+			)
+
+		},
 	}
 )
