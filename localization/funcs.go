@@ -147,7 +147,7 @@ var (
 			return t.IsZero()
 		},
 
-		"TimeFormatLong": func(t time.Time, zone *time.Location) string {
+		"TimeFormat": func(t time.Time, zone *time.Location) string {
 			if t.IsZero() {
 				return "Never"
 			}
@@ -157,7 +157,17 @@ var (
 				t.In(zone).Format(time.RFC1123),
 				humanize.Time(t),
 			)
+		},
 
+		"TimeFormatShort": func(t time.Time, zone *time.Location) string {
+			if t.IsZero() {
+				return "Never"
+			}
+
+			return fmt.Sprintf(
+				"`%s`",
+				t.In(zone).Format(time.RFC822),
+			)
 		},
 	}
 )
