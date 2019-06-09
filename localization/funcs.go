@@ -142,5 +142,9 @@ var (
 				message.ID,
 			)
 		},
+
+		"TimeIsZero": func(t time.Time) bool {
+			return t.IsZero()
+		},
 	}
 )
