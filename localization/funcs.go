@@ -149,7 +149,7 @@ var (
 
 		"TimeFormat": func(t time.Time, zone *time.Location) string {
 			if t.IsZero() {
-				return "Never"
+				return "`Never`"
 			}
 
 			return fmt.Sprintf(
@@ -161,7 +161,7 @@ var (
 
 		"TimeFormatShort": func(t time.Time, zone *time.Location) string {
 			if t.IsZero() {
-				return "Never"
+				return "`Never`"
 			}
 
 			return fmt.Sprintf(
