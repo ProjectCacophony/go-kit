@@ -31,7 +31,7 @@ func Pagify(text string) []string {
 										pages = append(pages, page)
 									}
 								} else {
-									pages = append(pages, page[0:1992])
+									pages = append(pages, split(page, 1992)...)
 								}
 							}
 						}
@@ -57,10 +57,7 @@ func pagify(text string, delimiter string) []string {
 			}
 		} else {
 			result = append(result, currentOutputPart)
-			currentOutputPart = ""
-			if len(textPart) <= 1992 {
-				currentOutputPart = textPart
-			}
+			currentOutputPart = textPart
 		}
 	}
 
@@ -73,4 +70,14 @@ func pagify(text string, delimiter string) []string {
 	}
 
 	return result
+}
+
+func split(text string, limit int) []string {
+	var parts []string
+
+	for limit < len(text) {
+		text, parts = text[limit:], append(parts, text[0:limit])
+	}
+
+	return append(parts, text)
 }
