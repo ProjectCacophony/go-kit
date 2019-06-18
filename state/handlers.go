@@ -700,16 +700,15 @@ func (s *State) messageCreate(message *discordgo.MessageCreate) (err error) {
 // SharedStateEventHandler receives events from a discordgo Websocket and updates the shared state with them
 func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{}) error {
 	var err error
-	ready, ok := i.(*discordgo.Ready)
-	if ok {
-		err = s.onReady(session, ready)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
 
 	switch t := i.(type) {
+	case *discordgo.Ready:
+		err = s.onReady(session, t)
+		if err != nil {
+			return errors.Wrap(err, "failed to process OnReady guildAdd")
+		}
+		return nil
+
 	case *discordgo.GuildCreate:
 		err = s.guildAdd(session, t.Guild)
 		if err != nil {
