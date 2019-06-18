@@ -746,6 +746,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMembersChunk:
+		fmt.Printf("got GuildMembersChunk with %d members\n", len(t.Members))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
 			err := s.memberAdd(session, t.Members[i])
