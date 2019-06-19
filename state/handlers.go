@@ -302,7 +302,6 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) 
 	} else {
 		// update member guild
 		previousGuild.Members = append(previousGuild.Members, member)
-		previousGuild.MemberCount++
 		// cache guild
 		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
 		if err != nil {
@@ -390,7 +389,6 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 	for i, previousMember := range previousGuild.Members {
 		if previousMember.User.ID == member.User.ID {
 			previousGuild.Members = append(previousGuild.Members[:i], previousGuild.Members[i+1:]...)
-			previousGuild.MemberCount--
 			break
 		}
 	}

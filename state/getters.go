@@ -29,6 +29,11 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 	}
 
 	err = jsoniter.Unmarshal(data, &guild)
+
+	if guild != nil {
+		guild.MemberCount = len(guild.Members)
+	}
+
 	return
 }
 
