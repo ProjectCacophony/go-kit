@@ -10,11 +10,12 @@ import (
 	"text/template"
 	"time"
 
-	polr "github.com/Seklfreak/polr-go"
+	"github.com/Masterminds/sprig"
+	"github.com/Seklfreak/polr-go"
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 )
 
 var (
@@ -36,6 +37,29 @@ func init() {
 			},
 		)
 	}
+}
+
+func getTranslationFuncs() map[string]interface{} {
+	// start with sprig
+	methods := sprig.FuncMap()
+
+	// remove dangerous methods
+	for _, unsafe := range []string{
+		"env",
+		"expandenv",
+		"typeOf",
+		"kindIs",
+		"typeIsLike",
+	} {
+		delete(methods, unsafe)
+	}
+
+	// add custom methods
+	for key, method := range translationFuncs {
+		methods[key] = method
+	}
+
+	return methods
 }
 
 var (

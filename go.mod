@@ -2,6 +2,9 @@ module gitlab.com/Cacophony/go-kit
 
 require (
 	cloud.google.com/go v0.40.0 // indirect
+	github.com/Masterminds/goutils v1.1.0 // indirect
+	github.com/Masterminds/semver v1.4.2 // indirect
+	github.com/Masterminds/sprig v2.20.0+incompatible
 	github.com/Seklfreak/polr-go v0.0.0-20190324143256-a87fed130937
 	github.com/Unleash/unleash-client-go v0.0.0-20190225211619-9febc6ff26f4
 	github.com/aws/aws-sdk-go v1.19.46 // indirect
@@ -13,6 +16,8 @@ require (
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/google/uuid v1.1.1
+	github.com/huandu/xstrings v1.2.0 // indirect
+	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jinzhu/gorm v1.9.8
 	github.com/jinzhu/inflection v0.0.0-20190603042836-f5c5f50e6090 // indirect
 	github.com/json-iterator/go v1.1.6
