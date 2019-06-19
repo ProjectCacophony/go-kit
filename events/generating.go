@@ -399,4 +399,6 @@ func presenceUpdateKey(event *discordgo.PresenceUpdate) string {
 	key += event.Game.URL
 	key += event.Game.ApplicationID
 	key += event.Game.Details
+
+	return key
 }
