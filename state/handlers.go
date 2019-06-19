@@ -299,7 +299,9 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) 
 		if member.JoinedAt == "" {
 			member.JoinedAt = previousMember.JoinedAt
 		}
-	} else {
+	}
+
+	if guildContainsMember(previousGuild, member.User.ID) {
 		// update member guild
 		previousGuild.Members = append(previousGuild.Members, member)
 		// cache guild

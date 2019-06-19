@@ -81,3 +81,17 @@ func channelTypesMatch(t discordgo.ChannelType, types []discordgo.ChannelType) b
 
 	return false
 }
+
+func guildContainsMember(guild *discordgo.Guild, memberID string) bool {
+	for _, member := range guild.Members {
+		if member == nil || member.User == nil {
+			continue
+		}
+
+		if member.User.ID == memberID {
+			return true
+		}
+	}
+
+	return false
+}
