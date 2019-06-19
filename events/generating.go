@@ -384,21 +384,26 @@ func guildMemberChunkKey(event *discordgo.GuildMembersChunk) string {
 
 func presenceUpdateKey(event *discordgo.PresenceUpdate) string {
 	key := event.GuildID
+
 	if event.User != nil {
 		key += event.User.ID
 		key += event.User.Username
 		key += event.User.Discriminator
 		key += event.User.Avatar
 	}
+
 	key += event.Nick
 	key += string(event.Status)
 	key += strings.Join(event.Roles, "")
-	key += event.Game.State
-	key += strconv.Itoa(int(event.Game.Type))
-	key += event.Game.Name
-	key += event.Game.URL
-	key += event.Game.ApplicationID
-	key += event.Game.Details
+
+	if event.Game != nil {
+		key += event.Game.State
+		key += strconv.Itoa(int(event.Game.Type))
+		key += event.Game.Name
+		key += event.Game.URL
+		key += event.Game.ApplicationID
+		key += event.Game.Details
+	}
 
 	return key
 }
