@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -101,7 +102,7 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildMembersChunkType
 		event.GuildMembersChunk = t
 		event.GuildID = t.GuildID
-		event.CacheKey, err = hash(t)
+		event.CacheKey, err = hash(guildMemberChunkKey(t))
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -294,7 +295,7 @@ func GenerateEventFromDiscordgoEvent(
 		if t.User != nil {
 			event.UserID = t.User.ID
 		}
-		event.CacheKey, err = hash(t)
+		event.CacheKey, err = hash(presenceUpdateKey(t))
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -366,4 +367,36 @@ func hash(data interface{}) (string, error) {
 	}
 
 	return hex.EncodeToString(md5Hasher.Sum(nil)), nil
+}
+
+func guildMemberChunkKey(event *discordgo.GuildMembersChunk) string {
+	key := event.GuildID
+	for _, member := range event.Members {
+		if member == nil || member.User == nil {
+			continue
+		}
+
+		key += member.User.ID
+	}
+
+	return key
+}
+
+func presenceUpdateKey(event *discordgo.PresenceUpdate) string {
+	key := event.GuildID
+	if event.User != nil {
+		key += event.User.ID
+		key += event.User.Username
+		key += event.User.Discriminator
+		key += event.User.Avatar
+	}
+	key += event.Nick
+	key += string(event.Status)
+	key += strings.Join(event.Roles, "")
+	key += event.Game.State
+	key += strconv.Itoa(int(event.Game.Type))
+	key += event.Game.Name
+	key += event.Game.URL
+	key += event.Game.ApplicationID
+	key += event.Game.Details
 }
