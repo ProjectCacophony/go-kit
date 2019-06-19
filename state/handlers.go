@@ -301,7 +301,7 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) 
 		}
 	}
 
-	if guildContainsMember(previousGuild, member.User.ID) {
+	if !guildContainsMember(previousGuild, member.User.ID) {
 		// update member guild
 		previousGuild.Members = append(previousGuild.Members, member)
 		// cache guild
