@@ -39,6 +39,19 @@ func (s *State) ChannelFromMention(guildID, mention string) (*discordgo.Channel,
 func (s *State) ChannelFromMentionTypes(
 	guildID, mention string, types ...discordgo.ChannelType,
 ) (*discordgo.Channel, error) {
+	return s.channelFromMentionTypes(guildID, false, mention, types...)
+}
+
+// ChannelFromMentionTypesEverywhere finds a channel on any server in an mention, can be direct ID input
+func (s *State) ChannelFromMentionTypesEverywhere(
+	guildID, mention string, types ...discordgo.ChannelType,
+) (*discordgo.Channel, error) {
+	return s.channelFromMentionTypes(guildID, true, mention, types...)
+}
+
+func (s *State) channelFromMentionTypes(
+	guildID string, everywhere bool, mention string, types ...discordgo.ChannelType,
+) (*discordgo.Channel, error) {
 	result := ChannelRegex.FindStringSubmatch(mention)
 	if len(result) != 4 {
 		return nil, ErrChannelNotFound
@@ -49,10 +62,8 @@ func (s *State) ChannelFromMentionTypes(
 		return nil, err
 	}
 
-	if guildID != "" {
-		if channel.GuildID != guildID {
-			return nil, ErrTargetWrongServer
-		}
+	if !everywhere && channel.GuildID != guildID {
+		return nil, ErrTargetWrongServer
 	}
 
 	if len(types) > 0 && !channelTypesMatch(channel.Type, types) {
