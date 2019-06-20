@@ -74,8 +74,8 @@ func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err e
 	return err
 }
 
-func (s *State) onReady(session *discordgo.Session, ready *discordgo.Ready) (err error) {
-	fmt.Println("running onReady")
+func (s *State) onReady(_ *discordgo.Session, ready *discordgo.Ready) (err error) {
+	fmt.Println("running onReady", ready.User.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -83,62 +83,6 @@ func (s *State) onReady(session *discordgo.Session, ready *discordgo.Ready) (err
 	err = updateStateObject(s.client, userKey(ready.User.ID), ready.User)
 	if err != nil {
 		return err
-	}
-
-	// cache guilds
-	for _, guild := range ready.Guilds {
-		err = updateStateObject(s.client, guildKey(guild.ID), guild)
-		if err != nil {
-			return err
-		}
-		err = addToStateSet(s.client, allGuildIDsSetKey(), guild.ID)
-		if err != nil {
-			return err
-		}
-		err = addToStateSet(s.client, guildBotIDsSetKey(guild.ID), ready.User.ID)
-		if err != nil {
-			return err
-		}
-
-		// cache guild channels
-		for _, channel := range guild.Channels {
-			err = updateStateObject(s.client, channelKey(channel.ID), channel)
-			if err != nil {
-				return err
-			}
-			err = addToStateSet(s.client, allChannelIDsSetKey(), channel.ID)
-			if err != nil {
-				return err
-			}
-		}
-
-		// cache guild members and users
-		for _, member := range guild.Members {
-			err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
-			if err != nil {
-				return err
-			}
-			err = updateStateObject(s.client, userKey(member.User.ID), member.User)
-			if err != nil {
-				return err
-			}
-			err = addToStateSet(s.client, allUserIDsSetKey(), member.User.ID)
-			if err != nil {
-				return err
-			}
-			err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
-			if err != nil {
-				return err
-			}
-		}
-
-		// init guild bans (async)
-		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID)
-			// if err != nil {
-			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
-			// }
-		}(session, guild.ID)
 	}
 
 	// cache private channels
@@ -157,57 +101,25 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// cache guild channels
-	for _, channel := range guild.Channels {
-		err = updateStateObject(s.client, channelKey(channel.ID), channel)
-		if err != nil {
-			return err
-		}
-		err = addToStateSet(s.client, allChannelIDsSetKey(), channel.ID)
-		if err != nil {
-			return err
-		}
-	}
-
-	// cache guild members and users
-	for _, member := range guild.Members {
-		err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
-		if err != nil {
-			return err
-		}
-		err = updateStateObject(s.client, userKey(member.User.ID), member.User)
-		if err != nil {
-			return err
-		}
-		err = addToStateSet(s.client, allUserIDsSetKey(), member.User.ID)
-		if err != nil {
-			return err
-		}
-		err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
-		if err != nil {
-			return err
-		}
-	}
-
 	// carry over previous guild fields if set
 	previousGuild, err := s.Guild(guild.ID)
 	if err == nil {
-		if guild.Roles == nil {
+		if len(previousGuild.Roles) > len(guild.Roles) {
 			guild.Roles = previousGuild.Roles
 		}
-		if guild.Emojis == nil {
+		if len(previousGuild.Emojis) > len(guild.Emojis) {
 			guild.Emojis = previousGuild.Emojis
 		}
-		if guild.Members == nil {
+		if len(previousGuild.Members) > len(guild.Members) {
 			guild.Members = previousGuild.Members
 		}
-		if guild.Presences == nil {
+		if len(previousGuild.Presences) > len(guild.Presences) {
 			guild.Presences = previousGuild.Presences
 		}
-		if guild.Channels == nil {
+		if len(previousGuild.Channels) > len(guild.Channels) {
 			guild.Channels = previousGuild.Channels
 		}
-		if guild.VoiceStates == nil {
+		if len(previousGuild.VoiceStates) > len(guild.VoiceStates) {
 			guild.VoiceStates = previousGuild.VoiceStates
 		}
 	}
@@ -233,6 +145,22 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 		// }
 	}(session, guild.ID)
+
+	// cache guild channels
+	for _, channel := range guild.Channels {
+		err = s.channelAdd(channel, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	// cache guild members and users
+	for _, member := range guild.Members {
+		err = s.memberAdd(session, member, true)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -281,10 +209,12 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	return err
 }
 
-func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member) (err error) {
+func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
 	fmt.Println("running memberAdd", member.GuildID, member.User.ID)
-	stateLock.Lock()
-	defer stateLock.Unlock()
+	if !locked {
+		stateLock.Lock()
+		defer stateLock.Unlock()
+	}
 
 	// read member guild
 	previousGuild, err := s.Guild(member.GuildID)
@@ -512,10 +442,12 @@ func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji) (err error)
 	return nil
 }
 
-func (s *State) channelAdd(channel *discordgo.Channel) (err error) {
+func (s *State) channelAdd(channel *discordgo.Channel, locked bool) (err error) {
 	fmt.Println("running channelAdd", channel.GuildID, channel.ID)
-	stateLock.Lock()
-	defer stateLock.Unlock()
+	if !locked {
+		stateLock.Lock()
+		defer stateLock.Unlock()
+	}
 
 	// read channel
 	previousChannel, err := s.Channel(channel.ID)
@@ -705,8 +637,16 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 	case *discordgo.Ready:
 		err = s.onReady(session, t)
 		if err != nil {
-			return errors.Wrap(err, "failed to process OnReady guildAdd")
+			return errors.Wrap(err, "failed to process OnReady")
 		}
+
+		for _, g := range t.Guilds {
+			err = s.guildAdd(session, g)
+			if err != nil {
+				return errors.Wrap(err, "failed to process OnReady guildAdd")
+			}
+		}
+
 		return nil
 
 	case *discordgo.GuildCreate:
@@ -728,13 +668,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMemberAdd:
-		err = s.memberAdd(session, t.Member)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberAdd memberAdd")
 		}
 		return nil
 	case *discordgo.GuildMemberUpdate:
-		err = s.memberAdd(session, t.Member)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberUpdate memberAdd")
 		}
@@ -749,7 +689,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		fmt.Printf("got GuildMembersChunk %s with %d members\n", t.GuildID, len(t.Members))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
-			err := s.memberAdd(session, t.Members[i])
+			err := s.memberAdd(session, t.Members[i], false)
 			if err != nil {
 				return errors.Wrap(err, "failed to process GuildMembersChunk memberAdd")
 			}
@@ -780,13 +720,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.ChannelCreate:
-		err = s.channelAdd(t.Channel)
+		err = s.channelAdd(t.Channel, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process ChannelCreate channelAdd")
 		}
 		return nil
 	case *discordgo.ChannelUpdate:
-		err = s.channelAdd(t.Channel)
+		err = s.channelAdd(t.Channel, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process ChannelUpdate channelAdd")
 		}
@@ -853,7 +793,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 
 		}
 
-		err = s.memberAdd(session, previousMember)
+		err = s.memberAdd(session, previousMember, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
 		}
