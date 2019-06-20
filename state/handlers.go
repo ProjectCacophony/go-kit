@@ -641,6 +641,10 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 
 		for _, g := range t.Guilds {
+			if g.Name == "" {
+				continue
+			}
+
 			err = s.guildAdd(session, g)
 			if err != nil {
 				return errors.Wrap(err, "failed to process OnReady guildAdd")
