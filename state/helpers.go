@@ -49,11 +49,13 @@ func (s *State) ChannelFromMentionTypes(
 		return nil, err
 	}
 
-	if channel.GuildID != guildID {
-		return nil, ErrTargetWrongServer
+	if guildID != "" {
+		if channel.GuildID != guildID {
+			return nil, ErrTargetWrongServer
+		}
 	}
 
-	if !channelTypesMatch(channel.Type, types) {
+	if len(types) > 0 && !channelTypesMatch(channel.Type, types) {
 		return nil, ErrTargetWrongType
 	}
 
