@@ -16,8 +16,8 @@ const (
 	noFileData     string = "No file data."
 	noFileInfo     string = "No file info found."
 
-	fileIdCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	fileIdLength     = 8
+	fileIDCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	fileIDLength     = 8
 )
 
 var (
@@ -81,7 +81,7 @@ func (e *Event) AddFile(data []byte, file *FileInfo) (*FileInfo, error) {
 	}
 
 	if file.FileID == "" {
-		newFileID, err := getUniqueFileId(e.DB())
+		newFileID, err := getUniqueFileID(e.DB())
 		if err != nil {
 			return nil, err
 		}
@@ -124,13 +124,16 @@ func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileI
 	if resp != nil && resp.Body != nil {
 		defer resp.Body.Close()
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	uniqueId, err := getUniqueFileId(e.DB())
+	uniqueID, err := getUniqueFileID(e.DB())
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +143,7 @@ func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileI
 		UserID:     e.UserID,
 		ChannelID:  e.ChannelID,
 		GuildID:    e.GuildID,
-		FileID:     uniqueId,
+		FileID:     uniqueID,
 		MimeType:   http.DetectContentType(bytes),
 		UploadDate: time.Now(),
 		Source:     attachement.URL,
@@ -154,11 +157,11 @@ func (e *Event) UpdateFileInfo(file FileInfo) error {
 	return e.DB().Update(file).Error
 }
 
-func getUniqueFileId(db *gorm.DB) (string, error) {
+func getUniqueFileID(db *gorm.DB) (string, error) {
 
-	output := make([]byte, fileIdLength)
+	output := make([]byte, fileIDLength)
 	for i := range output {
-		output[i] = fileIdCharacters[rand.Intn(len(fileIdCharacters))]
+		output[i] = fileIDCharacters[rand.Intn(len(fileIDCharacters))]
 	}
 
 	var count int
@@ -168,7 +171,7 @@ func getUniqueFileId(db *gorm.DB) (string, error) {
 		Count(&count).
 		Error
 	if count != 0 {
-		return getUniqueFileId(db)
+		return getUniqueFileID(db)
 	}
 
 	return string(output), err
