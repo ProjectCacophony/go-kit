@@ -166,6 +166,10 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 }
 
 func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) (err error) {
+	if guild.Unavailable {
+		return nil
+	}
+
 	fmt.Println("running guildRemove", guild.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
