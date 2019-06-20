@@ -64,7 +64,7 @@ func (f *FileInfo) bucketKey() string {
 
 func InitObjectStorage(db *gorm.DB, fqdn string, bucketName string) error {
 
-	// objectStorageFQDN = fqdn
+	objectStorageFQDN = fqdn
 	objectStorageBucketName = bucketName
 
 	rand.Seed(time.Now().UTC().UnixNano())
