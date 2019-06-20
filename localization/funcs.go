@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/sprig"
-	"github.com/Seklfreak/polr-go"
+	polr "github.com/Seklfreak/polr-go"
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 
