@@ -5,15 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.com/Cacophony/go-kit/discord"
-
+	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
-
-	"gitlab.com/Cacophony/go-kit/paginator"
-
-	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/interfaces"
+	"gitlab.com/Cacophony/go-kit/paginator"
 	"gitlab.com/Cacophony/go-kit/state"
 	"go.uber.org/zap"
 )
@@ -84,6 +81,7 @@ type Event struct {
 	db             *gorm.DB
 	httpClient     *http.Client
 	questionnaire  *Questionnaire
+	storage        *Storage
 }
 
 // BucketType specifies the scope of a bucket

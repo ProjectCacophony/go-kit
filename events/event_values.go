@@ -67,6 +67,15 @@ func (e *Event) Logger() *zap.Logger {
 	return e.logger
 }
 
+// WithStorage stores the storage bucket in the event
+func (e *Event) WithStorage(storage *Storage) {
+	e.storage = storage
+}
+
+func (e *Event) Storage() *Storage {
+	return e.storage
+}
+
 // WithLocalizations stores the localizations in the event
 func (e *Event) WithLocalizations(localizations []interfaces.Localization) {
 	e.localizations = localizations
