@@ -44,9 +44,9 @@ func (s *State) ChannelFromMentionTypes(
 
 // ChannelFromMentionTypesEverywhere finds a channel on any server in an mention, can be direct ID input
 func (s *State) ChannelFromMentionTypesEverywhere(
-	guildID, mention string, types ...discordgo.ChannelType,
+	mention string, types ...discordgo.ChannelType,
 ) (*discordgo.Channel, error) {
-	return s.channelFromMentionTypes(guildID, true, mention, types...)
+	return s.channelFromMentionTypes("", true, mention, types...)
 }
 
 func (s *State) channelFromMentionTypes(
