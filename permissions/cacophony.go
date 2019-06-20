@@ -8,7 +8,7 @@ import (
 
 const (
 	// DiscordCacophonyServerGuildID is the Guild ID of the Cacophony Guild
-	DiscordCacophonyServerGuildID = "403003926720413699"
+	DiscordCacophonyServerGuildID = "435420687906111498"
 	// DiscordCacophonyPatronRoleID is the Role ID of the Patron role on the Cacophony Guild
 	DiscordCacophonyPatronRoleID = "578650002361155626"
 )
