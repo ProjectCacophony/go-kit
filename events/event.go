@@ -66,22 +66,23 @@ type Event struct {
 
 	// non marshalled events
 
-	ctx            context.Context
-	discordSession *discord.Session
-	logger         *zap.Logger
-	localizations  []interfaces.Localization
-	command        bool
-	dm             bool
-	prefix         string
-	fields         []string
-	tokens         map[string]string
-	state          *state.State
-	paginator      *paginator.Paginator
-	redisClient    *redis.Client
-	db             *gorm.DB
-	httpClient     *http.Client
-	questionnaire  *Questionnaire
-	storage        *Storage
+	ctx               context.Context
+	discordSession    *discord.Session
+	logger            *zap.Logger
+	localizations     []interfaces.Localization
+	command           bool
+	botMentionCommand bool
+	dm                bool
+	prefix            string
+	fields            []string
+	tokens            map[string]string
+	state             *state.State
+	paginator         *paginator.Paginator
+	redisClient       *redis.Client
+	db                *gorm.DB
+	httpClient        *http.Client
+	questionnaire     *Questionnaire
+	storage           *Storage
 }
 
 // BucketType specifies the scope of a bucket
