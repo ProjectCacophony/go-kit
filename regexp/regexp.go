@@ -5,6 +5,11 @@ import (
 )
 
 var (
+	// DiscordInviteCodeRegexp matches a Discord Invite Code
+	DiscordInviteCodeRegexp = regexp.MustCompile(
+		`[A-Za-z0-9-]+`,
+	)
+
 	// DiscordInviteRegexp matches a linked Discord Invite
 	DiscordInviteRegexp = regexp.MustCompile(
 		`^(http(s)?:\/\/)?(discord\.gg(\/invite)?|discordapp\.com\/invite)\/([A-Za-z0-9-]+)(\/?)$`,
