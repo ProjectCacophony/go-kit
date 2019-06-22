@@ -156,7 +156,7 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 
 	// cache guild members and users
 	for _, member := range guild.Members {
-		err = s.memberAdd(session, member, true)
+		err = s.memberAdd(session, member, true, true)
 		if err != nil {
 			return err
 		}
@@ -213,7 +213,7 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	return err
 }
 
-func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
+func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked, onlyUpdate bool) (err error) {
 	fmt.Println("running memberAdd", member.GuildID, member.User.ID)
 	if !locked {
 		stateLock.Lock()
@@ -232,6 +232,11 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 		// carry over previous member fields if set
 		if member.JoinedAt == "" {
 			member.JoinedAt = previousMember.JoinedAt
+		}
+		if onlyUpdate {
+			if len(member.Roles) <= 0 {
+				member.Roles = previousMember.Roles
+			}
 		}
 	}
 
@@ -676,13 +681,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMemberAdd:
-		err = s.memberAdd(session, t.Member, false)
+		err = s.memberAdd(session, t.Member, false, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberAdd memberAdd")
 		}
 		return nil
 	case *discordgo.GuildMemberUpdate:
-		err = s.memberAdd(session, t.Member, false)
+		err = s.memberAdd(session, t.Member, false, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberUpdate memberAdd")
 		}
@@ -697,7 +702,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		fmt.Printf("got GuildMembersChunk %s with %d members\n", t.GuildID, len(t.Members))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
-			err := s.memberAdd(session, t.Members[i], false)
+			err := s.memberAdd(session, t.Members[i], false, false)
 			if err != nil {
 				return errors.Wrap(err, "failed to process GuildMembersChunk memberAdd")
 			}
@@ -801,7 +806,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 
 		}
 
-		err = s.memberAdd(session, previousMember, false)
+		err = s.memberAdd(session, previousMember, false, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
 		}
