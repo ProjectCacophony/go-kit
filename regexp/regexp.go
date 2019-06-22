@@ -7,7 +7,7 @@ import (
 var (
 	// DiscordInviteCodeRegexp matches a Discord Invite Code
 	DiscordInviteCodeRegexp = regexp.MustCompile(
-		`[A-Za-z0-9-]+`,
+		`^[A-Za-z0-9-]+$`,
 	)
 
 	// DiscordInviteRegexp matches a linked Discord Invite
