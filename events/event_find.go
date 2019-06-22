@@ -63,3 +63,20 @@ func (e *Event) FindAnyChannel() (*discordgo.Channel, error) {
 
 	return e.State().Channel(e.ChannelID)
 }
+
+// FindRole finds a target role in the command
+// the role has to be on the current guild
+func (e *Event) FindRole() (*discordgo.Role, error) {
+	if e.Type != MessageCreateType {
+		return nil, errors.New("event has to be MessageCreate")
+	}
+
+	for _, field := range e.Fields() {
+		channel, err := e.State().RoleFromMention(e.GuildID, field)
+		if err == nil {
+			return channel, nil
+		}
+	}
+
+	return nil, errors.New("role not found")
+}
