@@ -5,6 +5,9 @@ import (
 )
 
 var (
+	// ContainsNumber matches on any numbers
+	ContainsNumber = regexp.MustCompile(`[0-9]+`)
+
 	// DiscordInviteCodeRegexp matches a Discord Invite Code
 	DiscordInviteCodeRegexp = regexp.MustCompile(
 		`^[A-Za-z0-9-]+$`,
