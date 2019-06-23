@@ -124,6 +124,8 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		}
 	}
 
+	guild.Presences = nil
+
 	// cache guild
 	err = updateStateObject(s.client, guildKey(guild.ID), guild)
 	if err != nil {
@@ -544,62 +546,62 @@ func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
 	return err
 }
 
-func (s *State) presenceAdd(guildID string, presence *discordgo.Presence) (err error) {
-	fmt.Println("running presenceAdd", guildID, presence.User.ID)
-	stateLock.Lock()
-	defer stateLock.Unlock()
-
-	// read presence guild
-	previousGuild, err := s.Guild(guildID)
-	if err != nil {
-		return err
-	}
-
-	// update presence
-	var updated bool
-	for i, previousPresence := range previousGuild.Presences {
-		if previousPresence.User.ID == presence.User.ID {
-			// Update status
-			previousGuild.Presences[i].Game = presence.Game
-			previousGuild.Presences[i].Roles = presence.Roles
-			if presence.Status != "" {
-				previousGuild.Presences[i].Status = presence.Status
-			}
-			if presence.Nick != "" {
-				previousGuild.Presences[i].Nick = presence.Nick
-			}
-
-			// Update the optionally sent user information
-			// ID Is a mandatory field so you should not need to check if it is empty
-			previousGuild.Presences[i].User.ID = presence.User.ID
-
-			if presence.User.Avatar != "" {
-				previousGuild.Presences[i].User.Avatar = presence.User.Avatar
-			}
-			if presence.User.Discriminator != "" {
-				previousGuild.Presences[i].User.Discriminator = presence.User.Discriminator
-			}
-			if presence.User.Email != "" {
-				previousGuild.Presences[i].User.Email = presence.User.Email
-			}
-			if presence.User.Token != "" {
-				previousGuild.Presences[i].User.Token = presence.User.Token
-			}
-			if presence.User.Username != "" {
-				previousGuild.Presences[i].User.Username = presence.User.Username
-			}
-
-			updated = true
-		}
-	}
-	if !updated {
-		previousGuild.Presences = append(previousGuild.Presences, presence)
-	}
-
-	// cache guild
-	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-	return err
-}
+// func (s *State) presenceAdd(guildID string, presence *discordgo.Presence) (err error) {
+// 	fmt.Println("running presenceAdd", guildID, presence.User.ID)
+// 	stateLock.Lock()
+// 	defer stateLock.Unlock()
+//
+// 	// read presence guild
+// 	previousGuild, err := s.Guild(guildID)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	// update presence
+// 	var updated bool
+// 	for i, previousPresence := range previousGuild.Presences {
+// 		if previousPresence.User.ID == presence.User.ID {
+// 			// Update status
+// 			previousGuild.Presences[i].Game = presence.Game
+// 			previousGuild.Presences[i].Roles = presence.Roles
+// 			if presence.Status != "" {
+// 				previousGuild.Presences[i].Status = presence.Status
+// 			}
+// 			if presence.Nick != "" {
+// 				previousGuild.Presences[i].Nick = presence.Nick
+// 			}
+//
+// 			// Update the optionally sent user information
+// 			// ID Is a mandatory field so you should not need to check if it is empty
+// 			previousGuild.Presences[i].User.ID = presence.User.ID
+//
+// 			if presence.User.Avatar != "" {
+// 				previousGuild.Presences[i].User.Avatar = presence.User.Avatar
+// 			}
+// 			if presence.User.Discriminator != "" {
+// 				previousGuild.Presences[i].User.Discriminator = presence.User.Discriminator
+// 			}
+// 			if presence.User.Email != "" {
+// 				previousGuild.Presences[i].User.Email = presence.User.Email
+// 			}
+// 			if presence.User.Token != "" {
+// 				previousGuild.Presences[i].User.Token = presence.User.Token
+// 			}
+// 			if presence.User.Username != "" {
+// 				previousGuild.Presences[i].User.Username = presence.User.Username
+// 			}
+//
+// 			updated = true
+// 		}
+// 	}
+// 	if !updated {
+// 		previousGuild.Presences = append(previousGuild.Presences, presence)
+// 	}
+//
+// 	// cache guild
+// 	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
+// 	return err
+// }
 
 func (s *State) banAdd(session *discordgo.Session, guildID string, user *discordgo.User) (err error) {
 	// check if bot is allowed to see bans
@@ -769,10 +771,10 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.PresenceUpdate:
-		err := s.presenceAdd(t.GuildID, &t.Presence)
-		if err != nil {
-			return errors.Wrap(err, "failed to process PresenceUpdate presenceAdd")
-		}
+		// err := s.presenceAdd(t.GuildID, &t.Presence)
+		// if err != nil {
+		// 	return errors.Wrap(err, "failed to process PresenceUpdate presenceAdd")
+		// }
 
 		previousMember, err := s.Member(t.GuildID, t.User.ID)
 		if err != nil {
@@ -785,6 +787,15 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 			}
 
 		} else {
+			if (t.Nick == "" || t.Nick == previousMember.Nick) &&
+				(t.User.Username == "" || t.User.Username == previousMember.User.Username) &&
+				(t.User.Discriminator == "" || t.User.Discriminator == previousMember.User.Discriminator) &&
+				(t.User.Avatar == "" || t.User.Avatar == previousMember.User.Avatar) &&
+				sliceMatches(t.Roles, previousMember.Roles) {
+				fmt.Println("skipped presenceUpdate, no changes")
+				return nil
+			}
+
 			if t.Nick != "" {
 				previousMember.Nick = t.Nick
 			}
@@ -803,7 +814,6 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 
 			// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
 			previousMember.Roles = t.Roles
-
 		}
 
 		err = s.memberAdd(session, previousMember, false, false)
@@ -835,4 +845,28 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 	}
 
 	return nil
+}
+
+func sliceMatches(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for _, itemA := range a {
+		if !sliceContains(itemA, b) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func sliceContains(needle string, haystack []string) bool {
+	for _, item := range haystack {
+		if item == needle {
+			return true
+		}
+	}
+
+	return false
 }
