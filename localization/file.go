@@ -3,9 +3,8 @@ package localization
 import (
 	"bytes"
 	"fmt"
-	"math/rand"
+	"strings"
 	"text/template"
-	"time"
 
 	toml "github.com/pelletier/go-toml"
 )
@@ -15,8 +14,7 @@ type FileSource struct {
 	path     string
 	language string
 
-	translations map[string][]*template.Template
-	random       *rand.Rand
+	template *template.Template
 }
 
 // NewFileSource creates a new FileSource
@@ -25,8 +23,7 @@ func NewFileSource(path, language string) (*FileSource, error) {
 		path:     path,
 		language: language,
 
-		translations: make(map[string][]*template.Template),
-		random:       rand.New(rand.NewSource(time.Now().UnixNano())),
+		template: (&template.Template{}).Funcs(getTranslationFuncs()),
 	}
 
 	err := l.load()
@@ -51,34 +48,27 @@ func (l *FileSource) load() error {
 		switch v := value.(type) {
 		case string:
 
-			translation, err := newTemplate(key, v)
+			l.template, err = addTemplate(l.template, key, v)
 			if err != nil {
 				panic(err) // TODO: handle error better
-				// continue
 			}
 
-			l.translations[key] = []*template.Template{
-				translation,
-			}
 		case []interface{}:
+
+			var values []string
 
 			for _, vValue := range v {
 
 				vString, ok := vValue.(string)
 				if ok {
 
-					translation, err := newTemplate(key, vString)
-					if err != nil {
-						fmt.Println(err.Error())
-						panic(err) // TODO: handle error better
-						// continue
-					}
-
-					l.translations[key] = append(
-						l.translations[key],
-						translation,
-					)
+					values = append(values, vString)
 				}
+			}
+
+			l.template, err = addTemplate(l.template, key, values...)
+			if err != nil {
+				panic(err) // TODO: handle error better
 			}
 		}
 	}
@@ -111,18 +101,14 @@ func (l *FileSource) Translatef(key string, fields ...interface{}) string {
 
 // TranslateMap translates a given key with the given values
 func (l *FileSource) TranslateMap(key string, values map[interface{}]interface{}) string {
-	translations, ok := l.translations[key]
-	if !ok || len(translations) == 0 {
-		return key
-	}
-
-	translation := translations[l.random.Intn(len(translations))]
-
 	var buffer bytes.Buffer
-	err := translation.Execute(&buffer, values)
+
+	err := l.template.ExecuteTemplate(&buffer, key, values)
 	if err != nil {
-		fmt.Println(err.Error())
-		// TODO: handle error
+		if !strings.Contains(err.Error(), "associated with template") {
+			fmt.Println(err.Error())
+		}
+
 		return key
 	}
 

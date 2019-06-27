@@ -2,6 +2,7 @@ package localization
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -192,6 +193,10 @@ var (
 				"`%s`",
 				t.In(zone).Format(time.RFC822),
 			)
+		},
+
+		"RandIntn": func(n int) int {
+			return rand.Intn(n)
 		},
 	}
 )

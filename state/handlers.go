@@ -222,6 +222,8 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 		defer stateLock.Unlock()
 	}
 
+	// TODO: cache guild and member locally?
+
 	// read member guild
 	previousGuild, err := s.Guild(member.GuildID)
 	if err != nil {
@@ -776,6 +778,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		// 	return errors.Wrap(err, "failed to process PresenceUpdate presenceAdd")
 		// }
 
+		// TODO: store members locally, compare changes?
 		previousMember, err := s.Member(t.GuildID, t.User.ID)
 		if err != nil {
 			// Member not found; this is a user coming online
@@ -792,7 +795,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 				(t.User.Discriminator == "" || t.User.Discriminator == previousMember.User.Discriminator) &&
 				(t.User.Avatar == "" || t.User.Avatar == previousMember.User.Avatar) &&
 				sliceMatches(t.Roles, previousMember.Roles) {
-				fmt.Println("skipped presenceUpdate, no changes")
+				// fmt.Println("skipped presenceUpdate, no changes")
 				return nil
 			}
 
