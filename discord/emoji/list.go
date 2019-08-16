@@ -187,5 +187,8 @@ var (
 		"loading": []string{
 			"a:loading:422357174724067328",
 		},
+		"discord": []string{
+			":discord:612020999252082709",
+		},
 	}
 )
