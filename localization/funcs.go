@@ -15,6 +15,7 @@ import (
 	polr "github.com/Seklfreak/polr-go"
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
+	"mvdan.cc/xurls/v2"
 
 	humanize "github.com/dustin/go-humanize"
 )
@@ -23,6 +24,7 @@ var (
 	polrClient             *polr.Polr
 	shortenedLinkCache     = make(map[string]string)
 	shortenedLinkCacheLock sync.Mutex
+	xurlsStrict            = xurls.Strict()
 )
 
 func init() {
@@ -197,6 +199,18 @@ var (
 
 		"RandIntn": func(n int) int {
 			return rand.Intn(n)
+		},
+
+		"HideEmbeds": func(text string) string {
+			indexes := xurlsStrict.FindAllStringIndex(text, -1)
+
+			var index []int
+			for i := len(indexes) - 1; i >= 0; i-- {
+				index = indexes[i]
+				text = text[:index[0]] + "<" + text[index[0]:index[1]] + ">" + text[index[1]:]
+			}
+
+			return text
 		},
 	}
 )

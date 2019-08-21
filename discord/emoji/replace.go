@@ -11,19 +11,13 @@ var (
 // Replace replaces all :emoji: in a text with their full ID
 func Replace(input string) string {
 	// match all :emoji: in the text
-	colonIndexes := colonRegex.FindAllStringIndex(input, -1)
-
-	// reverse index slice, so that the index positions are always correct when injecting text in content
-	for i := len(colonIndexes)/2 - 1; i >= 0; i-- {
-		opp := len(colonIndexes) - 1 - i
-		colonIndexes[i], colonIndexes[opp] = colonIndexes[opp], colonIndexes[i]
-	}
+	indexes := colonRegex.FindAllStringIndex(input, -1)
 
 	// replace all :emoji: in the text
-	var colonContent string
-	for _, colonIndex := range colonIndexes {
-		colonContent = input[colonIndex[0]:colonIndex[1]]
-		input = input[:colonIndex[0]] + Get(colonContent) + input[colonIndex[1]:]
+	var index []int
+	for i := len(indexes) - 1; i >= 0; i-- {
+		index = indexes[i]
+		input = input[:index[0]] + Get(input[index[0]:index[1]]) + input[index[1]:]
 	}
 
 	// return result
@@ -33,19 +27,13 @@ func Replace(input string) string {
 // ReplaceWithout replaces all :emoji: in a text with their full ID
 func ReplaceWithout(input string) string {
 	// match all :emoji: in the text
-	colonIndexes := colonRegex.FindAllStringIndex(input, -1)
-
-	// reverse index slice, so that the index positions are always correct when injecting text in content
-	for i := len(colonIndexes)/2 - 1; i >= 0; i-- {
-		opp := len(colonIndexes) - 1 - i
-		colonIndexes[i], colonIndexes[opp] = colonIndexes[opp], colonIndexes[i]
-	}
+	indexes := colonRegex.FindAllStringIndex(input, -1)
 
 	// replace all :emoji: in the text
-	var colonContent string
-	for _, colonIndex := range colonIndexes {
-		colonContent = input[colonIndex[0]:colonIndex[1]]
-		input = input[:colonIndex[0]] + Get(colonContent) + input[colonIndex[1]:]
+	var index []int
+	for i := len(indexes) - 1; i >= 0; i-- {
+		index = indexes[i]
+		input = input[:index[0]] + GetWithout(input[index[0]:index[1]]) + input[index[1]:]
 	}
 
 	// return result

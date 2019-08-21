@@ -43,4 +43,5 @@ require (
 	google.golang.org/genproto v0.0.0-20190605220351-eb0b1bdb6ae6 // indirect
 	google.golang.org/grpc v1.21.1 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.14 // indirect
+	mvdan.cc/xurls/v2 v2.0.0
 )
