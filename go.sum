@@ -38,8 +38,8 @@ github.com/Seklfreak/polr-go v0.0.0-20190324143256-a87fed130937 h1:i7uyK5VEr5L/Z
 github.com/Seklfreak/polr-go v0.0.0-20190324143256-a87fed130937/go.mod h1:eoGl/sGHUD/1hNQEHPvNunsRryc3c4Im57OavEzSxiw=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
-github.com/Unleash/unleash-client-go v0.0.0-20190225211619-9febc6ff26f4 h1:ZxgumCXfW2XHYgZQD/iwl7qCy6uziWsSJDEdQ05hTXE=
-github.com/Unleash/unleash-client-go v0.0.0-20190225211619-9febc6ff26f4/go.mod h1:89lPmFeGRU6Xv5kYZnN1ByXulB4vHW+UepUYSm8s8ws=
+github.com/Unleash/unleash-client-go/v3 v3.0.0 h1:J2Ak/0/9atePwIzUccNsZRmZNLyyB1sD5DP4C10hRdk=
+github.com/Unleash/unleash-client-go/v3 v3.0.0/go.mod h1:qOPteDX5tImaQlhQOrDtFX3B7WTJuZz53Py88tEV7v8=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
@@ -207,6 +207,8 @@ github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1/go.mod h1:c3At6R
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
+github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72 h1:qLC7fQah7D6K1B0ujays3HV9gkFtllcxhzImRR7ArPQ=
+github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94 h1:0ngsPmuP6XIjiFRNFYlvKwSr5zff2v+uPHaffZ6/M4k=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

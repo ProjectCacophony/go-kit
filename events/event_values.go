@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/jinzhu/gorm"
+	"gitlab.com/Cacophony/go-kit/featureflag"
 
 	"github.com/go-redis/redis"
 
@@ -140,4 +141,12 @@ func (e *Event) WithQuestionnaire(questionnaire *Questionnaire) {
 
 func (e *Event) Questionnaire() *Questionnaire {
 	return e.questionnaire
+}
+
+func (e *Event) WithFeatureFlagger(featureFlagger *featureflag.FeatureFlagger) {
+	e.featureFlagger = featureFlagger
+}
+
+func (e *Event) FeatureFlagger() *featureflag.FeatureFlagger {
+	return e.featureFlagger
 }

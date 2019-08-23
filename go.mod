@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/semver v1.4.2 // indirect
 	github.com/Masterminds/sprig v2.20.0+incompatible
 	github.com/Seklfreak/polr-go v0.0.0-20190324143256-a87fed130937
-	github.com/Unleash/unleash-client-go v0.0.0-20190225211619-9febc6ff26f4
+	github.com/Unleash/unleash-client-go/v3 v3.0.0
 	github.com/aws/aws-sdk-go v1.19.46 // indirect
 	github.com/bwmarrin/discordgo v0.16.1-0.20190608205439-347a4f69b0b5
 	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 // indirect

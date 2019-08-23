@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	"gitlab.com/Cacophony/go-kit/discord"
+	"gitlab.com/Cacophony/go-kit/featureflag"
 	"gitlab.com/Cacophony/go-kit/interfaces"
 	"gitlab.com/Cacophony/go-kit/paginator"
 	"gitlab.com/Cacophony/go-kit/state"
@@ -83,6 +84,7 @@ type Event struct {
 	httpClient        *http.Client
 	questionnaire     *Questionnaire
 	storage           *Storage
+	featureFlagger    *featureflag.FeatureFlagger
 }
 
 // BucketType specifies the scope of a bucket

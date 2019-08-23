@@ -4,7 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	unleash "github.com/Unleash/unleash-client-go"
+	unleash "github.com/Unleash/unleash-client-go/v3"
+	"github.com/Unleash/unleash-client-go/v3/context"
 )
 
 // Config represents a Feature Flagger Configuration
@@ -44,13 +45,24 @@ func New(config *Config) (*FeatureFlagger, error) {
 	}, nil
 }
 
-// IsEnabled checks if a feature flag is enabled
+// IsEnabled checks if a feature flag is enabled globally
 func (ff *FeatureFlagger) IsEnabled(key string, fallback bool) bool {
 	if ff.unleashClient == nil {
 		return fallback
 	}
 
 	return ff.unleashClient.IsEnabled(key, unleash.WithFallback(fallback))
+}
+
+// IsEnabled checks if a feature flag is enabled for a specific UserID
+func (ff *FeatureFlagger) IsEnabledFor(key string, fallback bool, userID string) bool {
+	if ff.unleashClient == nil {
+		return fallback
+	}
+
+	return ff.unleashClient.IsEnabled(key, unleash.WithFallback(fallback), unleash.WithContext(context.Context{
+		UserId: userID,
+	}))
 }
 
 // UnleashListener is our listener for Unleash events
