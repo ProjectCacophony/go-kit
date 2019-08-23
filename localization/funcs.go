@@ -20,6 +20,8 @@ import (
 	humanize "github.com/dustin/go-humanize"
 )
 
+const nonBreakingSpace = "\u00A0"
+
 var (
 	polrClient             *polr.Polr
 	shortenedLinkCache     = make(map[string]string)
@@ -211,6 +213,14 @@ var (
 			}
 
 			return text
+		},
+
+		"ReplaceWithNonBreakingSpace": func(input string) string {
+			return strings.Replace(input, " ", nonBreakingSpace, -1)
+		},
+
+		"NonBreakingSpace": func() string {
+			return nonBreakingSpace
 		},
 	}
 )
