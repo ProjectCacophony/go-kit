@@ -117,6 +117,10 @@ var (
 			return humanize.Time(then)
 		},
 
+		"HumanizeBytes": func(size uint64) string {
+			return humanize.Bytes(size)
+		},
+
 		"ToString": func(value interface{}) (string, error) {
 			switch v := value.(type) {
 			case string:
