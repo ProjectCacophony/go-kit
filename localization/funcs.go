@@ -117,8 +117,8 @@ var (
 			return humanize.Time(then)
 		},
 
-		"HumanizeBytes": func(size uint64) string {
-			return humanize.Bytes(size)
+		"HumanizeBytes": func(size int64) string {
+			return humanize.Bytes(uint64(size))
 		},
 
 		"ToString": func(value interface{}) (string, error) {
