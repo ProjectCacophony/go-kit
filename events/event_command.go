@@ -44,8 +44,6 @@ func (e *Event) Parse() {
 		return
 	}
 
-	var botMentionCommand bool
-
 	// ignore messages without prefix
 	if !strings.HasPrefix(content, e.Prefix()) {
 
@@ -59,7 +57,7 @@ func (e *Event) Parse() {
 		// Replace starting mentions with prefix
 		content = strings.Replace(content, "<@"+e.BotUserID+">", e.Prefix(), -1)
 		content = strings.Replace(content, "<@!"+e.BotUserID+">", e.Prefix(), -1)
-		botMentionCommand = true
+		e.botMention = true
 	}
 
 	args, err := text.ToArgv(content[len(e.Prefix()):])
@@ -77,7 +75,6 @@ func (e *Event) Parse() {
 
 	// extract fields of command without prefix
 	e.command = true
-	e.botMentionCommand = botMentionCommand
 	e.fields = args
 }
 
@@ -91,9 +88,9 @@ func (e *Event) Command() bool {
 	return e.command
 }
 
-// Command returns true if the event is a command @Bot
-func (e *Event) BotMentionCommand() bool {
-	return e.botMentionCommand
+// Command returns true if the event is a @Bot
+func (e *Event) BotMention() bool {
+	return e.botMention
 }
 
 // Prefix returns the prefix of a command, if event is a command
