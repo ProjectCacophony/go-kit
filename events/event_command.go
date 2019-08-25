@@ -21,11 +21,6 @@ func (e *Event) Parse() {
 		return
 	}
 
-	// set DM field
-	if e.MessageCreate.GuildID == "" {
-		e.dm = true
-	}
-
 	// ignore empty messages (eg embeds)
 	if e.MessageCreate.Content == "" {
 		return
@@ -44,7 +39,7 @@ func (e *Event) Parse() {
 		return
 	}
 
-	// ignore messages without prefix
+	// handle messages without prefix
 	if !strings.HasPrefix(content, e.Prefix()) {
 
 		// if message doesn't have a prefix, check to see if it starts with bot mention
@@ -61,16 +56,16 @@ func (e *Event) Parse() {
 	}
 
 	args, err := text.ToArgv(content[len(e.Prefix()):])
-	if err != nil {
+	if err != nil || len(args) <= 0 {
 		return
 	}
 
-	if len(args) >= 1 {
-		args[0] = strings.ToLower(args[0])
-	}
+	e.originalCommand = args[0]
+	args[0] = strings.ToLower(args[0])
 
-	if len(args) <= 0 {
-		return
+	// set DM field
+	if e.MessageCreate.GuildID == "" {
+		e.dm = true
 	}
 
 	// extract fields of command without prefix
@@ -86,6 +81,12 @@ func (e *Event) Fields() []string {
 // Command returns true if the event is a command message
 func (e *Event) Command() bool {
 	return e.command
+}
+
+// OriginalCommand returns the first command without any modifications to casing
+//   mainly used for custom commands module	
+func (e *Event) OriginalCommand() string {
+	return e.originalCommand
 }
 
 // Command returns true if the event is a @Bot

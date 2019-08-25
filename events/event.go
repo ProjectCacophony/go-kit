@@ -59,6 +59,7 @@ type Event struct {
 	VoiceStateUpdate         *discordgo.VoiceStateUpdate         `json:"discord_voice_state_update,omitempty"`
 	VoiceServerUpdate        *discordgo.VoiceServerUpdate        `json:"discord_voice_server_update,omitempty"`
 	WebhooksUpdate           *discordgo.WebhooksUpdate           `json:"discord_webhooks_update,omitempty"`
+
 	// Cacophony Event Data
 	BucketUpdate           *BucketUpdate           `json:"cacophony_bucket_update,omitempty"`
 	ServerlistServerExpire *ServerlistServerExpire `json:"cacophony_serverlist_server_expire,omitempty"`
@@ -66,25 +67,25 @@ type Event struct {
 	QuestionnaireMatch     *QuestionnaireMatch     `json:"cacophony_questionnaire_match,omitempty"`
 
 	// non marshalled events
-
-	ctx            context.Context
-	discordSession *discord.Session
-	logger         *zap.Logger
-	localizations  []interfaces.Localization
-	command        bool
-	botMention     bool
-	dm             bool
-	prefix         string
-	fields         []string
-	tokens         map[string]string
-	state          *state.State
-	paginator      *paginator.Paginator
-	redisClient    *redis.Client
-	db             *gorm.DB
-	httpClient     *http.Client
-	questionnaire  *Questionnaire
-	storage        *Storage
-	featureFlagger *featureflag.FeatureFlagger
+	ctx             context.Context
+	discordSession  *discord.Session
+	logger          *zap.Logger
+	localizations   []interfaces.Localization
+	command         bool
+	botMention      bool
+	dm              bool
+	prefix          string
+	originalCommand string
+	fields          []string
+	tokens          map[string]string
+	state           *state.State
+	paginator       *paginator.Paginator
+	redisClient     *redis.Client
+	db              *gorm.DB
+	httpClient      *http.Client
+	questionnaire   *Questionnaire
+	storage         *Storage
+	featureFlagger  *featureflag.FeatureFlagger
 }
 
 // BucketType specifies the scope of a bucket
