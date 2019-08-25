@@ -84,7 +84,7 @@ func (e *Event) Command() bool {
 }
 
 // OriginalCommand returns the first command without any modifications to casing
-//   mainly used for custom commands module	
+//   mainly used for custom commands module
 func (e *Event) OriginalCommand() string {
 	return e.originalCommand
 }
