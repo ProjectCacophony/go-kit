@@ -9,15 +9,20 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jinzhu/gorm"
+	"gitlab.com/Cacophony/go-kit/permissions"
 )
 
 const (
+	NoStorageSpace string = "common.noStorageSpace"
+
 	noStorageError string = "Event storage is Nil"
 	noFileData     string = "No file data."
 	noFileInfo     string = "No file info found."
 
 	fileIDCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	fileIDLength     = 8
+
+	userStorageLimit = 1000000000 // 1GB
 )
 
 var (
@@ -40,6 +45,12 @@ type FileInfo struct {
 	RetrievedCount  int
 	Public          bool
 	CustomCommandID uint
+}
+
+type UserStorageInfo struct {
+	FileCount        int
+	StorageUsed      int
+	StorageAvailable int
 }
 
 func (f *FileInfo) TableName() string {
@@ -80,6 +91,15 @@ func (e *Event) AddFile(data []byte, file *FileInfo) (*FileInfo, error) {
 		return nil, errors.New(noFileData)
 	}
 
+	usageInfo, err := e.GetUserStorageUsage()
+	if err != nil {
+		return nil, err
+	}
+
+	if !e.Has(permissions.BotAdmin) && (usageInfo.StorageUsed+file.Filesize) > usageInfo.StorageAvailable {
+		return nil, errors.New(NoStorageSpace)
+	}
+
 	if file.FileID == "" {
 		newFileID, err := getUniqueFileID(e.DB())
 		if err != nil {
@@ -88,7 +108,7 @@ func (e *Event) AddFile(data []byte, file *FileInfo) (*FileInfo, error) {
 		file.FileID = newFileID
 	}
 
-	err := saveFileToDB(e.DB(), file)
+	err = saveFileToDB(e.DB(), file)
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +175,23 @@ func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileI
 
 func (e *Event) UpdateFileInfo(file FileInfo) error {
 	return e.DB().Update(file).Error
+}
+
+func (e *Event) GetUserStorageUsage() (*UserStorageInfo, error) {
+
+	info := &UserStorageInfo{
+		FileCount:        0,
+		StorageUsed:      0,
+		StorageAvailable: userStorageLimit,
+	}
+
+	err := e.DB().
+		Table((&FileInfo{}).TableName()).
+		Select("count(*) as file_count, sum(filesize) as storage_used").
+		Where("user_id = ?", e.UserID).
+		Find(&info).Error
+
+	return info, err
 }
 
 func getUniqueFileID(db *gorm.DB) (string, error) {
