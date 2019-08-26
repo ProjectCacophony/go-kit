@@ -143,6 +143,35 @@ func newCacophonyPermission(name, key string) *CacophonyBotPermission {
 	}
 }
 
+// newCacophonyDefaultPermission is used when the given permission is defaulted to true
+//   for example: file upload permissions should default to true unless revoked
+func newCacophonyDefaultPermission(name, key string) *CacophonyBotPermission {
+	return &CacophonyBotPermission{
+		name: name,
+		key:  key,
+		match: func(
+			state interfaces.State,
+			db *gorm.DB,
+			userID string,
+			channelID string,
+			dm bool,
+		) bool {
+			hasPermission, err := config.UserGetBool(db, userID, key)
+			if err != nil {
+				return true
+			}
+
+			return !hasPermission
+		},
+		give: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
+			return config.UserSetBool(db, userID, permission.key, false)
+		},
+		remove: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
+			return config.UserSetBool(db, userID, permission.key, true)
+		},
+	}
+}
+
 func (p *CacophonyBotPermission) Name() string {
 	return p.name
 }
@@ -183,7 +212,7 @@ var (
 	)
 
 	// CacoFileStorage has ability to use commands that store files
-	CacoFileStorage = newCacophonyPermission(
+	CacoFileStorage = newCacophonyDefaultPermission(
 		"CacoFileStorage",
 		"cacophony:permission:storage",
 	)
