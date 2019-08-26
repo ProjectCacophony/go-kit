@@ -163,12 +163,12 @@ func (p *CacophonyBotPermission) Match(
 	)
 }
 
-func (p *CacophonyBotPermission) Give(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-	return p.give(db, userID, permission)
+func (p *CacophonyBotPermission) Give(db *gorm.DB, userID string) error {
+	return p.give(db, userID, p)
 }
 
-func (p *CacophonyBotPermission) Remove(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-	return p.remove(db, userID, permission)
+func (p *CacophonyBotPermission) Remove(db *gorm.DB, userID string) error {
+	return p.remove(db, userID, p)
 }
 
 var (
