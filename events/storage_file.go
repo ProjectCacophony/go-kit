@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	NoStorageSpace string = "common.noStorageSpace"
+	NoStorageSpace      string = "common.noStorageSpace"
+	NoStoragePermission string = "common.noStoragePermission"
 
 	noStorageError string = "Event storage is Nil"
 	noFileData     string = "No file data."
@@ -96,8 +97,15 @@ func (e *Event) AddFile(data []byte, file *FileInfo) (*FileInfo, error) {
 		return nil, err
 	}
 
-	if !e.Has(permissions.BotAdmin) && (usageInfo.StorageUsed+file.Filesize) > usageInfo.StorageAvailable {
-		return nil, errors.New(NoStorageSpace)
+	if !e.Has(permissions.BotAdmin) {
+
+		if !e.Has(permissions.CacoFileStorage) {
+			return nil, errors.New(NoStoragePermission)
+		}
+
+		if (usageInfo.StorageUsed + file.Filesize) > usageInfo.StorageAvailable {
+			return nil, errors.New(NoStorageSpace)
+		}
 	}
 
 	if file.FileID == "" {
