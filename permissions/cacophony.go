@@ -60,10 +60,10 @@ func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
 			return true
 		},
 		give: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-			return errors.New("Bot Admin permission cannot be set in this way.")
+			return errors.New("bot Admin permission cannot be set in this way")
 		},
 		remove: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-			return errors.New("Bot Admin permission cannot be set in this way.")
+			return errors.New("bot Admin permission cannot be set in this way")
 		},
 	}
 }
@@ -107,15 +107,16 @@ func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 		},
 		give: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
 			// TODO
-			return errors.New("TODO...")
+			return errors.New("todo")
 		},
 		remove: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
 			// TODO
-			return errors.New("TODO...")
+			return errors.New("todo")
 		},
 	}
 }
 
+/* Just commenting this out cause of the linter
 func newCacophonyPermission(name, key string) *CacophonyBotPermission {
 	return &CacophonyBotPermission{
 		name: name,
@@ -141,7 +142,7 @@ func newCacophonyPermission(name, key string) *CacophonyBotPermission {
 			return config.UserSetBool(db, userID, permission.key, false)
 		},
 	}
-}
+}*/
 
 // newCacophonyDefaultPermission is used when the given permission is defaulted to true
 //   for example: file upload permissions should default to true unless revoked
