@@ -2,6 +2,7 @@ package events
 
 import (
 	"strconv"
+	"strings"
 
 	"gitlab.com/Cacophony/go-kit/discord"
 
@@ -37,7 +38,7 @@ func (e *Event) Except(err error) {
 		if e.DM() ||
 			discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionSendMessages) {
 
-			message := "**Something went wrong.** :sad:" + "\n```\nError: " + errorMessage + "\n```"
+			message := "**Something went wrong.** :sad:" + "\n**Error:** " + e.Translate(errorMessage) + ""
 			if doLog {
 				message += "I sent our top people to fix the issue as soon as possible."
 			}
@@ -128,7 +129,9 @@ func ignoreError(err error) bool {
 		err == state.ErrTargetWrongType ||
 		err == state.ErrUserNotFound ||
 		err == state.ErrChannelNotFound ||
-		err == state.ErrRoleNotFound {
+		err == state.ErrRoleNotFound ||
+		strings.Contains(err.Error(), NoStoragePermission) ||
+		strings.Contains(err.Error(), NoStorageSpace) {
 		return true
 	}
 

@@ -97,15 +97,13 @@ func (e *Event) AddFile(data []byte, file *FileInfo) (*FileInfo, error) {
 		return nil, err
 	}
 
-	if !e.Has(permissions.BotAdmin) {
+	if !e.Has(permissions.CacoFileStorage) {
+		return nil, errors.New(NoStoragePermission)
+	}
 
-		if !e.Has(permissions.CacoFileStorage) {
-			return nil, errors.New(NoStoragePermission)
-		}
-
-		if (usageInfo.StorageUsed + file.Filesize) > usageInfo.StorageAvailable {
-			return nil, errors.New(NoStorageSpace)
-		}
+	if usageInfo.StorageAvailable >= 0 &&
+		(usageInfo.StorageUsed+file.Filesize) > usageInfo.StorageAvailable {
+		return nil, errors.New(NoStorageSpace)
 	}
 
 	if file.FileID == "" {
@@ -198,6 +196,10 @@ func (e *Event) GetUserStorageUsage() (*UserStorageInfo, error) {
 		Select("count(*) as file_count, sum(filesize) as storage_used").
 		Where("user_id = ?", e.UserID).
 		Find(&info).Error
+
+	if e.Has(permissions.BotAdmin) {
+		info.StorageAvailable = -1
+	}
 
 	return info, err
 }
