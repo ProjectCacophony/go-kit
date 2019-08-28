@@ -2,9 +2,12 @@ package events
 
 import (
 	"errors"
+	"io"
 	"io/ioutil"
 	"math/rand"
+	"mime"
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -13,8 +16,10 @@ import (
 )
 
 const (
-	NoStorageSpace      string = "common.noStorageSpace"
-	NoStoragePermission string = "common.noStoragePermission"
+	NoStorageSpace          string = "common.noStorageSpace"
+	NoStoragePermission     string = "common.noStoragePermission"
+	FileTooBig              string = "common.fileTooBig"
+	CouldNotExtractFilename string = "common.couldNotExtractFilename"
 
 	noStorageError string = "Event storage is Nil"
 	noFileData     string = "No file data."
@@ -23,7 +28,8 @@ const (
 	fileIDCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	fileIDLength     = 8
 
-	userStorageLimit = 1000000000 // 1GB
+	userStorageLimit = 1000000000 //   1 GB
+	maxUploadLimit   = 100000000  // 100 MB
 )
 
 var (
@@ -144,9 +150,8 @@ func (e *Event) DeleteFile(file *FileInfo) error {
 	return e.storage.bucket.Delete(e.Context(), file.bucketKey())
 }
 
-func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileInfo, error) {
-
-	resp, err := e.HTTPClient().Get(attachement.URL)
+func (e *Event) AddFileFromURL(link string, filename string) (*FileInfo, error) {
+	resp, err := e.HTTPClient().Get(link)
 	if resp != nil && resp.Body != nil {
 		defer resp.Body.Close()
 	}
@@ -154,29 +159,46 @@ func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileI
 		return nil, err
 	}
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	limitedReader := &io.LimitedReader{R: resp.Body, N: maxUploadLimit + 1}
+
+	bytes, err := ioutil.ReadAll(limitedReader)
 	if err != nil {
 		return nil, err
 	}
 
-	uniqueID, err := getUniqueFileID(e.DB())
-	if err != nil {
-		return nil, err
+	// check if limited reader is exhausted, and if so stop, because we do not want to store a partial file
+	if limitedReader.N <= 0 {
+		return nil, errors.New(FileTooBig)
+	}
+
+	// try to extract filename if no filename is passed
+	if filename == "" {
+		filename = path.Base(resp.Request.URL.Path)
+
+		_, params, err := mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
+		if err == nil && params["filename"] != "" {
+			filename = params["filename"]
+		}
+	}
+	if filename == "" {
+		return nil, errors.New(CouldNotExtractFilename)
 	}
 
 	return e.AddFile(bytes, &FileInfo{
-		Filename:   attachement.Filename,
+		Filename:   filename,
 		UserID:     e.UserID,
 		ChannelID:  e.ChannelID,
 		GuildID:    e.GuildID,
-		FileID:     uniqueID,
 		MimeType:   http.DetectContentType(bytes),
 		UploadDate: time.Now(),
-		Source:     attachement.URL,
+		Source:     link,
 		Filesize:   len(bytes),
 		Public:     true,
 	})
+}
 
+func (e *Event) AddAttachement(attachement *discordgo.MessageAttachment) (*FileInfo, error) {
+	return e.AddFileFromURL(attachement.URL, attachement.Filename)
 }
 
 func (e *Event) UpdateFileInfo(file FileInfo) error {

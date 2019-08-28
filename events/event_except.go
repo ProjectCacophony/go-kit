@@ -131,7 +131,9 @@ func ignoreError(err error) bool {
 		err == state.ErrChannelNotFound ||
 		err == state.ErrRoleNotFound ||
 		strings.Contains(err.Error(), NoStoragePermission) ||
-		strings.Contains(err.Error(), NoStorageSpace) {
+		strings.Contains(err.Error(), NoStorageSpace) ||
+		strings.Contains(err.Error(), FileTooBig) ||
+		strings.Contains(err.Error(), CouldNotExtractFilename) {
 		return true
 	}
 
