@@ -2,12 +2,14 @@ package events
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"mime"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -159,6 +161,14 @@ func (e *Event) AddFileFromURL(link string, filename string) (*FileInfo, error) 
 		return nil, err
 	}
 
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	if resp.ContentLength > maxUploadLimit {
+		return nil, errors.New(FileTooBig)
+	}
+
 	limitedReader := &io.LimitedReader{R: resp.Body, N: maxUploadLimit + 1}
 
 	bytes, err := ioutil.ReadAll(limitedReader)
@@ -180,7 +190,7 @@ func (e *Event) AddFileFromURL(link string, filename string) (*FileInfo, error) 
 			filename = params["filename"]
 		}
 	}
-	if filename == "" {
+	if filename == "" || !strings.Contains(filename, ".") {
 		return nil, errors.New(CouldNotExtractFilename)
 	}
 

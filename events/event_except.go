@@ -38,9 +38,9 @@ func (e *Event) Except(err error) {
 		if e.DM() ||
 			discord.UserHasPermission(e.State(), e.BotUserID, e.ChannelID, discordgo.PermissionSendMessages) {
 
-			message := "**Something went wrong.** :sad:" + "\n**Error:** " + e.Translate(errorMessage) + ""
+			message := "**Something went wrong.** :sad:" + "\n**Error:** " + e.Translate(errorMessage) + "\n"
 			if doLog {
-				message += "I sent our top people to fix the issue as soon as possible."
+				message += "I sent our top people to fix the issue as soon as possible.\n"
 			}
 
 			e.Respond(
