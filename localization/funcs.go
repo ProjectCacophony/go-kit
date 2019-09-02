@@ -226,5 +226,9 @@ var (
 		"NonBreakingSpace": func() string {
 			return nonBreakingSpace
 		},
+
+		"ParseTimestamp": func(i int64) time.Time {
+			return time.Unix(i, 0)
+		},
 	}
 )
