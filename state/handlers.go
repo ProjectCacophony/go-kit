@@ -110,9 +110,6 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		if len(previousGuild.Emojis) > len(guild.Emojis) {
 			guild.Emojis = previousGuild.Emojis
 		}
-		if len(previousGuild.Members) > len(guild.Members) {
-			guild.Members = previousGuild.Members
-		}
 		if len(previousGuild.Presences) > len(guild.Presences) {
 			guild.Presences = previousGuild.Presences
 		}
