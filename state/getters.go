@@ -31,7 +31,13 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 	err = jsoniter.Unmarshal(data, &guild)
 
 	if guild != nil {
-		guild.MemberCount = len(guild.Members)
+		membersCount, err := s.client.SCard(guildMembersSetKey(guildID)).Result()
+		if err != nil {
+			return guild, err
+		}
+
+		guild.MemberCount = int(membersCount)
+		guild.Members = nil
 	}
 
 	return
@@ -134,13 +140,13 @@ func (s *State) AllUserIDs() (userIDs []string, err error) {
 }
 
 // GuildUserIDs returns a list of all User IDs in a specific Guild from the shared state
-func (s *State) GuildUserIDs(guildID string) (userIDs []string, err error) {
-	return readStateSet(s.client, guildUserIDsSetKey(guildID))
+func (s *State) GuildMembers(guildID string) (userIDs []string, err error) {
+	return readStateSet(s.client, guildMembersSetKey(guildID))
 }
 
 // IsMember true if the User is a member of the specified Guild
 func (s *State) IsMember(guildID, userID string) (isMember bool, err error) {
-	isMember, err = s.client.SIsMember(guildUserIDsSetKey(guildID), userID).Result()
+	isMember, err = s.client.SIsMember(guildMembersSetKey(guildID), userID).Result()
 	return isMember, err
 }
 

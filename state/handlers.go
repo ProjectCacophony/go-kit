@@ -124,7 +124,11 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		}
 	}
 
+	guildMembers := guild.Members
+
 	guild.Presences = nil
+	guild.Members = nil
+	guild.MemberCount = 0
 
 	// cache guild
 	err = updateStateObject(s.client, guildKey(guild.ID), guild)
@@ -157,7 +161,7 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	}
 
 	// cache guild members and users
-	for _, member := range guild.Members {
+	for _, member := range guildMembers {
 		err = s.memberAdd(session, member, true, true)
 		if err != nil {
 			return err
@@ -224,12 +228,6 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 
 	// TODO: cache guild and member locally?
 
-	// read member guild
-	previousGuild, err := s.Guild(member.GuildID)
-	if err != nil {
-		return err
-	}
-
 	// read previous member if exists
 	previousMember, err := s.Member(member.GuildID, member.User.ID)
 	if err == nil {
@@ -241,16 +239,6 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 			if len(member.Roles) <= 0 {
 				member.Roles = previousMember.Roles
 			}
-		}
-	}
-
-	if !guildContainsMember(previousGuild, member.User.ID) {
-		// update member guild
-		previousGuild.Members = append(previousGuild.Members, member)
-		// cache guild
-		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-		if err != nil {
-			return err
 		}
 	}
 
@@ -267,7 +255,8 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 	if err != nil {
 		return err
 	}
-	err = addToStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+
+	err = addToStateSet(s.client, guildMembersSetKey(member.GuildID), member.User.ID)
 	if err != nil {
 		return err
 	}
@@ -289,12 +278,6 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 	fmt.Println("running memberRemove", member.GuildID, member.User.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
-
-	// read member guild
-	previousGuild, err := s.Guild(member.GuildID)
-	if err != nil {
-		return err
-	}
 
 	// remove member and user
 	err = deleteStateObject(s.client, memberKey(member.GuildID, member.User.ID))
@@ -330,21 +313,12 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 		}
 	}
 
-	// update previous guild
-	for i, previousMember := range previousGuild.Members {
-		if previousMember.User.ID == member.User.ID {
-			previousGuild.Members = append(previousGuild.Members[:i], previousGuild.Members[i+1:]...)
-			break
-		}
-	}
-	err = removeFromStateSet(s.client, guildUserIDsSetKey(member.GuildID), member.User.ID)
+	err = removeFromStateSet(s.client, guildMembersSetKey(member.GuildID), member.User.ID)
 	if err != nil {
 		return err
 	}
 
-	// cache guild
-	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-	return err
+	return nil
 }
 
 func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discordgo.Role) (err error) {

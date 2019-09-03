@@ -16,10 +16,6 @@ var stateLock sync.Mutex
 
 var stateExpire = time.Duration(0)
 
-func guildUserIDsSetKey(guildID string) string {
-	return redisKeyPrefix + "user-ids:" + guildID
-}
-
 func allUserIDsSetKey() string {
 	return redisKeyPrefix + "user-ids"
 }
@@ -54,6 +50,10 @@ func memberKey(guildID, userID string) string {
 
 func guildKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID
+}
+
+func guildMembersSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":members"
 }
 
 func channelKey(channelID string) string {
