@@ -20,4 +20,6 @@ var (
 
 	// DiscordEmojiRegexp matches an Emoji, or an Emoji ID
 	DiscordEmojiRegexp = regexp.MustCompile(`(<(a)?:([^<>:]+):)?([0-9]+)>?`)
+
+	SnowflakeRegexp = regexp.MustCompile(`^[0-9]+$`)
 )
