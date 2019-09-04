@@ -36,12 +36,14 @@ require (
 	go.uber.org/zap v1.10.0
 	gocloud.dev v0.15.0
 	gocloud.dev/pubsub/rabbitpubsub v0.15.0
-	golang.org/x/net v0.0.0-20190607181551-461777fb6f67 // indirect
+	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 	golang.org/x/sys v0.0.0-20190608050228-5b15430b70e3 // indirect
-	golang.org/x/xerrors v0.0.0-20190513163551-3ee3066db522 // indirect
+	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/genproto v0.0.0-20190605220351-eb0b1bdb6ae6 // indirect
 	google.golang.org/grpc v1.21.1 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.14 // indirect
 	mvdan.cc/xurls/v2 v2.0.0
 )
+
+go 1.13

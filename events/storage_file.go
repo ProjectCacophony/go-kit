@@ -30,8 +30,8 @@ const (
 	fileIDCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	fileIDLength     = 8
 
-	userStorageLimit = 1000000000 //   1 GB
-	maxUploadLimit   = 100000000  // 100 MB
+	userStorageLimit = 1_000_000_000 //   1 GB
+	maxUploadLimit   = 100_000_000   // 100 MB
 )
 
 var (
