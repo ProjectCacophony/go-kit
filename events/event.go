@@ -86,6 +86,7 @@ type Event struct {
 	questionnaire   *Questionnaire
 	storage         *Storage
 	featureFlagger  *featureflag.FeatureFlagger
+	publisher       *Publisher
 }
 
 // BucketType specifies the scope of a bucket

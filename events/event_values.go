@@ -150,3 +150,11 @@ func (e *Event) WithFeatureFlagger(featureFlagger *featureflag.FeatureFlagger) {
 func (e *Event) FeatureFlagger() *featureflag.FeatureFlagger {
 	return e.featureFlagger
 }
+
+func (e *Event) WithPublisher(publisher *Publisher) {
+	e.publisher = publisher
+}
+
+func (e *Event) Publisher() *Publisher {
+	return e.publisher
+}
