@@ -230,5 +230,9 @@ var (
 		"ParseTimestamp": func(i int64) time.Time {
 			return time.Unix(i, 0)
 		},
+
+		"QuoteText": func(input string) string {
+			return "> " + strings.Replace(input, "\n", "\n> ", -1)
+		},
 	}
 )
