@@ -24,4 +24,6 @@ var (
 	DiscordEmojiStrictRegexp = regexp.MustCompile(`<a?:(\w+):(\d+)>`)
 
 	SnowflakeRegexp = regexp.MustCompile(`^[0-9]+$`)
+
+	DiscordMessageLinkRegexp = regexp.MustCompile(`https:\/\/discordapp.com\/channels\/(\d+)\/(\d+)\/(\d+)`)
 )

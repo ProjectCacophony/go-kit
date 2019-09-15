@@ -119,3 +119,16 @@ func (e *Event) defaultParams() []interface{} {
 		"timezone", e.Timezone(),
 	}
 }
+
+func (e *Event) FindMessageLink(link string) (*discordgo.Message, error) {
+	message, err := discord.LookupMessageLink(e.state, e.Discord(), link)
+	if err != nil {
+		return nil, err
+	}
+
+	if message.GuildID != e.GuildID {
+		return nil, discord.ErrMessageOnWrongServer
+	}
+
+	return message, nil
+}

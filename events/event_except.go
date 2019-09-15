@@ -1,6 +1,7 @@
 package events
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
@@ -122,14 +123,16 @@ func ignoreError(err error) bool {
 	}
 
 	// state errors
-	if err == state.ErrPresenceStateNotFound ||
-		err == state.ErrRoleStateNotFound ||
-		err == state.ErrEmojiStateNotFound ||
-		err == state.ErrTargetWrongServer ||
-		err == state.ErrTargetWrongType ||
-		err == state.ErrUserNotFound ||
-		err == state.ErrChannelNotFound ||
-		err == state.ErrRoleNotFound ||
+	if errors.Is(err, state.ErrPresenceStateNotFound) ||
+		errors.Is(err, state.ErrRoleStateNotFound) ||
+		errors.Is(err, state.ErrEmojiStateNotFound) ||
+		errors.Is(err, state.ErrTargetWrongServer) ||
+		errors.Is(err, state.ErrTargetWrongType) ||
+		errors.Is(err, state.ErrUserNotFound) ||
+		errors.Is(err, state.ErrChannelNotFound) ||
+		errors.Is(err, state.ErrRoleNotFound) ||
+		errors.Is(err, discord.ErrInvalidMessageLink) ||
+		errors.Is(err, discord.ErrMessageOnWrongServer) ||
 		strings.Contains(err.Error(), NoStoragePermission) ||
 		strings.Contains(err.Error(), NoStorageSpace) ||
 		strings.Contains(err.Error(), FileTooBig) ||
