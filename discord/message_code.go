@@ -8,7 +8,7 @@ import (
 	"gitlab.com/Cacophony/go-kit/regexp"
 )
 
-func EmbedCodeFromMessage(message *discordgo.Message) string {
+func MessageCodeFromMessage(message *discordgo.Message) string {
 	if message == nil {
 		return ""
 	}
@@ -78,7 +78,7 @@ func EmbedCodeFromMessage(message *discordgo.Message) string {
 	return strings.TrimSuffix(replaceEmojiCodes(embedCode), "| ")
 }
 
-func EmbedCodeToMessage(embedText string) *discordgo.MessageSend {
+func MessageCodeToMessage(embedText string) *discordgo.MessageSend {
 	// Code ported from https://github.com/appu1232/Discord-Selfbot/blob/master/cogs/misc.py#L146
 	// Reference https://github.com/Seklfreak/Robyul-Web/blob/master/src/RobyulWebBundle/Resources/public/js/main.js#L724
 	var ptext, title, description, image, thumbnail, color, footer, author string
@@ -114,7 +114,7 @@ func EmbedCodeToMessage(embedText string) *discordgo.MessageSend {
 		}
 	}
 
-	if ptext == "" && title == "" && description == "" && image == "" && thumbnail == "" && footer == "" &&
+	if title == "" && description == "" && image == "" && thumbnail == "" && footer == "" &&
 		author == "" && !strings.Contains("field=", embedText) {
 		return &discordgo.MessageSend{Content: embedText}
 	}
