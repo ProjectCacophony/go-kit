@@ -16,11 +16,11 @@ func EmbedCodeFromMessage(message *discordgo.Message) string {
 	var embedCode string
 
 	if len(message.Content) > 0 {
-		embedCode += "ptext=" + cleanEmbedValue(message.Content) + " | "
+		embedCode += cleanEmbedValue(message.Content) + " | "
 	}
 
 	if message.Embeds == nil || len(message.Embeds) <= 0 {
-		return embedCode
+		return strings.TrimSuffix(replaceEmojiCodes(embedCode), "| ")
 	}
 
 	targetEmbed := message.Embeds[0]
@@ -75,9 +75,7 @@ func EmbedCodeFromMessage(message *discordgo.Message) string {
 		embedCode += "color=#" + ColorCodeToHex(targetEmbed.Color) + " | "
 	}
 
-	embedCode = strings.TrimSuffix(embedCode, " | ")
-
-	return replaceEmojiCodes(embedCode)
+	return strings.TrimSuffix(replaceEmojiCodes(embedCode), "| ")
 }
 
 func EmbedCodeToMessage(embedText string) *discordgo.MessageSend {
@@ -111,8 +109,8 @@ func EmbedCodeToMessage(embedText string) *discordgo.MessageSend {
 			author = strings.TrimSpace(embedValue[7:])
 		} else if strings.HasPrefix(embedValue, "timestamp") {
 			timestamp = time.Now()
-		} else if description == "" && !strings.HasPrefix(embedValue, "field=") {
-			description = embedValue
+		} else if ptext == "" && !strings.HasPrefix(embedValue, "field=") {
+			ptext = embedValue
 		}
 	}
 
@@ -246,7 +244,7 @@ func cleanEmbedValue(input string) (output string) {
 func replaceEmojiCodes(content string) (result string) {
 	var replaceWith string
 
-	emojiPartsList := regexp.DiscordEmojiRegexp.FindAllStringSubmatch(content, -1)
+	emojiPartsList := regexp.DiscordEmojiStrictRegexp.FindAllStringSubmatch(content, -1)
 	if len(emojiPartsList) > 0 {
 		for _, emojiParts := range emojiPartsList {
 			replaceWith = ":" + emojiParts[1] + ":"
