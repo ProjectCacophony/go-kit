@@ -81,6 +81,10 @@ func MessageCodeFromMessage(message *discordgo.Message) string {
 func MessageCodeToMessage(embedText string) *discordgo.MessageSend {
 	// Code ported from https://github.com/appu1232/Discord-Selfbot/blob/master/cogs/misc.py#L146
 	// Reference https://github.com/Seklfreak/Robyul-Web/blob/master/src/RobyulWebBundle/Resources/public/js/main.js#L724
+	if strings.TrimSpace(embedText) == "" {
+		return &discordgo.MessageSend{}
+	}
+
 	var ptext, title, description, image, thumbnail, color, footer, author string
 	var timestamp time.Time
 
