@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"errors"
+
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/Cacophony/go-kit/state"
 )
@@ -25,8 +27,12 @@ func FindMessage(
 		}
 	}
 
-	return discord.Client.ChannelMessage(
-		channelID,
-		messageID,
-	)
+	if discord != nil {
+		return discord.Client.ChannelMessage(
+			channelID,
+			messageID,
+		)
+	}
+
+	return nil, errors.New("message not found")
 }
