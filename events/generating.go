@@ -25,7 +25,7 @@ func GenerateEventFromDiscordgoEvent(
 		BotUserID:  botUserID,
 	}
 
-	expiration := time.Minute * 15
+	expiration := time.Second * 5
 
 	eventID, err := uuid.NewRandom()
 	if err != nil {
