@@ -41,4 +41,5 @@ const (
 	CacophonyServerlistServerExpire Type = "cacophony_serverlist_server_expire"
 	CacophonyQuickactionRemind      Type = "cacophony_quickaction_remind"
 	CacophonyQuestionnaireMatch     Type = "cacophony_questionnaire_match"
+	CacophonyAutomodWait            Type = "cacophony_automod_wait"
 )

@@ -65,6 +65,7 @@ type Event struct {
 	ServerlistServerExpire *ServerlistServerExpire `json:"cacophony_serverlist_server_expire,omitempty"`
 	QuickactionRemind      *QuickactionRemind      `json:"cacophony_quickaction_remind,omitempty"`
 	QuestionnaireMatch     *QuestionnaireMatch     `json:"cacophony_questionnaire_match,omitempty"`
+	AutomodWait            *AutomodWait            `json:"cacophony_automod_wait,omitempty"`
 
 	// non marshalled events
 	ctx             context.Context
@@ -127,4 +128,8 @@ type QuestionnaireMatch struct {
 	Key     string
 	Payload map[string]interface{}
 	Filter  QuestionnaireFilter
+}
+
+type AutomodWait struct {
+	Payload []byte
 }
