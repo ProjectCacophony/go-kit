@@ -104,8 +104,8 @@ type BucketUpdate struct {
 	Type      BucketType
 	Tag       string
 	GuildID   string
-	Values    []string
 	KeySuffix string
+	EnvDatas  [][]byte
 }
 
 type ServerlistServerExpire struct {
@@ -131,5 +131,5 @@ type QuestionnaireMatch struct {
 }
 
 type AutomodWait struct {
-	Payload []byte
+	EnvData []byte
 }
