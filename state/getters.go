@@ -22,47 +22,79 @@ func NewSate(client *redis.Client, db *gorm.DB, botIDs []string) *State {
 }
 
 // Guild returns the specified Guild from the shard state, returns ErrStateNotFound if not found
-func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
+// does not return the slice fields of the guild (eg members, roles, channels)
+func (s *State) guildLight(guildID string) (guild *discordgo.Guild, err error) {
 	data, err := readStateObject(s.client, guildKey(guildID))
 	if err != nil {
 		return nil, err
 	}
 
 	err = jsoniter.Unmarshal(data, &guild)
+	return
+}
 
+func (s *State) guildRoles(guildID string) ([]*discordgo.Role, error) {
+	roleIDs, err := s.client.SMembers(guildRolesSetKey(guildID)).Result()
+	if err != nil {
+		return nil, err
+	}
+	roles := make([]*discordgo.Role, 0, len(roleIDs))
+	for _, roleID := range roleIDs {
+		role, err := s.Role(guildID, roleID)
+		if err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	return roles, nil
+}
+
+func (s *State) guildChannels(guildID string) ([]*discordgo.Channel, error) {
+	channelIDs, err := s.client.SMembers(guildChannelsSetKey(guildID)).Result()
+	if err != nil {
+		return nil, err
+	}
+	channels := make([]*discordgo.Channel, 0, len(channelIDs))
+	for _, channelID := range channelIDs {
+		channel, err := s.Channel(channelID)
+		if err != nil {
+			return nil, err
+		}
+
+		channels = append(channels, channel)
+	}
+
+	return channels, nil
+}
+
+func (s *State) guildMemberCount(guildID string) (int, error) {
+	membersCount, err := s.client.SCard(guildMembersSetKey(guildID)).Result()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(membersCount), nil
+}
+
+// Guild returns the specified Guild from the shard state, returns ErrStateNotFound if not found
+func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
+	guild, err = s.guildLight(guildID)
 	if guild != nil {
-		membersCount, err := s.client.SCard(guildMembersSetKey(guildID)).Result()
+		guild.MemberCount, err = s.guildMemberCount(guildID)
 		if err != nil {
 			return guild, err
 		}
-		guild.MemberCount = int(membersCount)
 
-		channelIDs, err := s.client.SMembers(guildChannelsSetKey(guildID)).Result()
+		guild.Channels, err = s.guildChannels(guildID)
 		if err != nil {
 			return guild, err
 		}
-		guild.Channels = make([]*discordgo.Channel, 0, len(channelIDs))
-		for _, channelID := range channelIDs {
-			channel, err := s.Channel(channelID)
-			if err != nil {
-				return guild, err
-			}
 
-			guild.Channels = append(guild.Channels, channel)
-		}
-
-		roleIDs, err := s.client.SMembers(guildRolesSetKey(guildID)).Result()
+		guild.Roles, err = s.guildRoles(guildID)
 		if err != nil {
 			return guild, err
-		}
-		guild.Roles = make([]*discordgo.Role, 0, len(roleIDs))
-		for _, roleID := range roleIDs {
-			role, err := s.Role(guildID, roleID)
-			if err != nil {
-				return guild, err
-			}
-
-			guild.Roles = append(guild.Roles, role)
 		}
 
 		guild.Members = nil
@@ -76,17 +108,7 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 
 // Presence returns the specified Presence from the shard state, returns ErrStateNotFound if not found
 func (s *State) Presence(guildID, userID string) (presence *discordgo.Presence, err error) {
-	guild, err := s.Guild(guildID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, presence := range guild.Presences {
-		if presence.User.ID == userID {
-			return presence, nil
-		}
-	}
-
+	// TODO: not supported at the moment
 	return nil, ErrPresenceStateNotFound
 }
 
@@ -125,17 +147,7 @@ func (s *State) Channel(channelID string) (channel *discordgo.Channel, err error
 
 // Emoji returns the specified Emoji from the shard state, returns ErrStateNotFound if not found
 func (s *State) Emoji(guildID, emojiID string) (emoji *discordgo.Emoji, err error) {
-	guild, err := s.Guild(guildID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, emoji := range guild.Emojis {
-		if emoji.ID == emojiID {
-			return emoji, nil
-		}
-	}
-
+	// TODO: get emoji from state object
 	return nil, ErrEmojiStateNotFound
 }
 
@@ -207,13 +219,19 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 		return
 	}
 
-	return memberChannelPermissions(guild, channel, member), nil
+	var roles []*discordgo.Role
+	roles, err = s.guildRoles(channel.GuildID)
+	if err != nil {
+		return
+	}
+
+	return memberChannelPermissions(guild.ID, guild.OwnerID, roles, channel, member), nil
 }
 
 // UserPermissions returns the permissions of a user in a guild
 func (s *State) UserPermissions(userID, guildID string) (apermissions int, err error) {
 	var guild *discordgo.Guild
-	guild, err = s.Guild(guildID)
+	guild, err = s.guildLight(guildID)
 	if err != nil {
 		return
 	}
@@ -229,7 +247,13 @@ func (s *State) UserPermissions(userID, guildID string) (apermissions int, err e
 		return
 	}
 
-	return memberPermissions(guild, member), nil
+	var roles []*discordgo.Role
+	roles, err = s.guildRoles(guildID)
+	if err != nil {
+		return
+	}
+
+	return memberPermissions(guild.ID, guild.OwnerID, roles, member), nil
 }
 
 // ChannelMessages returns the messages of a channel
@@ -259,25 +283,27 @@ func (s *State) ChannelMessages(channelID string) (messages []discordgo.Message,
 // memberChannelPermissions calculates the permissions for a member in a channel
 // Source: https://github.com/bwmarrin/discordgo/blob/develop/restapi.go#L503
 func memberChannelPermissions(
-	guild *discordgo.Guild,
+	guildID string,
+	guildOwnerID string,
+	guildRoles []*discordgo.Role,
 	channel *discordgo.Channel,
 	member *discordgo.Member,
 ) (apermissions int) {
 	userID := member.User.ID
 
-	if userID == guild.OwnerID {
+	if userID == guildOwnerID {
 		apermissions = discordgo.PermissionAll
 		return
 	}
 
-	for _, role := range guild.Roles {
-		if role.ID == guild.ID {
+	for _, role := range guildRoles {
+		if role.ID == guildID {
 			apermissions |= role.Permissions
 			break
 		}
 	}
 
-	for _, role := range guild.Roles {
+	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {
 			if role.ID == roleID {
 				apermissions |= role.Permissions
@@ -292,7 +318,7 @@ func memberChannelPermissions(
 
 	// Apply @everyone overrides from the channel.
 	for _, overwrite := range channel.PermissionOverwrites {
-		if guild.ID == overwrite.ID {
+		if guildID == overwrite.ID {
 			apermissions &= ^overwrite.Deny
 			apermissions |= overwrite.Allow
 			break
@@ -333,22 +359,22 @@ func memberChannelPermissions(
 
 // memberPermissions calculates the permissions for a member in a guild
 // Source: https://github.com/bwmarrin/discordgo/blob/develop/restapi.go#L503
-func memberPermissions(guild *discordgo.Guild, member *discordgo.Member) (apermissions int) {
+func memberPermissions(guildID, guildOwnerID string, guildRoles []*discordgo.Role, member *discordgo.Member) (apermissions int) {
 	userID := member.User.ID
 
-	if userID == guild.OwnerID {
+	if userID == guildOwnerID {
 		apermissions = discordgo.PermissionAll
 		return
 	}
 
-	for _, role := range guild.Roles {
-		if role.ID == guild.ID {
+	for _, role := range guildRoles {
+		if role.ID == guildID {
 			apermissions |= role.Permissions
 			break
 		}
 	}
 
-	for _, role := range guild.Roles {
+	for _, role := range guildRoles {
 		for _, roleID := range member.Roles {
 			if role.ID == roleID {
 				apermissions |= role.Permissions
