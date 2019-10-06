@@ -68,6 +68,10 @@ func guildEmojiSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":emoji"
 }
 
+func guildMemberRolesSetKey(guildID, userID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":member-" + userID + ":roles"
+}
+
 func channelKey(channelID string) string {
 	return redisKeyPrefix + "channel-" + channelID
 }

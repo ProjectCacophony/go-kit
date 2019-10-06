@@ -142,6 +142,11 @@ func (s *State) Member(guildID, userID string) (member *discordgo.Member, err er
 	}
 
 	err = jsoniter.Unmarshal(data, &member)
+	if err != nil {
+		return
+	}
+
+	member.Roles, err = s.client.SMembers(guildMemberRolesSetKey(guildID, userID)).Result()
 	return
 }
 

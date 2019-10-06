@@ -109,7 +109,7 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	}
 
 	for _, member := range guild.Members {
-		err = s.memberAdd(session, member, true, true)
+		err = s.memberAdd(session, member, true)
 		if err != nil {
 			return err
 		}
@@ -210,7 +210,7 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	return err
 }
 
-func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked, onlyUpdate bool) (err error) {
+func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
 	fmt.Println("running memberAdd", member.GuildID, member.User.ID)
 	if !locked {
 		stateLock.Lock()
@@ -226,12 +226,32 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 		if member.JoinedAt == "" {
 			member.JoinedAt = previousMember.JoinedAt
 		}
-		if onlyUpdate {
-			if len(member.Roles) <= 0 {
-				member.Roles = previousMember.Roles
+	}
+
+	if member.Roles != nil {
+		// add new roles
+		for _, roleID := range member.Roles {
+			err = addToStateSet(s.client, guildMemberRolesSetKey(member.GuildID, member.User.ID), roleID)
+			if err != nil {
+				return err
+			}
+		}
+		// remove removed roles
+		previousRoleIDs, err := s.client.SMembers(guildMemberRolesSetKey(member.GuildID, member.User.ID)).Result()
+		if err != nil {
+			return err
+		}
+		for _, previousRoleID := range previousRoleIDs {
+			if !sliceContains(previousRoleID, member.Roles) {
+				err = removeFromStateSet(s.client, guildMemberRolesSetKey(member.GuildID, member.User.ID), previousRoleID)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
+
+	member.Roles = nil
 
 	// cache member and user
 	err = updateStateObject(s.client, memberKey(member.GuildID, member.User.ID), member)
@@ -270,44 +290,22 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// remove member and user
+	err = removeFromStateSet(s.client, guildMembersSetKey(member.GuildID), member.User.ID)
+	if err != nil {
+		return err
+	}
+
 	err = deleteStateObject(s.client, memberKey(member.GuildID, member.User.ID))
 	if err != nil {
 		return err
 	}
 
-	// viable?
-	allGuildIDs, err := s.AllGuildIDs()
-	if err == nil {
-		var isMember bool
-		for _, guildID := range allGuildIDs {
-			if guildID == member.GuildID {
-				continue
-			}
-			isMember, err = s.IsMember(guildID, member.User.ID)
-			if err != nil {
-				return err
-			}
-			if isMember {
-				break
-			}
-		}
-		if !isMember {
-			err = deleteStateObject(s.client, userKey(member.User.ID))
-			if err != nil {
-				return err
-			}
-			err = removeFromStateSet(s.client, allUserIDsSetKey(), member.User.ID)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	err = removeFromStateSet(s.client, guildMembersSetKey(member.GuildID), member.User.ID)
+	err = deleteStateObject(s.client, guildMemberRolesSetKey(member.GuildID, member.User.ID))
 	if err != nil {
 		return err
 	}
+
+	// TODO: delete user?
 
 	return nil
 }
@@ -601,13 +599,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMemberAdd:
-		err = s.memberAdd(session, t.Member, false, false)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberAdd memberAdd")
 		}
 		return nil
 	case *discordgo.GuildMemberUpdate:
-		err = s.memberAdd(session, t.Member, false, false)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberUpdate memberAdd")
 		}
@@ -622,7 +620,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		fmt.Printf("got GuildMembersChunk %s with %d members\n", t.GuildID, len(t.Members))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
-			err := s.memberAdd(session, t.Members[i], false, false)
+			err := s.memberAdd(session, t.Members[i], false)
 			if err != nil {
 				return errors.Wrap(err, "failed to process GuildMembersChunk memberAdd")
 			}
@@ -735,7 +733,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 			previousMember.Roles = t.Roles
 		}
 
-		err = s.memberAdd(session, previousMember, false, false)
+		err = s.memberAdd(session, previousMember, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
 		}
