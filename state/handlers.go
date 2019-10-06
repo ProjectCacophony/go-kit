@@ -184,30 +184,37 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 		return nil
 	}
 
-	// remove guild
 	err = deleteStateObject(s.client, guildKey(guild.ID))
 	if err != nil {
 		return err
 	}
+
 	err = removeFromStateSet(s.client, allGuildIDsSetKey(), guild.ID)
 	if err != nil {
 		return err
 	}
 
-	// TODO: remove sets
-
-	// remove channels
-	for _, channel := range guild.Channels {
-		err = deleteStateObject(s.client, channelKey(channel.ID))
-		if err != nil {
-			return err
-		}
-		err = removeFromStateSet(s.client, allChannelIDsSetKey(), channel.ID)
-		if err != nil {
-			return err
-		}
+	err = deleteStateObject(s.client, guildChannelsSetKey(guild.ID))
+	if err != nil {
+		return err
 	}
-	return err
+
+	err = deleteStateObject(s.client, guildMembersSetKey(guild.ID))
+	if err != nil {
+		return err
+	}
+
+	err = deleteStateObject(s.client, guildEmojiSetKey(guild.ID))
+	if err != nil {
+		return err
+	}
+
+	err = deleteStateObject(s.client, guildRolesSetKey(guild.ID))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
@@ -304,8 +311,6 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 	if err != nil {
 		return err
 	}
-
-	// TODO: delete user?
 
 	return nil
 }
