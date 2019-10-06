@@ -75,7 +75,7 @@ func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err e
 }
 
 func (s *State) onReady(_ *discordgo.Session, ready *discordgo.Ready) (err error) {
-	fmt.Println("running onReady", ready.User.ID)
+	// fmt.Println("running onReady", ready.User.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -97,7 +97,7 @@ func (s *State) onReady(_ *discordgo.Session, ready *discordgo.Ready) (err error
 }
 
 func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (err error) {
-	fmt.Println("running guildAdd", guild.ID)
+	// fmt.Println("running guildAdd", guild.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -165,7 +165,7 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 		return nil
 	}
 
-	fmt.Println("running guildRemove", guild.ID)
+	// fmt.Println("running guildRemove", guild.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -218,7 +218,7 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 }
 
 func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
-	fmt.Println("running memberAdd", member.GuildID, member.User.ID)
+	// fmt.Println("running memberAdd", member.GuildID, member.User.ID)
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
@@ -293,7 +293,7 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 }
 
 func (s *State) memberRemove(member *discordgo.Member) (err error) {
-	fmt.Println("running memberRemove", member.GuildID, member.User.ID)
+	// fmt.Println("running memberRemove", member.GuildID, member.User.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -316,7 +316,7 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 }
 
 func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discordgo.Role, locked bool) (err error) {
-	fmt.Println("running roleAdd", guildID, role.ID)
+	// fmt.Println("running roleAdd", guildID, role.ID)
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
@@ -347,7 +347,7 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 }
 
 func (s *State) roleRemove(guildID, roleID string) (err error) {
-	fmt.Println("running roleRemove", guildID, roleID)
+	// fmt.Println("running roleRemove", guildID, roleID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
@@ -365,7 +365,7 @@ func (s *State) roleRemove(guildID, roleID string) (err error) {
 }
 
 func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji, locked bool) (err error) {
-	fmt.Println("running emojisAdd", guildID, len(emojis))
+	// fmt.Println("running emojisAdd", guildID, len(emojis))
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
@@ -408,7 +408,7 @@ func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji, locked bool
 }
 
 func (s *State) channelAdd(channel *discordgo.Channel, locked bool) (err error) {
-	fmt.Println("running channelAdd", channel.GuildID, channel.ID)
+	// fmt.Println("running channelAdd", channel.GuildID, channel.ID)
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
@@ -443,7 +443,7 @@ func (s *State) channelAdd(channel *discordgo.Channel, locked bool) (err error) 
 }
 
 func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
-	fmt.Println("running channelRemove", channel.GuildID, channel.ID)
+	// fmt.Println("running channelRemove", channel.GuildID, channel.ID)
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
