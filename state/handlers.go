@@ -101,7 +101,6 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// cache guild channels
 	for _, channel := range guild.Channels {
 		err = s.channelAdd(channel, true)
 		if err != nil {
@@ -109,7 +108,6 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		}
 	}
 
-	// cache guild members and users
 	for _, member := range guild.Members {
 		err = s.memberAdd(session, member, true, true)
 		if err != nil {
@@ -117,7 +115,14 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		}
 	}
 
-	// TODO: add items
+	for _, role := range guild.Roles {
+		err = s.roleAdd(session, guild.ID, role)
+	}
+
+	for _, emoji := range guild.Emojis {
+		err = s.emojiAdd(guild.ID, emoji)
+	}
+
 	guild.Roles = nil
 	guild.Emojis = nil
 	guild.VoiceStates = nil
