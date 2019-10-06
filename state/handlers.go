@@ -117,10 +117,14 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 
 	for _, role := range guild.Roles {
 		err = s.roleAdd(session, guild.ID, role, true)
+		if err != nil {
+			return err
+		}
 	}
 
-	for _, emoji := range guild.Emojis {
-		err = s.emojiAdd(guild.ID, emoji, true)
+	err = s.emojisAdd(guild.ID, guild.Emojis, true)
+	if err != nil {
+		return err
 	}
 
 	guild.Roles = nil
@@ -344,38 +348,59 @@ func (s *State) roleRemove(guildID, roleID string) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	err = deleteStateObject(s.client, roleKey(guildID, roleID))
-	if err != nil {
-		return err
-	}
-
 	err = removeFromStateSet(s.client, guildRolesSetKey(guildID), roleID)
 	if err != nil {
 		return err
 	}
 
+	err = deleteStateObject(s.client, roleKey(guildID, roleID))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji, locked bool) (err error) {
-	fmt.Println("running emojiAdd", guildID, emoji.ID)
+func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji, locked bool) (err error) {
+	fmt.Println("running emojisAdd", guildID, len(emojis))
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
 	}
 
-	// TODO: add emoji to guild emoji set
-	return nil
-}
+	previousEmojiIDs, err := s.client.SMembers(guildEmojiSetKey(guildID)).Result()
+	if err != nil {
+		return err
+	}
 
-func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji) (err error) {
-	fmt.Println("running emojisAdd", guildID, len(emojis))
+	// add missing emoji
 	for _, emoji := range emojis {
-		err = s.emojiAdd(guildID, emoji, false)
+		err = updateStateObject(s.client, emojiKey(guildID, emoji.ID), emoji)
+		if err != nil {
+			return err
+		}
+
+		err = addToStateSet(s.client, guildEmojiSetKey(guildID), emoji.ID)
 		if err != nil {
 			return err
 		}
 	}
+
+	// remove deleted emoji
+	for _, previousEmojiID := range previousEmojiIDs {
+		if !emojiContainsEmojiID(previousEmojiID, emojis) {
+			err = removeFromStateSet(s.client, guildEmojiSetKey(guildID), previousEmojiID)
+			if err != nil {
+				return err
+			}
+
+			err = deleteStateObject(s.client, emojiKey(guildID, previousEmojiID))
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -426,12 +451,12 @@ func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
 		}
 	}
 
-	// cache channel
-	err = deleteStateObject(s.client, channelKey(channel.ID))
+	err = removeFromStateSet(s.client, allChannelIDsSetKey(), channel.ID)
 	if err != nil {
 		return err
 	}
-	err = removeFromStateSet(s.client, allChannelIDsSetKey(), channel.ID)
+
+	err = deleteStateObject(s.client, channelKey(channel.ID))
 	return err
 }
 
@@ -622,7 +647,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildEmojisUpdate:
-		err = s.emojisAdd(t.GuildID, t.Emojis)
+		err = s.emojisAdd(t.GuildID, t.Emojis, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildEmojisUpdate emojisAdd")
 		}
@@ -758,6 +783,16 @@ func sliceMatches(a, b []string) bool {
 func sliceContains(needle string, haystack []string) bool {
 	for _, item := range haystack {
 		if item == needle {
+			return true
+		}
+	}
+
+	return false
+}
+
+func emojiContainsEmojiID(needle string, haystack []*discordgo.Emoji) bool {
+	for _, emoji := range haystack {
+		if emoji.ID == needle {
 			return true
 		}
 	}

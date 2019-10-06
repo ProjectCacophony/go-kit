@@ -69,6 +69,24 @@ func (s *State) guildChannels(guildID string) ([]*discordgo.Channel, error) {
 	return channels, nil
 }
 
+func (s *State) guildEmoji(guildID string) ([]*discordgo.Emoji, error) {
+	emojiIDs, err := s.client.SMembers(guildEmojiSetKey(guildID)).Result()
+	if err != nil {
+		return nil, err
+	}
+	emojis := make([]*discordgo.Emoji, 0, len(emojiIDs))
+	for _, emojiID := range emojiIDs {
+		emoji, err := s.Emoji(guildID, emojiID)
+		if err != nil {
+			return nil, err
+		}
+
+		emojis = append(emojis, emoji)
+	}
+
+	return emojis, nil
+}
+
 func (s *State) guildMemberCount(guildID string) (int, error) {
 	membersCount, err := s.client.SCard(guildMembersSetKey(guildID)).Result()
 	if err != nil {
@@ -97,8 +115,12 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 			return guild, err
 		}
 
+		guild.Emojis, err = s.guildEmoji(guildID)
+		if err != nil {
+			return guild, err
+		}
+
 		guild.Members = nil
-		guild.Emojis = nil
 		guild.VoiceStates = nil
 		guild.Presences = nil
 	}
@@ -147,8 +169,13 @@ func (s *State) Channel(channelID string) (channel *discordgo.Channel, err error
 
 // Emoji returns the specified Emoji from the shard state, returns ErrStateNotFound if not found
 func (s *State) Emoji(guildID, emojiID string) (emoji *discordgo.Emoji, err error) {
-	// TODO: get emoji from state object
-	return nil, ErrEmojiStateNotFound
+	data, err := readStateObject(s.client, emojiKey(guildID, emojiID))
+	if err != nil {
+		return nil, err
+	}
+
+	err = jsoniter.Unmarshal(data, &emoji)
+	return
 }
 
 // User returns the specified User from the shard state, returns ErrStateNotFound if not found

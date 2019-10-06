@@ -64,12 +64,20 @@ func guildRolesSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":roles"
 }
 
+func guildEmojiSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":emoji"
+}
+
 func channelKey(channelID string) string {
 	return redisKeyPrefix + "channel-" + channelID
 }
 
 func roleKey(guildID, roleID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":role-" + roleID
+}
+
+func emojiKey(guildID, emojiID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":emoji-" + emojiID
 }
 
 func messagesListKey(channelID string) string {
