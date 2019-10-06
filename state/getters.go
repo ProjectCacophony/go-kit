@@ -37,7 +37,14 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 		}
 
 		guild.MemberCount = int(membersCount)
+		// TODO: set values from state
+		guild.Roles = nil
+		guild.Emojis = nil
+		guild.VoiceStates = nil
+		guild.Presences = nil
 		guild.Members = nil
+		guild.MemberCount = 0
+		guild.Channels = nil
 	}
 
 	return

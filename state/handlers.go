@@ -101,31 +101,30 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// carry over previous guild fields if set
-	previousGuild, err := s.Guild(guild.ID)
-	if err == nil {
-		if len(previousGuild.Roles) > len(guild.Roles) {
-			guild.Roles = previousGuild.Roles
-		}
-		if len(previousGuild.Emojis) > len(guild.Emojis) {
-			guild.Emojis = previousGuild.Emojis
-		}
-		if len(previousGuild.Presences) > len(guild.Presences) {
-			guild.Presences = previousGuild.Presences
-		}
-		if len(previousGuild.Channels) > len(guild.Channels) {
-			guild.Channels = previousGuild.Channels
-		}
-		if len(previousGuild.VoiceStates) > len(guild.VoiceStates) {
-			guild.VoiceStates = previousGuild.VoiceStates
+	// cache guild channels
+	for _, channel := range guild.Channels {
+		err = s.channelAdd(channel, true)
+		if err != nil {
+			return err
 		}
 	}
 
-	guildMembers := guild.Members
+	// cache guild members and users
+	for _, member := range guild.Members {
+		err = s.memberAdd(session, member, true, true)
+		if err != nil {
+			return err
+		}
+	}
 
+	// TODO: add items
+	guild.Roles = nil
+	guild.Emojis = nil
+	guild.VoiceStates = nil
 	guild.Presences = nil
 	guild.Members = nil
 	guild.MemberCount = 0
+	guild.Channels = nil
 
 	// cache guild
 	err = updateStateObject(s.client, guildKey(guild.ID), guild)
@@ -148,22 +147,6 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 		// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
 		// }
 	}(session, guild.ID)
-
-	// cache guild channels
-	for _, channel := range guild.Channels {
-		err = s.channelAdd(channel, true)
-		if err != nil {
-			return err
-		}
-	}
-
-	// cache guild members and users
-	for _, member := range guildMembers {
-		err = s.memberAdd(session, member, true, true)
-		if err != nil {
-			return err
-		}
-	}
 
 	return nil
 }
@@ -201,6 +184,8 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	if err != nil {
 		return err
 	}
+
+	// TODO: remove sets
 
 	// remove channels
 	for _, channel := range guild.Channels {
@@ -323,30 +308,7 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// read role guild
-	previousGuild, err := s.Guild(guildID)
-	if err != nil {
-		return err
-	}
-
-	// update previous guild
-	var updated bool
-	for i, previousRole := range previousGuild.Roles {
-		if previousRole.ID == role.ID {
-			previousGuild.Roles[i] = role
-			updated = true
-			break
-		}
-	}
-	if !updated {
-		previousGuild.Roles = append(previousGuild.Roles, role)
-	}
-
-	// cache guild
-	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-	if err != nil {
-		return err
-	}
+	// TODO: add role to guild role set
 
 	if role.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator ||
 		role.Permissions&discordgo.PermissionBanMembers == discordgo.PermissionBanMembers {
@@ -367,23 +329,8 @@ func (s *State) roleRemove(guildID, roleID string) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// read role guild
-	previousGuild, err := s.Guild(guildID)
-	if err != nil {
-		return err
-	}
-
-	// remove role
-	for i, previousRole := range previousGuild.Roles {
-		if previousRole.ID == roleID {
-			previousGuild.Roles = append(previousGuild.Roles[:i], previousGuild.Roles[i+1:]...)
-			return nil
-		}
-	}
-
-	// cache guild
-	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-	return err
+	// TODO: remove role from guild role set
+	return nil
 }
 
 func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji) (err error) {
@@ -391,28 +338,8 @@ func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// read emoji guild
-	previousGuild, err := s.Guild(guildID)
-	if err != nil {
-		return err
-	}
-
-	// update previous guild
-	var updated bool
-	for i, previousEmoji := range previousGuild.Emojis {
-		if previousEmoji.ID == emoji.ID {
-			previousGuild.Emojis[i] = emoji
-			updated = true
-			break
-		}
-	}
-	if !updated {
-		previousGuild.Emojis = append(previousGuild.Emojis, emoji)
-	}
-
-	// cache guild
-	err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-	return err
+	// TODO: add emoji to guild emoji set
+	return nil
 }
 
 func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji) (err error) {
@@ -450,21 +377,7 @@ func (s *State) channelAdd(channel *discordgo.Channel, locked bool) (err error) 
 	}
 
 	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
-		// read channel guild
-		var previousGuild *discordgo.Guild
-		previousGuild, err = s.Guild(channel.GuildID)
-		if err != nil {
-			return err
-		}
-
-		// update guild
-		previousGuild.Channels = append(previousGuild.Channels, channel)
-
-		// cache guild
-		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-		if err != nil {
-			return err
-		}
+		// TODO: add channel guild channels set
 	}
 
 	// cache channel
@@ -481,33 +394,8 @@ func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// read channel
-	previousChannel, err := s.Channel(channel.ID)
-	if err != nil {
-		return err
-	}
-
 	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
-		// read channel guild
-		var previousGuild *discordgo.Guild
-		previousGuild, err = s.Guild(previousChannel.GuildID)
-		if err != nil {
-			return err
-		}
-
-		// update guild
-		for i, previousGuildChannel := range previousGuild.Channels {
-			if previousGuildChannel.ID == channel.ID {
-				previousGuild.Channels = append(previousGuild.Channels[:i], previousGuild.Channels[i+1:]...)
-				break
-			}
-		}
-
-		// cache guild
-		err = updateStateObject(s.client, guildKey(previousGuild.ID), previousGuild)
-		if err != nil {
-			return err
-		}
+		// TODO: remove channel from guild channels set
 	}
 
 	// cache channel
@@ -650,6 +538,10 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildDelete:
+		if t.Guild.Unavailable || t.Guild.ID == "" {
+			return nil
+		}
+
 		err = s.guildRemove(session, t.Guild)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildDelete guildRemove")
