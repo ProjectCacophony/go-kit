@@ -60,8 +60,16 @@ func guildChannelsSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":channels"
 }
 
+func guildRolesSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":roles"
+}
+
 func channelKey(channelID string) string {
 	return redisKeyPrefix + "channel-" + channelID
+}
+
+func roleKey(guildID, roleID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":role-" + roleID
 }
 
 func messagesListKey(channelID string) string {

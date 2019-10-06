@@ -315,7 +315,15 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 		defer stateLock.Unlock()
 	}
 
-	// TODO: add role to guild role set
+	err = updateStateObject(s.client, roleKey(guildID, role.ID), role)
+	if err != nil {
+		return err
+	}
+
+	err = addToStateSet(s.client, guildRolesSetKey(guildID), role.ID)
+	if err != nil {
+		return err
+	}
 
 	if role.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator ||
 		role.Permissions&discordgo.PermissionBanMembers == discordgo.PermissionBanMembers {
@@ -336,7 +344,16 @@ func (s *State) roleRemove(guildID, roleID string) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
-	// TODO: remove role from guild role set
+	err = deleteStateObject(s.client, roleKey(guildID, roleID))
+	if err != nil {
+		return err
+	}
+
+	err = removeFromStateSet(s.client, guildRolesSetKey(guildID), roleID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

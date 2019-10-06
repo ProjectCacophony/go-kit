@@ -51,8 +51,19 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 			guild.Channels = append(guild.Channels, channel)
 		}
 
-		// TODO: set values from state
-		guild.Roles = nil
+		roleIDs, err := s.client.SMembers(guildRolesSetKey(guildID)).Result()
+		if err != nil {
+			return guild, err
+		}
+		guild.Roles = make([]*discordgo.Role, 0, len(roleIDs))
+		for _, roleID := range roleIDs {
+			role, err := s.Role(guildID, roleID)
+			if err != nil {
+				return guild, err
+			}
+
+			guild.Roles = append(guild.Roles, role)
+		}
 
 		guild.Members = nil
 		guild.Emojis = nil
@@ -92,18 +103,13 @@ func (s *State) Member(guildID, userID string) (member *discordgo.Member, err er
 
 // Role returns the specified Role from the shard state, returns ErrStateNotFound if not found
 func (s *State) Role(guildID, roleID string) (role *discordgo.Role, err error) {
-	guild, err := s.Guild(guildID)
+	data, err := readStateObject(s.client, roleKey(guildID, roleID))
 	if err != nil {
 		return nil, err
 	}
 
-	for _, role := range guild.Roles {
-		if role.ID == roleID {
-			return role, nil
-		}
-	}
-
-	return nil, ErrRoleStateNotFound
+	err = jsoniter.Unmarshal(data, &role)
+	return
 }
 
 // Channel returns the specified Channel from the shard state, returns ErrStateNotFound if not found
