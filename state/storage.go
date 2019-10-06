@@ -56,6 +56,10 @@ func guildMembersSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":members"
 }
 
+func guildChannelsSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":channels"
+}
+
 func channelKey(channelID string) string {
 	return redisKeyPrefix + "channel-" + channelID
 }

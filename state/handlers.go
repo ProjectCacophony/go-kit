@@ -116,11 +116,11 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	}
 
 	for _, role := range guild.Roles {
-		err = s.roleAdd(session, guild.ID, role)
+		err = s.roleAdd(session, guild.ID, role, true)
 	}
 
 	for _, emoji := range guild.Emojis {
-		err = s.emojiAdd(guild.ID, emoji)
+		err = s.emojiAdd(guild.ID, emoji, true)
 	}
 
 	guild.Roles = nil
@@ -308,10 +308,12 @@ func (s *State) memberRemove(member *discordgo.Member) (err error) {
 	return nil
 }
 
-func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discordgo.Role) (err error) {
+func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discordgo.Role, locked bool) (err error) {
 	fmt.Println("running roleAdd", guildID, role.ID)
-	stateLock.Lock()
-	defer stateLock.Unlock()
+	if !locked {
+		stateLock.Lock()
+		defer stateLock.Unlock()
+	}
 
 	// TODO: add role to guild role set
 
@@ -338,10 +340,12 @@ func (s *State) roleRemove(guildID, roleID string) (err error) {
 	return nil
 }
 
-func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji) (err error) {
+func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji, locked bool) (err error) {
 	fmt.Println("running emojiAdd", guildID, emoji.ID)
-	stateLock.Lock()
-	defer stateLock.Unlock()
+	if !locked {
+		stateLock.Lock()
+		defer stateLock.Unlock()
+	}
 
 	// TODO: add emoji to guild emoji set
 	return nil
@@ -350,7 +354,7 @@ func (s *State) emojiAdd(guildID string, emoji *discordgo.Emoji) (err error) {
 func (s *State) emojisAdd(guildID string, emojis []*discordgo.Emoji) (err error) {
 	fmt.Println("running emojisAdd", guildID, len(emojis))
 	for _, emoji := range emojis {
-		err = s.emojiAdd(guildID, emoji)
+		err = s.emojiAdd(guildID, emoji, false)
 		if err != nil {
 			return err
 		}
@@ -375,14 +379,13 @@ func (s *State) channelAdd(channel *discordgo.Channel, locked bool) (err error) 
 		if channel.PermissionOverwrites == nil {
 			channel.PermissionOverwrites = previousChannel.PermissionOverwrites
 		}
-
-		// cache channel
-		err = updateStateObject(s.client, channelKey(channel.ID), channel)
-		return err
 	}
 
 	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
-		// TODO: add channel guild channels set
+		err = addToStateSet(s.client, guildChannelsSetKey(channel.GuildID), channel.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	// cache channel
@@ -400,7 +403,10 @@ func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
 	defer stateLock.Unlock()
 
 	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
-		// TODO: remove channel from guild channels set
+		err = removeFromStateSet(s.client, guildMembersSetKey(channel.GuildID), channel.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	// cache channel
@@ -543,7 +549,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildDelete:
-		if t.Guild.Unavailable || t.Guild.ID == "" {
+		if t.Guild.Unavailable || t.Guild.Name == "" {
 			return nil
 		}
 
@@ -581,13 +587,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildRoleCreate:
-		err = s.roleAdd(session, t.GuildID, t.Role)
+		err = s.roleAdd(session, t.GuildID, t.Role, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildRoleCreate roleAdd")
 		}
 		return nil
 	case *discordgo.GuildRoleUpdate:
-		err = s.roleAdd(session, t.GuildID, t.Role)
+		err = s.roleAdd(session, t.GuildID, t.Role, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildRoleUpdate roleAdd")
 		}

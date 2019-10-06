@@ -35,16 +35,29 @@ func (s *State) Guild(guildID string) (guild *discordgo.Guild, err error) {
 		if err != nil {
 			return guild, err
 		}
-
 		guild.MemberCount = int(membersCount)
+
+		channelIDs, err := s.client.SMembers(guildChannelsSetKey(guildID)).Result()
+		if err != nil {
+			return guild, err
+		}
+		guild.Channels = make([]*discordgo.Channel, 0, len(channelIDs))
+		for _, channelID := range channelIDs {
+			channel, err := s.Channel(channelID)
+			if err != nil {
+				return guild, err
+			}
+
+			guild.Channels = append(guild.Channels, channel)
+		}
+
 		// TODO: set values from state
 		guild.Roles = nil
+
+		guild.Members = nil
 		guild.Emojis = nil
 		guild.VoiceStates = nil
 		guild.Presences = nil
-		guild.Members = nil
-		guild.MemberCount = 0
-		guild.Channels = nil
 	}
 
 	return
