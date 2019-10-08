@@ -197,14 +197,29 @@ func (s *State) AllGuildIDs() (guildIDs []string, err error) {
 	return readStateSet(s.client, allGuildIDsSetKey())
 }
 
+func (s *State) AllGuildsCount() (int, error) {
+	count, err := s.client.SCard(allGuildIDsSetKey()).Result()
+	return int(count), err
+}
+
 // AllChannelIDs returns a list of all Channel IDs from the shared state
 func (s *State) AllChannelIDs() (guildIDs []string, err error) {
 	return readStateSet(s.client, allChannelIDsSetKey())
 }
 
+func (s *State) AllChannelsCount() (int, error) {
+	count, err := s.client.SCard(allChannelIDsSetKey()).Result()
+	return int(count), err
+}
+
 // AllUserIDs returns a list of all User IDs from the shared state
 func (s *State) AllUserIDs() (userIDs []string, err error) {
 	return readStateSet(s.client, allUserIDsSetKey())
+}
+
+func (s *State) AllUsersCount() (int, error) {
+	count, err := s.client.SCard(allUserIDsSetKey()).Result()
+	return int(count), err
 }
 
 // GuildUserIDs returns a list of all User IDs in a specific Guild from the shared state
