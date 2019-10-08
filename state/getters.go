@@ -10,14 +10,12 @@ import (
 type State struct {
 	client *redis.Client
 	db     *gorm.DB
-	botIDs []string
 }
 
-func NewSate(client *redis.Client, db *gorm.DB, botIDs []string) *State {
+func NewState(client *redis.Client, db *gorm.DB) *State {
 	return &State{
 		client: client,
 		db:     db,
-		botIDs: botIDs,
 	}
 }
 
