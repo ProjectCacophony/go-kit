@@ -40,7 +40,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 
 		tempEmbed.Fields = tempEmbed.Fields[startField:endField]
 		tempEmbed.Footer = p.getEmbedFooter(message)
-		_, err = p.editComplex(message.BotID, &discordgo.MessageEdit{
+		err = p.editComplex(message.BotID, &discordgo.MessageEdit{
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,
@@ -114,7 +114,7 @@ func (p *Paginator) setPage(message *PagedEmbedMessage, page int) error {
 		tempEmbed = message.Embeds[message.CurrentPage-1]
 		tempEmbed.Footer = p.getEmbedFooter(message)
 
-		_, err = p.editComplex(message.BotID, &discordgo.MessageEdit{
+		err = p.editComplex(message.BotID, &discordgo.MessageEdit{
 			Embed:   tempEmbed,
 			ID:      message.MessageID,
 			Channel: message.ChannelID,
