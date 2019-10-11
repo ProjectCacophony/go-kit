@@ -122,7 +122,6 @@ func ignoreError(err error) bool {
 		}
 	}
 
-	// state errors
 	if errors.Is(err, state.ErrPresenceStateNotFound) ||
 		errors.Is(err, state.ErrRoleStateNotFound) ||
 		errors.Is(err, state.ErrEmojiStateNotFound) ||
@@ -140,5 +139,6 @@ func ignoreError(err error) bool {
 		return true
 	}
 
-	return false
+	var userError *UserError
+	return errors.As(err, &userError)
 }
