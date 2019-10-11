@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/getsentry/raven-go"
 	"github.com/go-redis/redis"
 )
 
@@ -30,19 +31,23 @@ func DMChannel(
 	}
 	if err == nil {
 		if res == "" {
-			return "", errors.New("channel not set, DMs disabled?")
+			return "", errors.New("channel not set, DMs might be disabled")
 		}
 		return res, nil
 	}
 
 	channel, err := session.Client.UserChannelCreate(userID)
 	if err != nil {
-		redisClient.Set(key, "", dmChannelExpiryError)
+		if err := redisClient.Set(key, "", dmChannelExpiryError).Err(); err != nil && raven.DefaultClient != nil {
+			raven.CaptureError(err, map[string]string{"key": key})
+		}
 
 		return "", err
 	}
 
-	redisClient.Set(key, channel.ID, dmChannelExpirySuccessful)
+	if err := redisClient.Set(key, channel.ID, dmChannelExpirySuccessful).Err(); err != nil && raven.DefaultClient != nil {
+		raven.CaptureError(err, map[string]string{"key": key})
+	}
 
 	return channel.ID, nil
 }
