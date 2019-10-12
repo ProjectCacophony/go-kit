@@ -2,6 +2,7 @@ package discord
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/getsentry/raven-go"
@@ -38,6 +39,7 @@ func DMChannel(
 
 	channel, err := session.Client.UserChannelCreate(userID)
 	if err != nil {
+		fmt.Printf("setting %s to empty\n", key) // TODO: remove me
 		if err := redisClient.Set(key, "", dmChannelExpiryError).Err(); err != nil && raven.DefaultClient != nil {
 			raven.CaptureError(err, map[string]string{"key": key})
 		}
@@ -45,6 +47,7 @@ func DMChannel(
 		return "", err
 	}
 
+	fmt.Printf("setting %s to %s\n", key, channel.ID) // TODO: remove me
 	if err := redisClient.Set(key, channel.ID, dmChannelExpirySuccessful).Err(); err != nil && raven.DefaultClient != nil {
 		raven.CaptureError(err, map[string]string{"key": key})
 	}
