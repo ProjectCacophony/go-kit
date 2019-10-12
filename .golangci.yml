@@ -1,0 +1,21 @@
+run:
+  timeout: 30m
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - staticcheck
+    - unused
+    - gosimple
+    - structcheck
+    - varcheck
+    - ineffassign
+    - deadcode
+    - golint
+    - unconvert
+    - goimports
+    - maligned
+    - unparam
+    - prealloc
+    - scopelint
