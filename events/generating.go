@@ -25,7 +25,7 @@ func GenerateEventFromDiscordgoEvent(
 		BotUserID:  botUserID,
 	}
 
-	expiration := time.Second * 5
+	expiration := 500 * time.Millisecond
 
 	eventID, err := uuid.NewRandom()
 	if err != nil {
@@ -40,7 +40,6 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		expiration = time.Minute * 1
 		event.CacheKey, err = hash(string(event.Type) + guildKey(t.Guild))
 		if err != nil {
 			return nil, expiration, err
@@ -51,7 +50,6 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		expiration = time.Minute * 1
 		event.CacheKey, err = hash(string(event.Type) + guildKey(t.Guild))
 		if err != nil {
 			return nil, expiration, err
@@ -62,7 +60,6 @@ func GenerateEventFromDiscordgoEvent(
 		if t.Guild != nil {
 			event.GuildID = t.Guild.ID
 		}
-		expiration = time.Minute * 1
 		event.CacheKey, err = hash(string(event.Type) + guildKey(t.Guild))
 		if err != nil {
 			return nil, expiration, err
@@ -251,7 +248,6 @@ func GenerateEventFromDiscordgoEvent(
 		event.UserID = t.UserID
 		event.MessageID = t.MessageID
 		event.CacheKey, err = hash(string(event.Type) + messageReactionKey(t.MessageReaction))
-		expiration = time.Second * 1
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -263,7 +259,6 @@ func GenerateEventFromDiscordgoEvent(
 		event.UserID = t.UserID
 		event.MessageID = t.MessageID
 		event.CacheKey, err = hash(string(event.Type) + messageReactionKey(t.MessageReaction))
-		expiration = time.Second * 1
 		if err != nil {
 			return nil, expiration, err
 		}
@@ -282,7 +277,6 @@ func GenerateEventFromDiscordgoEvent(
 		event.Type = GuildIntegrationsUpdateType
 		event.GuildIntegrationsUpdate = t
 		event.GuildID = t.GuildID
-		expiration = time.Minute * 1
 		event.CacheKey, err = hash(string(event.Type) + t.GuildID)
 		if err != nil {
 			return nil, expiration, err
