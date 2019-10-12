@@ -1,6 +1,8 @@
 package events
 
 import (
+	builtinErrors "errors"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
@@ -55,12 +57,7 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 }
 
 func (e *Event) SendDM(userID, message string, values ...interface{}) ([]*discordgo.Message, error) {
-	channelID, err := discord.DMChannel(e.Redis(), e.Discord(), userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return e.Send(channelID, message, values...)
+	return e.SendComplexDM(userID, &discordgo.MessageSend{Content: message}, values...)
 }
 
 // SendComplex sends a message to the given channel, translates it if possible
@@ -81,7 +78,17 @@ func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, val
 		return nil, err
 	}
 
-	return e.SendComplex(channelID, message, values...)
+	messages, err := e.SendComplex(channelID, message, values...)
+	if err != nil {
+		var discordError *discordgo.RESTError
+		if builtinErrors.As(err, &discordError) &&
+			discordError.Message != nil &&
+			discordError.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
+			discord.BlockDMChannel(e.Redis(), e.Discord(), userID)
+		}
+	}
+
+	return messages, err
 }
 
 // Typing starts typing in the event channel
