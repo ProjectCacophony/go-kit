@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/getsentry/raven-go"
 	"github.com/go-redis/redis"
 )
@@ -55,7 +56,22 @@ func DMChannel(
 	return channel.ID, nil
 }
 
-func BlockDMChannel(redisClient *redis.Client, session *Session, userID string) error {
+func CheckBlockDMChannel(redisClient *redis.Client, session *Session, userID string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var discordError *discordgo.RESTError
+	if errors.As(err, &discordError) &&
+		discordError.Message != nil &&
+		discordError.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
+		return blockDMChannel(redisClient, session, userID)
+	}
+
+	return nil
+}
+
+func blockDMChannel(redisClient *redis.Client, session *Session, userID string) error {
 	if redisClient == nil {
 		return errors.New("requires redis")
 	}

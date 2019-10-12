@@ -1,8 +1,6 @@
 package events
 
 import (
-	builtinErrors "errors"
-
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
@@ -79,15 +77,7 @@ func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, val
 	}
 
 	messages, err := e.SendComplex(channelID, message, values...)
-	if err != nil {
-		var discordError *discordgo.RESTError
-		if builtinErrors.As(err, &discordError) &&
-			discordError.Message != nil &&
-			discordError.Message.Code == discordgo.ErrCodeCannotSendMessagesToThisUser {
-			discord.BlockDMChannel(e.Redis(), e.Discord(), userID)
-		}
-	}
-
+	discord.CheckBlockDMChannel(e.redisClient, e.Discord(), userID, err)
 	return messages, err
 }
 
