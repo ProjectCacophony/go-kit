@@ -143,6 +143,7 @@ type options struct {
 
 type optionFunc func(*options)
 
+// nolint: golint
 func WithoutFallbackToSelf() optionFunc {
 	return optionFunc(func(o *options) {
 		o.disableFallbackToSelf = true
