@@ -2,6 +2,8 @@ package permissions
 
 import (
 	"errors"
+	"os"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jinzhu/gorm"
@@ -39,6 +41,8 @@ type CacophonyBotPermission struct {
 }
 
 func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
+	userIDs := strings.Split(os.Getenv("BOT_ADMIN_USER_IDS"), ",")
+
 	return &CacophonyBotPermission{
 		name: "Bot Admin",
 		match: func(
@@ -48,22 +52,28 @@ func newCacophonyBotAdmin(guildID string) *CacophonyBotPermission {
 			channelID string,
 			dm bool,
 		) bool {
+			for _, adminUserID := range userIDs {
+				if userID == adminUserID {
+					return true
+				}
+			}
+
 			aPermissions, err := state.UserPermissions(userID, guildID)
 			if err != nil {
 				return false
 			}
 
-			if aPermissions&discordgo.PermissionManageServer != discordgo.PermissionManageServer {
+			if aPermissions&discordgo.PermissionAdministrator != discordgo.PermissionAdministrator {
 				return false
 			}
 
 			return true
 		},
 		give: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-			return errors.New("bot Admin permission cannot be set in this way")
+			return errors.New("bot admin permission cannot be set")
 		},
 		remove: func(db *gorm.DB, userID string, permission *CacophonyBotPermission) error {
-			return errors.New("bot Admin permission cannot be set in this way")
+			return errors.New("bot admin permission cannot be set")
 		},
 	}
 }
