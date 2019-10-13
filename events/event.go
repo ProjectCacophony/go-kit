@@ -66,6 +66,7 @@ type Event struct {
 	QuickactionRemind      *QuickactionRemind      `json:"cacophony_quickaction_remind,omitempty"`
 	QuestionnaireMatch     *QuestionnaireMatch     `json:"cacophony_questionnaire_match,omitempty"`
 	AutomodWait            *AutomodWait            `json:"cacophony_automod_wait,omitempty"`
+	EventlogUpdate         *EventlogUpdate         `json:"cacophony_eventlog_update,omitempty"`
 
 	// non marshalled events
 	ctx             context.Context
@@ -132,4 +133,9 @@ type QuestionnaireMatch struct {
 
 type AutomodWait struct {
 	EnvData []byte
+}
+
+type EventlogUpdate struct {
+	GuildID string
+	ItemID  uint
 }

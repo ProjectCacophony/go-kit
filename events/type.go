@@ -42,4 +42,5 @@ const (
 	CacophonyQuickactionRemind      Type = "cacophony_quickaction_remind"
 	CacophonyQuestionnaireMatch     Type = "cacophony_questionnaire_match"
 	CacophonyAutomodWait            Type = "cacophony_automod_wait"
+	CacophonyEventlogUpdate         Type = "cacophony_eventlog_update"
 )
