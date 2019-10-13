@@ -91,7 +91,7 @@ func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 	}
 
 	if options.disableFallbackToSelf {
-		return nil, state.ErrUserNotFound
+		return nil, state.ErrChannelNotFound
 	}
 
 	return e.State().Channel(e.ChannelID)
@@ -114,7 +114,7 @@ func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 	}
 
 	if options.disableFallbackToSelf {
-		return nil, state.ErrUserNotFound
+		return nil, state.ErrChannelNotFound
 	}
 
 	return e.State().Channel(e.ChannelID)
@@ -134,7 +134,7 @@ func (e *Event) FindRole(opts ...optionFunc) (*discordgo.Role, error) {
 		}
 	}
 
-	return nil, errors.New("role not found")
+	return nil, state.ErrRoleNotFound
 }
 
 type options struct {
