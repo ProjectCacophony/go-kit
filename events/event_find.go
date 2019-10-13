@@ -4,10 +4,13 @@ import (
 	"errors"
 
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/Cacophony/go-kit/state"
 )
 
 // FindUser finds any kind of target user in the command
-func (e *Event) FindUser() (*discordgo.User, error) {
+func (e *Event) FindUser(opts ...optionFunc) (*discordgo.User, error) {
+	options := getOptions(opts)
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("event has to be MessageCreate")
 	}
@@ -27,12 +30,55 @@ func (e *Event) FindUser() (*discordgo.User, error) {
 		}
 	}
 
+	if options.disableFallbackToSelf {
+		return nil, state.ErrUserNotFound
+	}
+
+	return e.State().User(e.UserID)
+}
+
+// FindMember finds any kind of member in the command
+func (e *Event) FindMember(opts ...optionFunc) (*discordgo.User, error) {
+	options := getOptions(opts)
+
+	if e.Type != MessageCreateType {
+		return nil, errors.New("event has to be MessageCreate")
+	}
+
+	// try any mentions in the command
+	for _, mention := range e.MessageCreate.Mentions {
+		user, err := e.State().Member(e.GuildID, mention.ID)
+		if err == nil {
+			return user.User, nil
+		}
+	}
+
+	for _, field := range e.Fields() {
+		user, err := e.State().UserFromMention(field)
+		if err != nil {
+			continue
+		}
+
+		isMember, err := e.State().IsMember(e.GuildID, user.ID)
+		if err != nil || !isMember {
+			continue
+		}
+
+		return user, nil
+	}
+
+	if options.disableFallbackToSelf {
+		return nil, state.ErrUserNotFound
+	}
+
 	return e.State().User(e.UserID)
 }
 
 // FindChannel finds a target text channel in the command
 // channels have to be on the current guild
-func (e *Event) FindChannel() (*discordgo.Channel, error) {
+func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
+	options := getOptions(opts)
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("event has to be MessageCreate")
 	}
@@ -44,12 +90,18 @@ func (e *Event) FindChannel() (*discordgo.Channel, error) {
 		}
 	}
 
+	if options.disableFallbackToSelf {
+		return nil, state.ErrUserNotFound
+	}
+
 	return e.State().Channel(e.ChannelID)
 }
 
 // FindAnyChannel finds any kind of target channel in the command
 // channels have to be on the current guild
-func (e *Event) FindAnyChannel() (*discordgo.Channel, error) {
+func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
+	options := getOptions(opts)
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("event has to be MessageCreate")
 	}
@@ -61,12 +113,16 @@ func (e *Event) FindAnyChannel() (*discordgo.Channel, error) {
 		}
 	}
 
+	if options.disableFallbackToSelf {
+		return nil, state.ErrUserNotFound
+	}
+
 	return e.State().Channel(e.ChannelID)
 }
 
 // FindRole finds a target role in the command
 // the role has to be on the current guild
-func (e *Event) FindRole() (*discordgo.Role, error) {
+func (e *Event) FindRole(opts ...optionFunc) (*discordgo.Role, error) {
 	if e.Type != MessageCreateType {
 		return nil, errors.New("event has to be MessageCreate")
 	}
@@ -79,4 +135,26 @@ func (e *Event) FindRole() (*discordgo.Role, error) {
 	}
 
 	return nil, errors.New("role not found")
+}
+
+type options struct {
+	disableFallbackToSelf bool
+}
+
+type optionFunc func(*options)
+
+func WithoutFallbackToSelf() optionFunc {
+	return optionFunc(func(o *options) {
+		o.disableFallbackToSelf = true
+	})
+}
+
+func getOptions(opts []optionFunc) options {
+	value := options{}
+
+	for _, o := range opts {
+		o(&value)
+	}
+
+	return value
 }
