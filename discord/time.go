@@ -20,3 +20,11 @@ func TimeFromID(id string) (*time.Time, error) {
 
 	return &idTime, nil
 }
+
+func Timestamp(when time.Time) string {
+	if when.IsZero() {
+		return ""
+	}
+
+	return when.UTC().Format(time.RFC3339)
+}
