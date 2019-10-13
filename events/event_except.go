@@ -133,6 +133,7 @@ func ignoreError(err error) bool {
 		errors.Is(err, state.ErrRoleNotFound) ||
 		errors.Is(err, discord.ErrInvalidMessageLink) ||
 		errors.Is(err, discord.ErrMessageOnWrongServer) ||
+		errors.Is(err, discord.ErrNoDMChannel) ||
 		strings.Contains(err.Error(), NoStoragePermission) ||
 		strings.Contains(err.Error(), NoStorageSpace) ||
 		strings.Contains(err.Error(), FileTooBig) ||

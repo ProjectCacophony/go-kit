@@ -12,6 +12,8 @@ import (
 var (
 	dmChannelExpirySuccessful = time.Hour * 24 * 7
 	dmChannelExpiryError      = time.Hour * 1
+
+	ErrNoDMChannel = errors.New("no DMs channel found, DMs might be disabled")
 )
 
 func dmChannelKey(session *Session, userID string) string {
@@ -35,7 +37,7 @@ func DMChannel(
 	}
 	if err == nil {
 		if res == "" {
-			return "", errors.New("channel not set, DMs might be disabled")
+			return "", ErrNoDMChannel
 		}
 		return res, nil
 	}
