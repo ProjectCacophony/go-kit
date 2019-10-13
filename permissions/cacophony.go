@@ -88,6 +88,11 @@ func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 			channelID string,
 			dm bool,
 		) bool {
+			// bot admins have patron privileges
+			if BotAdmin != nil && BotAdmin.Match(state, db, userID, channelID, dm) {
+				return true
+			}
+
 			// check Patron Role on Discord
 			member, err := state.Member(guildID, userID)
 			if err != nil {
