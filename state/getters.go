@@ -40,7 +40,7 @@ func (s *State) guildRoles(guildID string) ([]*discordgo.Role, error) {
 	for _, roleID := range roleIDs {
 		role, err := s.Role(guildID, roleID)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		roles = append(roles, role)
@@ -58,7 +58,7 @@ func (s *State) guildChannels(guildID string) ([]*discordgo.Channel, error) {
 	for _, channelID := range channelIDs {
 		channel, err := s.Channel(channelID)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		channels = append(channels, channel)
@@ -76,7 +76,7 @@ func (s *State) guildEmoji(guildID string) ([]*discordgo.Emoji, error) {
 	for _, emojiID := range emojiIDs {
 		emoji, err := s.Emoji(guildID, emojiID)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
 		emojis = append(emojis, emoji)
