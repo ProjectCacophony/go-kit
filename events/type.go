@@ -43,4 +43,9 @@ const (
 	CacophonyQuestionnaireMatch     Type = "cacophony_questionnaire_match"
 	CacophonyAutomodWait            Type = "cacophony_automod_wait"
 	CacophonyEventlogUpdate         Type = "cacophony_eventlog_update"
+	CacophonyDiffGuild              Type = "cacophony_diff_guild"
+	CacophonyDiffMember             Type = "cacophony_diff_member"
+	CacophonyDiffChannel            Type = "cacophony_diff_channel"
+	CacophonyDiffRole               Type = "cacophony_diff_role"
+	CacophonyDiffEmoji              Type = "cacophony_diff_emoji"
 )

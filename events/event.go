@@ -67,6 +67,11 @@ type Event struct {
 	QuestionnaireMatch     *QuestionnaireMatch     `json:"cacophony_questionnaire_match,omitempty"`
 	AutomodWait            *AutomodWait            `json:"cacophony_automod_wait,omitempty"`
 	EventlogUpdate         *EventlogUpdate         `json:"cacophony_eventlog_update,omitempty"`
+	DiffGuild              *DiffGuild              `json:"cacophony_diff_guild,omitempty"`
+	DiffMember             *DiffMember             `json:"cacophony_diff_member,omitempty"`
+	DiffChannel            *DiffChannel            `json:"cacophony_diff_channel,omitempty"`
+	DiffRole               *DiffRole               `json:"cacophony_diff_role,omitempty"`
+	DiffEmoji              *DiffEmoji              `json:"cacophony_diff_emoji,omitempty"`
 
 	// non marshalled events
 	ctx             context.Context
@@ -138,4 +143,29 @@ type AutomodWait struct {
 type EventlogUpdate struct {
 	GuildID string
 	ItemID  uint
+}
+
+type DiffGuild struct {
+	Old *discordgo.Guild `json:"old,omitempty"`
+	New *discordgo.Guild `json:"new,omitempty"`
+}
+
+type DiffMember struct {
+	Old *discordgo.Member `json:"old,omitempty"`
+	New *discordgo.Member `json:"new,omitempty"`
+}
+
+type DiffChannel struct {
+	Old *discordgo.Channel `json:"old,omitempty"`
+	New *discordgo.Channel `json:"new,omitempty"`
+}
+
+type DiffRole struct {
+	Old *discordgo.Role `json:"old,omitempty"`
+	New *discordgo.Role `json:"new,omitempty"`
+}
+
+type DiffEmoji struct {
+	Old []*discordgo.Emoji `json:"old,omitempty"`
+	New []*discordgo.Emoji `json:"new,omitempty"`
 }
