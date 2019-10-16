@@ -146,26 +146,26 @@ type EventlogUpdate struct {
 }
 
 type DiffGuild struct {
-	Old *discordgo.Guild `json:"old,omitempty"`
-	New *discordgo.Guild `json:"new,omitempty"`
+	Old *discordgo.Guild `json:"old"`
+	New *discordgo.Guild `json:"new"`
 }
 
 type DiffMember struct {
-	Old *discordgo.Member `json:"old,omitempty"`
-	New *discordgo.Member `json:"new,omitempty"`
+	Old *discordgo.Member `json:"old"`
+	New *discordgo.Member `json:"new"`
 }
 
 type DiffChannel struct {
-	Old *discordgo.Channel `json:"old,omitempty"`
-	New *discordgo.Channel `json:"new,omitempty"`
+	Old *discordgo.Channel `json:"old"`
+	New *discordgo.Channel `json:"new"`
 }
 
 type DiffRole struct {
-	Old *discordgo.Role `json:"old,omitempty"`
-	New *discordgo.Role `json:"new,omitempty"`
+	Old *discordgo.Role `json:"old"`
+	New *discordgo.Role `json:"new"`
 }
 
 type DiffEmoji struct {
-	Old []*discordgo.Emoji `json:"old,omitempty"`
-	New []*discordgo.Emoji `json:"new,omitempty"`
+	Old []*discordgo.Emoji `json:"old"`
+	New []*discordgo.Emoji `json:"new"`
 }
