@@ -448,7 +448,7 @@ func (s *State) channelRemove(channel *discordgo.Channel) (err error) {
 	defer stateLock.Unlock()
 
 	if channel.Type != discordgo.ChannelTypeDM && channel.Type != discordgo.ChannelTypeGroupDM {
-		err = removeFromStateSet(s.client, guildMembersSetKey(channel.GuildID), channel.ID)
+		err = removeFromStateSet(s.client, guildChannelsSetKey(channel.GuildID), channel.ID)
 		if err != nil {
 			return err
 		}
