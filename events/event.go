@@ -39,6 +39,7 @@ type Event struct {
 	GuildDelete              *discordgo.GuildDelete              `json:"discord_guild_delete,omitempty"`
 	GuildEmojisUpdate        *discordgo.GuildEmojisUpdate        `json:"discord_guild_emojis_update,omitempty"`
 	GuildMemberAdd           *discordgo.GuildMemberAdd           `json:"discord_guild_member_add,omitempty"`
+	GuildMemberAddExtra      *GuildMemberAddExtra                `json:"cacophony_guild_member_add_extra,omitempty"`
 	GuildMemberRemove        *discordgo.GuildMemberRemove        `json:"discord_guild_member_remove,omitempty"`
 	GuildMemberUpdate        *discordgo.GuildMemberUpdate        `json:"discord_guild_member_update,omitempty"`
 	GuildMembersChunk        *discordgo.GuildMembersChunk        `json:"discord_guild_members_chunk,omitempty"`
@@ -180,4 +181,8 @@ type DiffWebhooks struct {
 type DiffInvites struct {
 	Old []*discordgo.Invite `json:"old"`
 	New []*discordgo.Invite `json:"new"`
+}
+
+type GuildMemberAddExtra struct {
+	UsedInviteCode string `json:"used_invite_code"`
 }
