@@ -40,6 +40,14 @@ func guildBanInitializedKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":ban-ids-initialized"
 }
 
+func guildWebhookIDsSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":webhook-ids"
+}
+
+func guildWebhooksInitializedKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":webhook-ids-initialized"
+}
+
 func userKey(userID string) string {
 	return redisKeyPrefix + "user-" + userID
 }
@@ -74,6 +82,10 @@ func guildMemberRolesSetKey(guildID, userID string) string {
 
 func channelKey(channelID string) string {
 	return redisKeyPrefix + "channel-" + channelID
+}
+
+func webhookKey(webhookID string) string {
+	return redisKeyPrefix + "webhook-" + webhookID
 }
 
 func roleKey(guildID, roleID string) string {

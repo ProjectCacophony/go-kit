@@ -94,3 +94,13 @@ func channelTypesMatch(t discordgo.ChannelType, types []discordgo.ChannelType) b
 
 	return false
 }
+
+func webhooksSliceContains(id string, webhooks []*discordgo.Webhook) bool {
+	for _, webhook := range webhooks {
+		if webhook.ID == id {
+			return true
+		}
+	}
+
+	return false
+}

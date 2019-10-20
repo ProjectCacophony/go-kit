@@ -239,6 +239,34 @@ func (s *State) GuildBans(guildID string) (userIDs []string, err error) {
 	return readStateSet(s.client, guildBanIDsSetKey(guildID))
 }
 
+func (s *State) Webhook(id string) (webhook *discordgo.Webhook, err error) {
+	data, err := readStateObject(s.client, webhookKey(id))
+	if err != nil {
+		return nil, err
+	}
+
+	err = jsoniter.Unmarshal(data, &webhook)
+	return
+}
+
+func (s *State) GuildWebhooks(guildID string) (webhooks []*discordgo.Webhook, err error) {
+	webhookIDs, err := readStateSet(s.client, guildWebhookIDsSetKey(guildID))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, webhookID := range webhookIDs {
+		webhook, err := s.Webhook(webhookID)
+		if err != nil {
+			continue
+		}
+
+		webhooks = append(webhooks, webhook)
+	}
+
+	return webhooks, nil
+}
+
 // UserChannelPermissions returns the permission of a user in a channel
 func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
 	var channel *discordgo.Channel

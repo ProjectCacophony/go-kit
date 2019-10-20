@@ -61,3 +61,55 @@ func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err e
 
 	return updateStateObject(s.client, guildBanInitializedKey(guildID), true)
 }
+
+var webhooksLock sync.Mutex
+
+func (s *State) initGuildWebhooks(session *discordgo.Session, guildID string) (err error) {
+	webhooksLock.Lock()
+	defer webhooksLock.Unlock()
+
+	l := zap.L().With(zap.String("guild_id", guildID))
+
+	// check if bot is allowed to see bans
+	apermissions, err := s.UserPermissions(session.State.User.ID, guildID)
+	if err != nil {
+		return err
+	}
+	if apermissions&discordgo.PermissionManageWebhooks != discordgo.PermissionManageWebhooks {
+		// reset ban list if not allowed
+		l.Debug("resetting guild webhooks, because missing permissions")
+		err = deleteStateObject(s.client, guildWebhookIDsSetKey(guildID))
+		if err != nil {
+			return err
+		}
+		return deleteStateObject(s.client, guildWebhooksInitializedKey(guildID))
+	}
+
+	exists, err := s.client.Exists(guildWebhooksInitializedKey(guildID)).Result()
+	if exists > 0 {
+		l.Debug("skipping initializing webhooks, already initialized")
+		return
+	}
+
+	// reset guild webhooks
+	err = deleteStateObject(s.client, guildWebhookIDsSetKey(guildID))
+	if err != nil {
+		return err
+	}
+
+	// cache new guild bans
+	webhooks, err := session.GuildWebhooks(guildID)
+	if err != nil {
+		return err
+	}
+
+	l.Debug("saving webhooks", zap.Int("amount", len(webhooks)))
+	for _, webhook := range webhooks {
+		err = s.webhookAdd(webhook)
+		if err != nil {
+			return err
+		}
+	}
+
+	return updateStateObject(s.client, guildWebhooksInitializedKey(guildID), true)
+}

@@ -93,6 +93,13 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 			zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
 		}
 	}(session, guild.ID)
+	// init guild webhooks (async)
+	go func(gS *discordgo.Session, gGuildID string) {
+		err := s.initGuildWebhooks(gS, gGuildID)
+		if err != nil {
+			zap.L().Error("error initializing webhooks", zap.String("guild_id", gGuildID), zap.Error(err))
+		}
+	}(session, guild.ID)
 
 	return nil
 }
@@ -224,6 +231,13 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 				zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
 			}
 		}(session, member.GuildID)
+		// init guild webhooks (async) (could be giving or revoking the bot webhooks permission)
+		go func(gS *discordgo.Session, gGuildID string) {
+			err := s.initGuildWebhooks(gS, gGuildID)
+			if err != nil {
+				zap.L().Error("error initializing webhooks", zap.String("guild_id", gGuildID), zap.Error(err))
+			}
+		}(session, member.GuildID)
 	}
 
 	return nil
@@ -274,6 +288,13 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 		err := s.initGuildBans(gS, gGuildID)
 		if err != nil {
 			zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
+		}
+	}(session, guildID)
+	// init guild webhooks (async) (could be giving or revoking the bot ban permission)
+	go func(gS *discordgo.Session, gGuildID string) {
+		err := s.initGuildWebhooks(gS, gGuildID)
+		if err != nil {
+			zap.L().Error("error initializing webhooks", zap.String("guild_id", gGuildID), zap.Error(err))
 		}
 	}(session, guildID)
 
@@ -491,6 +512,57 @@ func (s *State) messageCreate(message *discordgo.MessageCreate) (err error) {
 	return err
 }
 
+func (s *State) webhookAdd(webhook *discordgo.Webhook) (err error) {
+	err = updateStateObject(s.client, webhookKey(webhook.ID), webhook)
+	if err != nil {
+		return err
+	}
+
+	return addToStateSet(s.client, guildWebhookIDsSetKey(webhook.GuildID), webhook.ID)
+}
+
+func (s *State) webhookRemove(guildID, webhookID string) (err error) {
+	err = deleteStateObject(s.client, webhookKey(webhookID))
+	if err != nil {
+		return err
+	}
+
+	return removeFromStateSet(s.client, guildWebhookIDsSetKey(guildID), webhookID)
+}
+
+func (s *State) webhooksUpdate(session *discordgo.Session, guildID, channelID string) (err error) {
+	stateLock.Lock()
+	defer stateLock.Unlock()
+
+	oldWebhooks, err := s.GuildWebhooks(guildID)
+	if err != nil {
+		return err
+	}
+
+	newWebhooks, err := session.GuildWebhooks(guildID)
+	if err != nil {
+		return err
+	}
+
+	for _, oldWebhook := range oldWebhooks {
+		if !webhooksSliceContains(oldWebhook.ID, newWebhooks) {
+			err = s.webhookRemove(guildID, oldWebhook.ID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, newWebhooks := range newWebhooks {
+		err = s.webhookAdd(newWebhooks)
+		if err != nil {
+			return err
+		}
+	}
+
+	return updateStateObject(s.client, guildWebhooksInitializedKey(guildID), true)
+}
+
 // SharedStateEventHandler receives events from a discordgo Websocket and updates the shared state with them
 func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{}) error {
 	var err error
@@ -675,6 +747,12 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		err = s.memberAdd(session, previousMember, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
+		}
+		return nil
+	case *discordgo.WebhooksUpdate:
+		err = s.webhooksUpdate(session, t.GuildID, t.ChannelID)
+		if err != nil {
+			return errors.Wrap(err, "failed to process WebhooksUpdate webhooksUpdate")
 		}
 		return nil
 		/*
