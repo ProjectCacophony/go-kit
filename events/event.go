@@ -73,6 +73,7 @@ type Event struct {
 	DiffRole               *DiffRole               `json:"cacophony_diff_role,omitempty"`
 	DiffEmoji              *DiffEmoji              `json:"cacophony_diff_emoji,omitempty"`
 	DiffWebhooks           *DiffWebhooks           `json:"cacophony_diff_webhooks,omitempty"`
+	DiffInvites            *DiffInvites            `json:"cacophony_diff_invites,omitempty"`
 
 	// non marshalled events
 	ctx             context.Context
@@ -174,4 +175,9 @@ type DiffEmoji struct {
 type DiffWebhooks struct {
 	Old []*discordgo.Webhook `json:"old"`
 	New []*discordgo.Webhook `json:"new"`
+}
+
+type DiffInvites struct {
+	Old []*discordgo.Invite `json:"old"`
+	New []*discordgo.Invite `json:"new"`
 }

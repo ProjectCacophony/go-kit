@@ -49,4 +49,5 @@ const (
 	CacophonyDiffRole               Type = "cacophony_diff_role"
 	CacophonyDiffEmoji              Type = "cacophony_diff_emoji"
 	CacophonyDiffWebhooks           Type = "cacophony_diff_webhooks"
+	CacophonyDiffInvites            Type = "cacophony_diff_invites"
 )
