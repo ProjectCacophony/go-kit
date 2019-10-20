@@ -40,6 +40,14 @@ func guildBanInitializedKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":ban-ids-initialized"
 }
 
+func guildInvitesKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":invites"
+}
+
+func guildInvitesInitializedKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":invites-initialized"
+}
+
 func guildWebhookIDsSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":webhook-ids"
 }
