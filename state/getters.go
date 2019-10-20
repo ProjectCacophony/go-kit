@@ -267,6 +267,16 @@ func (s *State) GuildWebhooks(guildID string) (webhooks []*discordgo.Webhook, er
 	return webhooks, nil
 }
 
+func (s *State) GuildInvites(guildID string) (invites []*discordgo.Invite, err error) {
+	data, err := readStateObject(s.client, guildInvitesKey(guildID))
+	if err != nil {
+		return nil, err
+	}
+
+	err = jsoniter.Unmarshal(data, &invites)
+	return
+}
+
 // UserChannelPermissions returns the permission of a user in a channel
 func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
 	var channel *discordgo.Channel
