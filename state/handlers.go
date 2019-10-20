@@ -530,7 +530,7 @@ func (s *State) webhookRemove(guildID, webhookID string) (err error) {
 	return removeFromStateSet(s.client, guildWebhookIDsSetKey(guildID), webhookID)
 }
 
-func (s *State) webhooksUpdate(session *discordgo.Session, guildID, channelID string) (err error) {
+func (s *State) webhooksUpdate(session *discordgo.Session, guildID, _ string) (err error) {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 
