@@ -32,12 +32,12 @@ func guildBotIDsSetKey(guildID string) string {
 	return redisKeyPrefix + "guild-" + guildID + ":bot-ids"
 }
 
-func guildBannedUserIDsSetKey(guildID string) string {
-	return redisKeyPrefix + "guild-" + guildID + ":banned-userids"
+func guildBanIDsSetKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":ban-ids"
 }
 
-func guildBannedUserIDInitializedGuildIDsSetKey() string {
-	return redisKeyPrefix + "banned-userids-initialized-guild-ids"
+func guildBanInitializedKey(guildID string) string {
+	return redisKeyPrefix + "guild-" + guildID + ":ban-ids-initialized"
 }
 
 func userKey(userID string) string {

@@ -1,78 +1,15 @@
 package state
 
 import (
-	"fmt"
-
 	"github.com/bwmarrin/discordgo"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 var (
 	messagesLimit = 10
 )
-
-func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err error) {
-	//  check if bot is allowed to see bans
-	apermissions, err := s.UserPermissions(session.State.User.ID, guildID)
-	if err != nil {
-		return err
-	}
-	if apermissions&discordgo.PermissionBanMembers != discordgo.PermissionBanMembers {
-		// fmt.Println("resetting bans for", guildID, "because no permissions")
-		// reset ban list if not allowed
-		err = deleteStateObject(s.client, guildBannedUserIDsSetKey(guildID))
-		if err != nil {
-			return err
-		}
-		err = removeFromStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey(), guildID)
-		return err
-	}
-
-	// have we already cached the guild bans for this guild?
-	initializedGuildIDs, err := readStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey())
-	if err != nil {
-		return err
-	}
-
-	var guildInitialized bool
-	for _, initializedGuildID := range initializedGuildIDs {
-		if initializedGuildID == guildID {
-			guildInitialized = true
-		}
-	}
-
-	if guildInitialized {
-		// fmt.Println("ignoring initializing bans for", guildID, "because already initialized")
-		return
-	}
-
-	// reset guild bans
-	// fmt.Println("resetting bans for", guildID, "because caching new ones")
-	err = deleteStateObject(s.client, guildBannedUserIDsSetKey(guildID))
-	if err != nil {
-		return err
-	}
-
-	// cache new guild bans
-	bans, err := session.GuildBans(guildID)
-	if err != nil {
-		return err
-	}
-
-	newSet := make([]string, 0)
-	for _, ban := range bans {
-		newSet = append(newSet, ban.User.ID)
-	}
-	err = addToStateSet(s.client, guildBannedUserIDsSetKey(guildID), newSet...)
-	if err != nil {
-		return err
-	}
-	// fmt.Println("setting bans for", guildID, ":", strings.Join(newSet, ", "))
-
-	err = addToStateSet(s.client, guildBannedUserIDInitializedGuildIDsSetKey(), guildID)
-	return err
-}
 
 func (s *State) onReady(_ *discordgo.Session, ready *discordgo.Ready) (err error) {
 	// fmt.Println("running onReady", ready.User.ID)
@@ -151,10 +88,10 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 
 	// init guild bans (async)
 	go func(gS *discordgo.Session, gGuildID string) {
-		s.initGuildBans(gS, gGuildID)
-		// if err != nil {
-		// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
-		// }
+		err := s.initGuildBans(gS, gGuildID)
+		if err != nil {
+			zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
+		}
 	}(session, guild.ID)
 
 	return nil
@@ -282,10 +219,10 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 	if member.User.ID == session.State.User.ID {
 		// init guild bans (async) (could be giving or revoking the bot ban permission)
 		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID)
-			// if err != nil {
-			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
-			// }
+			err := s.initGuildBans(gS, gGuildID)
+			if err != nil {
+				zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
+			}
 		}(session, member.GuildID)
 	}
 
@@ -332,16 +269,13 @@ func (s *State) roleAdd(session *discordgo.Session, guildID string, role *discor
 		return err
 	}
 
-	if role.Permissions&discordgo.PermissionAdministrator == discordgo.PermissionAdministrator ||
-		role.Permissions&discordgo.PermissionBanMembers == discordgo.PermissionBanMembers {
-		// init guild bans (async) (could be giving or revoking the bot ban permission)
-		go func(gS *discordgo.Session, gGuildID string) {
-			s.initGuildBans(gS, gGuildID)
-			// if err != nil {
-			// 	cache.GetLogger().WithField("module", "state").Errorln("error initializing bans for", gGuildID+":", err.Error())
-			// }
-		}(session, guildID)
-	}
+	// init guild bans (async) (could be giving or revoking the bot ban permission)
+	go func(gS *discordgo.Session, gGuildID string) {
+		err := s.initGuildBans(gS, gGuildID)
+		if err != nil {
+			zap.L().Error("error initializing bans", zap.String("guild_id", gGuildID), zap.Error(err))
+		}
+	}(session, guildID)
 
 	return nil
 }
@@ -531,12 +465,12 @@ func (s *State) banAdd(session *discordgo.Session, guildID string, user *discord
 	}
 
 	// add ban
-	err = addToStateSet(s.client, guildBannedUserIDsSetKey(guildID), user.ID)
+	err = addToStateSet(s.client, guildBanIDsSetKey(guildID), user.ID)
 	return err
 }
 
 func (s *State) banRemove(guildID string, user *discordgo.User) (err error) {
-	err = removeFromStateSet(s.client, guildBannedUserIDsSetKey(guildID), user.ID)
+	err = removeFromStateSet(s.client, guildBanIDsSetKey(guildID), user.ID)
 	return err
 }
 
@@ -622,7 +556,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMembersChunk:
-		fmt.Printf("got GuildMembersChunk %s with %d members\n", t.GuildID, len(t.Members))
+		zap.L().Info("received GuildMembersChunk", zap.String("guild_id", t.GuildID), zap.Int("members", len(t.Members)))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
 			err := s.memberAdd(session, t.Members[i], false)

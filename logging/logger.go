@@ -28,15 +28,7 @@ func NewLogger(env Environment, service, discordWebhookURL string, client *http.
 
 	logger = logger.With(zap.String("service", service))
 
-	if discordWebhookURL != "" && client != nil {
-		logger = logger.WithOptions(zap.Hooks(
-			NewZapHookDiscord(
-				service, discordWebhookURL, client,
-			),
-		))
-	}
-
-	// TODO: add discord hook
+	zap.ReplaceGlobals(logger)
 
 	return logger, nil
 }

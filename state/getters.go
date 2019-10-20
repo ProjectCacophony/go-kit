@@ -233,10 +233,10 @@ func (s *State) IsMember(guildID, userID string) (isMember bool, err error) {
 	return isMember, err
 }
 
-// GuildBannedUserIDs returns the banned user of a server
+// GuildBans returns the banned user IDs of a server
 // only contains items if the bot has the Ban Members or Administrator permission
-func (s *State) GuildBannedUserIDs(guildID string) (userIDs []string, err error) {
-	return readStateSet(s.client, guildBannedUserIDsSetKey(guildID))
+func (s *State) GuildBans(guildID string) (userIDs []string, err error) {
+	return readStateSet(s.client, guildBanIDsSetKey(guildID))
 }
 
 // UserChannelPermissions returns the permission of a user in a channel
