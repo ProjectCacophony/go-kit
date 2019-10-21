@@ -8,8 +8,11 @@ import (
 )
 
 // NewRouter creates a new HTTP Server
-func NewRouter() *chi.Mux {
+func NewRouter(middlewares ...func(http.Handler) http.Handler) *chi.Mux {
 	router := chi.NewRouter()
+
+	router.Use(middlewares...)
+
 	router.Get("/status", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte("OK"))
 	})
