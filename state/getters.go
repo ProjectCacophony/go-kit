@@ -138,6 +138,9 @@ func (s *State) Presence(guildID, userID string) (presence *discordgo.Presence, 
 func (s *State) Member(guildID, userID string) (member *discordgo.Member, err error) {
 	data, err := readStateObject(s.client, memberKey(guildID, userID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, ErrUserNotFound
+		}
 		return nil, err
 	}
 
@@ -154,6 +157,9 @@ func (s *State) Member(guildID, userID string) (member *discordgo.Member, err er
 func (s *State) Role(guildID, roleID string) (role *discordgo.Role, err error) {
 	data, err := readStateObject(s.client, roleKey(guildID, roleID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, ErrRoleNotFound
+		}
 		return nil, err
 	}
 
@@ -165,6 +171,9 @@ func (s *State) Role(guildID, roleID string) (role *discordgo.Role, err error) {
 func (s *State) Channel(channelID string) (channel *discordgo.Channel, err error) {
 	data, err := readStateObject(s.client, channelKey(channelID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, ErrChannelNotFound
+		}
 		return nil, err
 	}
 
@@ -176,6 +185,9 @@ func (s *State) Channel(channelID string) (channel *discordgo.Channel, err error
 func (s *State) Emoji(guildID, emojiID string) (emoji *discordgo.Emoji, err error) {
 	data, err := readStateObject(s.client, emojiKey(guildID, emojiID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, ErrEmojiStateNotFound
+		}
 		return nil, err
 	}
 
@@ -187,6 +199,9 @@ func (s *State) Emoji(guildID, emojiID string) (emoji *discordgo.Emoji, err erro
 func (s *State) User(userID string) (user *discordgo.User, err error) {
 	data, err := readStateObject(s.client, userKey(userID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, ErrUserNotFound
+		}
 		return nil, err
 	}
 
