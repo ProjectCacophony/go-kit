@@ -1,6 +1,8 @@
 package state
 
 import (
+	"errors"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
@@ -252,6 +254,9 @@ func (s *State) Webhook(id string) (webhook *discordgo.Webhook, err error) {
 func (s *State) GuildWebhooks(guildID string) (webhooks []*discordgo.Webhook, err error) {
 	webhookIDs, err := readStateSet(s.client, guildWebhookIDsSetKey(guildID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -270,6 +275,9 @@ func (s *State) GuildWebhooks(guildID string) (webhooks []*discordgo.Webhook, er
 func (s *State) GuildInvites(guildID string) (invites []*discordgo.Invite, err error) {
 	data, err := readStateObject(s.client, guildInvitesKey(guildID))
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
