@@ -184,5 +184,6 @@ type DiffInvites struct {
 }
 
 type GuildMemberAddExtra struct {
+	*discordgo.GuildMemberAdd
 	UsedInvite *discordgo.Invite `json:"used_invite"`
 }
