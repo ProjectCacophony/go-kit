@@ -287,7 +287,25 @@ func (s *State) GuildWebhooks(guildID string) (webhooks []*discordgo.Webhook, er
 	return webhooks, nil
 }
 
-func (s *State) GuildInvites(guildID string) (invites []*discordgo.Invite, err error) {
+func (s *State) GuildInvites(guildID string, refresh bool) (invites []*discordgo.Invite, err error) {
+	data, err := readStateObject(s.client, guildInvitesKey(guildID))
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	err = jsoniter.Unmarshal(data, &invites)
+	return
+}
+
+func (s *State) GuildInvitesWithRefresh(guildID string, session *discordgo.Session) (invites []*discordgo.Invite, err error) {
+	err = s.updateGuildInvites(session, guildID)
+	if err != nil {
+		return nil, err
+	}
+
 	data, err := readStateObject(s.client, guildInvitesKey(guildID))
 	if err != nil {
 		if errors.Is(err, redis.Nil) {

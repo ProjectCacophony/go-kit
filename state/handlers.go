@@ -1,8 +1,6 @@
 package state
 
 import (
-	"time"
-
 	"github.com/bwmarrin/discordgo"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
@@ -48,7 +46,7 @@ func (s *State) guildAdd(session *discordgo.Session, guild *discordgo.Guild) (er
 	}
 
 	for _, member := range guild.Members {
-		err = s.memberAdd(session, member, true, true)
+		err = s.memberAdd(session, member, true)
 		if err != nil {
 			return err
 		}
@@ -170,23 +168,12 @@ func (s *State) guildRemove(session *discordgo.Session, guild *discordgo.Guild) 
 	return nil
 }
 
-func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked, initial bool) (err error) {
+func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, locked bool) (err error) {
 	// fmt.Println("running memberAdd", member.GuildID, member.User.ID)
 	if !locked {
 		stateLock.Lock()
 		defer stateLock.Unlock()
 	}
-
-	waitForInvites := make(chan struct{})
-	go func() {
-		defer close(waitForInvites)
-		if !initial {
-			err := s.updateGuildInvites(session, member.GuildID)
-			if err != nil {
-				zap.L().Error("error updating guild invites", zap.String("guild_id", member.GuildID), zap.Error(err))
-			}
-		}
-	}()
 
 	// TODO: cache guild and member locally?
 
@@ -267,12 +254,7 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 		}(session, member.GuildID)
 	}
 
-	select {
-	case <-waitForInvites:
-		return nil
-	case <-time.After(5 * time.Second):
-		return errors.New("memberAdd: waiting for invites took too long")
-	}
+	return nil
 }
 
 func (s *State) memberRemove(member *discordgo.Member) (err error) {
@@ -649,13 +631,13 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		}
 		return nil
 	case *discordgo.GuildMemberAdd:
-		err = s.memberAdd(session, t.Member, false, true)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberAdd memberAdd")
 		}
 		return nil
 	case *discordgo.GuildMemberUpdate:
-		err = s.memberAdd(session, t.Member, false, false)
+		err = s.memberAdd(session, t.Member, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process GuildMemberUpdate memberAdd")
 		}
@@ -670,7 +652,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 		zap.L().Info("received GuildMembersChunk", zap.String("guild_id", t.GuildID), zap.Int("members", len(t.Members)))
 		for i := range t.Members {
 			t.Members[i].GuildID = t.GuildID
-			err := s.memberAdd(session, t.Members[i], false, false)
+			err := s.memberAdd(session, t.Members[i], false)
 			if err != nil {
 				return errors.Wrap(err, "failed to process GuildMembersChunk memberAdd")
 			}
@@ -783,7 +765,7 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 			previousMember.Roles = t.Roles
 		}
 
-		err = s.memberAdd(session, previousMember, false, false)
+		err = s.memberAdd(session, previousMember, false)
 		if err != nil {
 			return errors.Wrap(err, "failed to process PresenceUpdate memberAdd")
 		}
