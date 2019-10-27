@@ -15,7 +15,7 @@ import (
 
 // TODO: ratelimit error sending
 
-func (e *Event) Except(err error) {
+func (e *Event) Except(err error, fields ...string) {
 	if err == nil {
 		return
 	}
@@ -59,12 +59,12 @@ func (e *Event) Except(err error) {
 	}
 
 	if doLog {
-		e.Logger().Error("error occurred while executing event", zap.Error(err))
+		e.Logger().Error("error occurred while executing event", zap.Error(err), zap.Any("fields", fields))
 
 		if raven.DefaultClient != nil {
 			raven.CaptureError(
 				err,
-				generateRavenTags(e, false),
+				generateRavenTags(e, false, fieldsListToMap(fields)),
 				&raven.User{
 					ID: e.UserID,
 				},
@@ -73,19 +73,19 @@ func (e *Event) Except(err error) {
 	}
 }
 
-func (e *Event) ExceptSilent(err error) {
+func (e *Event) ExceptSilent(err error, fields ...string) {
 	if ignoreError(err) {
 		return
 	}
 
 	if e.logger != nil {
-		e.Logger().Error("silent occurred error while executing event", zap.Error(err))
+		e.Logger().Error("silent occurred error while executing event", zap.Error(err), zap.Any("fields", fields))
 	}
 
 	if raven.DefaultClient != nil {
 		raven.CaptureError(
 			err,
-			generateRavenTags(e, true),
+			generateRavenTags(e, true, fieldsListToMap(fields)),
 			&raven.User{
 				ID: e.UserID,
 			},
@@ -93,20 +93,22 @@ func (e *Event) ExceptSilent(err error) {
 	}
 }
 
-func generateRavenTags(event *Event, silent bool) map[string]string {
-	tags := map[string]string{
-		"event_id":    event.ID,
-		"event_type:": string(event.Type),
-		"bot_id":      event.BotUserID,
-		"guild_id":    event.GuildID,
-		"silent":      strconv.FormatBool(silent),
+func generateRavenTags(event *Event, silent bool, fields map[string]string) map[string]string {
+	if fields == nil {
+		fields = make(map[string]string)
 	}
+
+	fields["event_id"] = event.ID
+	fields["event_type"] = string(event.Type)
+	fields["bot_id"] = event.BotUserID
+	fields["guild_id"] = event.GuildID
+	fields["silent"] = strconv.FormatBool(silent)
 
 	if event.Type == MessageCreateType {
-		tags["message_content"] = event.MessageCreate.Content
+		fields["message_content"] = event.MessageCreate.Content
 	}
 
-	return tags
+	return fields
 }
 
 func ignoreError(err error) bool {
@@ -143,4 +145,16 @@ func ignoreError(err error) bool {
 
 	var userError *UserError
 	return errors.As(err, &userError)
+}
+
+func fieldsListToMap(fields []string) map[string]string {
+	fieldsData := map[string]string{}
+
+	for i := range fields {
+		if i%2 == 0 && len(fields) > i+1 {
+			fieldsData[fields[i]] = fields[i+1]
+		}
+	}
+
+	return fieldsData
 }
