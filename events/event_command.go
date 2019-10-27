@@ -117,6 +117,19 @@ func (e *Event) Prefix() string {
 	return e.prefix
 }
 
+// FieldsVariadic gives a string of all fields starting a given position, eg
+// `_test foo bar baz qux quux` => `e.FieldsVariadic(2) => `"bar baz qux quux"`
+func (e *Event) FieldsVariadic(start int) string {
+	if len(e.Fields()) < start {
+		return ""
+	}
+
+	content := strings.Join(e.Fields()[start:], " ")
+	content = strings.Trim(content, "\"")
+	content = strings.TrimSpace(content)
+	return content
+}
+
 // DM returns true if the event is a DM message
 func (e *Event) DM() bool {
 	return e.dm
