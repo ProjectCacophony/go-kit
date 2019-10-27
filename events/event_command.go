@@ -55,8 +55,8 @@ func (e *Event) Parse() {
 		e.botMention = true
 	}
 
-	args, err := text.ToArgv(content[len(e.Prefix()):])
-	if err != nil || len(args) <= 0 {
+	args := text.ToArgv(content[len(e.Prefix()):])
+	if len(args) <= 0 {
 		return
 	}
 

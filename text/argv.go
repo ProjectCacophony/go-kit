@@ -1,7 +1,6 @@
 package text
 
 import (
-	"errors"
 	"runtime"
 	"strings"
 )
@@ -10,7 +9,7 @@ import (
 var quoteReplacer = strings.NewReplacer("“", "\"", "”", "\"", "‘", "'", "’", "'")
 
 // ToArgv converts string s into an string array text in quotes will be counted as one array element
-func ToArgv(s string) ([]string, error) {
+func ToArgv(s string) []string {
 	s = quoteReplacer.Replace(s)
 
 	const (
@@ -82,8 +81,6 @@ func ToArgv(s string) ([]string, error) {
 					if runtime.GOOS == "windows" {
 						// just add \ to end for windows
 						currentArg += c
-					} else {
-						return nil, errors.New("escape character at end string")
 					}
 				} else {
 					if runtime.GOOS == "windows" {
@@ -111,11 +108,7 @@ func ToArgv(s string) ([]string, error) {
 		}
 	}
 
-	if currentState == InArg {
-		argv = append(argv, currentArg)
-	} else if currentState == InArgQuote {
-		return nil, errors.New("starting quote has no ending quote")
-	}
+	argv = append(argv, currentArg)
 
-	return argv, nil
+	return argv
 }
