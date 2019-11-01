@@ -25,9 +25,9 @@ func NewSession(tokens map[string]string, botID string) (*Session, error) {
 	if err != nil {
 		return nil, errors.New("error creating bot session")
 	}
-	// TODO: use event client or something
+
 	newSession.Client = &http.Client{
-		Timeout: 60 * time.Second,
+		Timeout: 1 * time.Hour,
 	}
 
 	return &Session{
