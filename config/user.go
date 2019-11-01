@@ -76,7 +76,7 @@ func UserGetInterface(db *gorm.DB, userID, key string, value interface{}) error 
 	return getInterface(db, userNamespace(userID), key, value)
 }
 
-func UserGetBytes(db *gorm.DB, userID, key string, value []byte) error {
+func UserSetBytes(db *gorm.DB, userID, key string, value []byte) error {
 	if userID == "" {
 		return errors.New("invalid User ID")
 	}
@@ -87,7 +87,7 @@ func UserGetBytes(db *gorm.DB, userID, key string, value []byte) error {
 	return setByte(db, userNamespace(userID), key, value)
 }
 
-func UserSetBytes(db *gorm.DB, userID, key string) ([]byte, error) {
+func UserGetBytes(db *gorm.DB, userID, key string) ([]byte, error) {
 	if userID == "" {
 		return nil, errors.New("invalid User ID")
 	}
