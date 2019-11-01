@@ -75,3 +75,25 @@ func GuildGetInterface(db *gorm.DB, guildID, key string, value interface{}) erro
 
 	return getInterface(db, guildNamespace(guildID), key, value)
 }
+
+func GuildSetByte(db *gorm.DB, guildID, key string, value []byte) error {
+	if guildID == "" {
+		return errors.New("invalid Guild ID")
+	}
+	if key == "" {
+		return errors.New("invalid configuration key")
+	}
+
+	return setByte(db, guildNamespace(guildID), key, value)
+}
+
+func GuildGetByte(db *gorm.DB, guildID, key string) ([]byte, error) {
+	if guildID == "" {
+		return nil, errors.New("invalid Guild ID")
+	}
+	if key == "" {
+		return nil, errors.New("invalid configuration key")
+	}
+
+	return getByte(db, guildNamespace(guildID), key)
+}
