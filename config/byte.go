@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -20,6 +22,9 @@ func getByte(db *gorm.DB, namespace, key string) ([]byte, error) {
 
 	err := db.Where("namespace = ? AND key = ?", namespace, key).First(&item).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []byte{}, nil
+		}
 		return nil, err
 	}
 
