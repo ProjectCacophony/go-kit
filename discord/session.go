@@ -25,6 +25,7 @@ func NewSession(tokens map[string]string, botID string) (*Session, error) {
 	if err != nil {
 		return nil, errors.New("error creating bot session")
 	}
+	newSession.MaxRestRetries = 0
 
 	newSession.Client = &http.Client{
 		Timeout: 1 * time.Hour,
