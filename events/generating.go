@@ -106,6 +106,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.GuildRoleCreate:
+		expiration = 5 * time.Minute
 		event.Type = GuildRoleCreateType
 		event.GuildRoleCreate = t
 		event.GuildID = t.GuildID
@@ -122,6 +123,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.GuildRoleDelete:
+		expiration = 5 * time.Minute
 		event.Type = GuildRoleDeleteType
 		event.GuildRoleDelete = t
 		event.GuildID = t.GuildID
@@ -138,6 +140,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.ChannelCreate:
+		expiration = 5 * time.Minute
 		event.Type = ChannelCreateType
 		event.ChannelCreate = t
 		event.GuildID = t.GuildID
@@ -160,6 +163,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.ChannelDelete:
+		expiration = 5 * time.Minute
 		event.Type = ChannelDeleteType
 		event.ChannelDelete = t
 		event.GuildID = t.GuildID
@@ -171,6 +175,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.MessageCreate:
+		expiration = 5 * time.Minute
 		event.Type = MessageCreateType
 		event.MessageCreate = t
 		event.GuildID = t.GuildID
@@ -197,6 +202,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.MessageDelete:
+		expiration = 5 * time.Minute
 		event.Type = MessageDeleteType
 		event.MessageDelete = t
 		event.GuildID = t.GuildID
@@ -293,6 +299,7 @@ func GenerateEventFromDiscordgoEvent(
 			return nil, expiration, err
 		}
 	case *discordgo.MessageDeleteBulk:
+		expiration = 5 * time.Minute
 		event.Type = MessageDeleteBulkType
 		event.MessageDeleteBulk = t
 		event.GuildID = t.GuildID
