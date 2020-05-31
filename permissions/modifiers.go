@@ -27,8 +27,9 @@ func (p *NotModifier) Match(
 	userID string,
 	channelID string,
 	dm bool,
+	superUser bool,
 ) bool {
-	return !p.permission.Match(state, db, userID, channelID, dm)
+	return !p.permission.Match(state, db, userID, channelID, dm, superUser)
 }
 
 type OrModifier struct {
@@ -60,9 +61,10 @@ func (p *OrModifier) Match(
 	userID string,
 	channelID string,
 	dm bool,
+	superUser bool,
 ) bool {
 	for _, permission := range p.permissions {
-		if !permission.Match(state, db, userID, channelID, dm) {
+		if !permission.Match(state, db, userID, channelID, dm, superUser) {
 			continue
 		}
 
@@ -95,15 +97,9 @@ func (p *AndModifier) Name() string {
 	return "(" + strings.Join(names, " and ") + ")"
 }
 
-func (p *AndModifier) Match(
-	state interfaces.State,
-	db *gorm.DB,
-	userID string,
-	channelID string,
-	dm bool,
-) bool {
+func (p *AndModifier) Match(state interfaces.State, db *gorm.DB, userID string, channelID string, dm bool, superUser bool) bool {
 	for _, permission := range p.permissions {
-		if permission.Match(state, db, userID, channelID, dm) {
+		if permission.Match(state, db, userID, channelID, dm, false) {
 			continue
 		}
 

@@ -89,7 +89,7 @@ func newCacophonyPatron(guildID, roleID string) *CacophonyBotPermission {
 			dm bool,
 		) bool {
 			// bot admins have patron privileges
-			if BotAdmin != nil && BotAdmin.Match(state, db, userID, channelID, dm) {
+			if BotAdmin != nil && BotAdmin.Match(state, db, userID, channelID, dm, false) {
 				return true
 			}
 
@@ -192,13 +192,7 @@ func (p *CacophonyBotPermission) Name() string {
 	return p.name
 }
 
-func (p *CacophonyBotPermission) Match(
-	state interfaces.State,
-	db *gorm.DB,
-	userID string,
-	channelID string,
-	dm bool,
-) bool {
+func (p *CacophonyBotPermission) Match(state interfaces.State, db *gorm.DB, userID string, channelID string, dm bool, superUser bool) bool {
 	return p.match(
 		state,
 		db,

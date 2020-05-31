@@ -29,9 +29,14 @@ func (p *Discord) Match(
 	userID string,
 	channelID string,
 	dm bool,
+	superUser bool,
 ) bool {
 	if dm {
 		return false
+	}
+
+	if superUser {
+		return true
 	}
 
 	return discord.UserHasPermission(state, userID, channelID, p.id)

@@ -74,13 +74,7 @@ func (s *State) BotForChannel(
 	for _, botID := range botIDs {
 		permissionsMatch = true
 		for _, permission := range permissions {
-			if permission.Match(
-				s,
-				s.db,
-				botID,
-				channelID,
-				false,
-			) {
+			if permission.Match(s, s.db, botID, channelID, false, false) {
 				continue
 			}
 

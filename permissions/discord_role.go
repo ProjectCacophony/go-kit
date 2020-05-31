@@ -40,9 +40,14 @@ func (p *DiscordRole) Match(
 	userID string,
 	channelID string,
 	dm bool,
+	superUser bool,
 ) bool {
 	if dm {
 		return false
+	}
+
+	if superUser {
+		return true
 	}
 
 	member, err := state.Member(p.guildID, userID)

@@ -22,6 +22,7 @@ func (p *DiscordDM) Match(
 	userID string,
 	channelID string,
 	dm bool,
+	superUser bool,
 ) bool {
 	return dm
 }

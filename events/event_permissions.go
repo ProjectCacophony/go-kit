@@ -15,12 +15,8 @@ func (e *Event) Has(
 		return false
 	}
 
-	if e.SuperUser {
-		return true
-	}
-
 	for _, permission := range append(permissions, firstPermission) {
-		if permission.Match(e.state, e.db, e.UserID, e.ChannelID, e.DM()) {
+		if permission.Match(e.state, e.db, e.UserID, e.ChannelID, e.DM(), e.SuperUser) {
 			continue
 		}
 
@@ -39,12 +35,8 @@ func (e *Event) HasOr(
 		return false
 	}
 
-	if e.SuperUser {
-		return true
-	}
-
 	for _, permission := range append(permissions, firstPermission) {
-		if !permission.Match(e.state, e.db, e.UserID, e.ChannelID, e.dm) {
+		if !permission.Match(e.state, e.db, e.UserID, e.ChannelID, e.dm, e.SuperUser) {
 			continue
 		}
 

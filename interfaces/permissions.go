@@ -12,5 +12,6 @@ type Permission interface {
 		userID string,
 		channelID string,
 		dm bool,
+		superUser bool,
 	) bool
 }
