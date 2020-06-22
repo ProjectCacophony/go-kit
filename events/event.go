@@ -30,17 +30,17 @@ type Event struct {
 	SuperUser  bool      `json:"super_user"`
 
 	// discordgo event data
-	ChannelCreate            *discordgo.ChannelCreate            `json:"discord_channel_create,omitempty"`
-	ChannelDelete            *discordgo.ChannelDelete            `json:"discord_channel_delete,omitempty"`
-	ChannelPinsUpdate        *discordgo.ChannelPinsUpdate        `json:"discord_channel_pins_update,omitempty"`
-	ChannelUpdate            *discordgo.ChannelUpdate            `json:"discord_channel_update,omitempty"`
-	GuildBanAdd              *discordgo.GuildBanAdd              `json:"discord_guild_ban_add,omitempty"`
-	GuildBanRemove           *discordgo.GuildBanRemove           `json:"discord_guild_ban_remove,omitempty"`
-	GuildCreate              *discordgo.GuildCreate              `json:"discord_guild_create,omitempty"`
-	GuildDelete              *discordgo.GuildDelete              `json:"discord_guild_delete,omitempty"`
-	GuildEmojisUpdate        *discordgo.GuildEmojisUpdate        `json:"discord_guild_emojis_update,omitempty"`
-	GuildMemberAdd           *discordgo.GuildMemberAdd           `json:"discord_guild_member_add,omitempty"`
-	GuildMemberAddExtra      *GuildMemberAddExtra                `json:"cacophony_guild_member_add_extra,omitempty"`
+	ChannelCreate     *discordgo.ChannelCreate     `json:"discord_channel_create,omitempty"`
+	ChannelDelete     *discordgo.ChannelDelete     `json:"discord_channel_delete,omitempty"`
+	ChannelPinsUpdate *discordgo.ChannelPinsUpdate `json:"discord_channel_pins_update,omitempty"`
+	ChannelUpdate     *discordgo.ChannelUpdate     `json:"discord_channel_update,omitempty"`
+	GuildBanAdd       *discordgo.GuildBanAdd       `json:"discord_guild_ban_add,omitempty"`
+	GuildBanRemove    *discordgo.GuildBanRemove    `json:"discord_guild_ban_remove,omitempty"`
+	GuildCreate       *discordgo.GuildCreate       `json:"discord_guild_create,omitempty"`
+	GuildDelete       *discordgo.GuildDelete       `json:"discord_guild_delete,omitempty"`
+	GuildEmojisUpdate *discordgo.GuildEmojisUpdate `json:"discord_guild_emojis_update,omitempty"`
+	GuildMemberAdd    *discordgo.GuildMemberAdd    `json:"discord_guild_member_add,omitempty"`
+	// GuildMemberAddExtra      *GuildMemberAddExtra                `json:"cacophony_guild_member_add_extra,omitempty"`
 	GuildMemberRemove        *discordgo.GuildMemberRemove        `json:"discord_guild_member_remove,omitempty"`
 	GuildMemberUpdate        *discordgo.GuildMemberUpdate        `json:"discord_guild_member_update,omitempty"`
 	GuildMembersChunk        *discordgo.GuildMembersChunk        `json:"discord_guild_members_chunk,omitempty"`
@@ -184,7 +184,7 @@ type DiffInvites struct {
 	New []*discordgo.Invite `json:"new"`
 }
 
-type GuildMemberAddExtra struct {
-	*discordgo.GuildMemberAdd
-	UsedInvite *discordgo.Invite `json:"used_invite"`
-}
+// type GuildMemberAddExtra struct {
+// 	*discordgo.GuildMemberAdd
+// 	UsedInvite *discordgo.Invite `json:"used_invite"`
+// }
