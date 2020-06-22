@@ -86,9 +86,7 @@ func (p *Paginator) ImagePaginator(
 
 	if len(files) < 2 {
 		var _, err = p.sendComplex(botID, channelID, &discordgo.MessageSend{
-			Content: "",
-			Embed:   embed,
-			Tts:     false,
+			Embed: embed,
 			Files: []*discordgo.File{
 				{
 					Name:        files[0].Name,
@@ -96,7 +94,6 @@ func (p *Paginator) ImagePaginator(
 					Reader:      bytes.NewReader(files[0].Data),
 				},
 			},
-			File: nil,
 		},
 			dm,
 		)

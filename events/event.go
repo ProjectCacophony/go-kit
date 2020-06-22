@@ -17,6 +17,7 @@ import (
 )
 
 // Event represents an Event
+// nolint: maligned
 type Event struct {
 	ID         string    `json:"id"`
 	CacheKey   string    `json:"cache_key"`
