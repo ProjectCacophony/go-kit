@@ -1,6 +1,8 @@
 package discord
 
 import (
+	"strings"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -10,6 +12,7 @@ func TrimEmbed(embed *discordgo.MessageEmbed) *discordgo.MessageEmbed {
 	if embed == nil || (&discordgo.MessageEmbed{}) == embed {
 		return nil
 	}
+
 	if embed.Title != "" && len(embed.Title) > 256 {
 		embed.Title = embed.Title[0:255] + "…"
 	}
@@ -24,7 +27,8 @@ func TrimEmbed(embed *discordgo.MessageEmbed) *discordgo.MessageEmbed {
 	}
 	newFields := make([]*discordgo.MessageEmbedField, 0)
 	for _, field := range embed.Fields {
-		if field.Value == "" {
+		if strings.TrimSpace(field.Name) == "" ||
+			strings.TrimSpace(field.Value) == "" {
 			continue
 		}
 		if len(field.Name) > 256 {
