@@ -16,26 +16,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type EventSpanContext struct {
-	TraceID    string
-	SpanID     string
-	TraceFlags string
-}
-
 // Event represents an Event
 // nolint: maligned
 type Event struct {
-	ID          string            `json:"id"`
-	CacheKey    string            `json:"cache_key"`
-	Type        Type              `json:"type"`
-	ReceivedAt  time.Time         `json:"received_at" dynamodbav:"received_at,unixtime"`
-	BotUserID   string            `json:"bot_user_id"`
-	GuildID     string            `json:"guild_id,omitempty"`
-	ChannelID   string            `json:"channel_id,omitempty"`
-	UserID      string            `json:"user_id,omitempty"`
-	MessageID   string            `json:"message_id,omitempty"`
-	SuperUser   bool              `json:"super_user"`
-	SpanContext *EventSpanContext `json:"span_context"`
+	ID          string      `json:"id"`
+	CacheKey    string      `json:"cache_key"`
+	Type        Type        `json:"type"`
+	ReceivedAt  time.Time   `json:"received_at" dynamodbav:"received_at,unixtime"`
+	BotUserID   string      `json:"bot_user_id"`
+	GuildID     string      `json:"guild_id,omitempty"`
+	ChannelID   string      `json:"channel_id,omitempty"`
+	UserID      string      `json:"user_id,omitempty"`
+	MessageID   string      `json:"message_id,omitempty"`
+	SuperUser   bool        `json:"super_user"`
+	SpanContext SpanContext `json:"span_context"`
 
 	// discordgo event data
 	ChannelCreate     *discordgo.ChannelCreate     `json:"discord_channel_create,omitempty"`
