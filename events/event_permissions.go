@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"gitlab.com/Cacophony/go-kit/interfaces"
+	"go.opentelemetry.io/otel/api/global"
 )
 
 // Has returns true if the user has all the required permissions
@@ -11,6 +12,9 @@ func (e *Event) Has(
 	firstPermission interfaces.Permission,
 	permissions ...interfaces.Permission,
 ) bool {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Has")
+	defer span.End()
+
 	if e.UserID == "" {
 		return false
 	}
@@ -31,6 +35,9 @@ func (e *Event) HasOr(
 	firstPermission interfaces.Permission,
 	permissions ...interfaces.Permission,
 ) bool {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.HasOr")
+	defer span.End()
+
 	if e.UserID == "" {
 		return false
 	}
@@ -52,6 +59,9 @@ func (e *Event) Require(
 	firstPermission interfaces.Permission,
 	permissions ...interfaces.Permission,
 ) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Require")
+	defer span.End()
+
 	if e.Has(firstPermission, permissions...) {
 		callback()
 		return
@@ -76,6 +86,9 @@ func (e *Event) RequireOr(
 	firstPermission interfaces.Permission,
 	permissions ...interfaces.Permission,
 ) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.RequireOr")
+	defer span.End()
+
 	if e.HasOr(firstPermission, permissions...) {
 		callback()
 		return

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"gitlab.com/Cacophony/go-kit/discord"
+	"go.opentelemetry.io/otel/api/global"
 
 	"github.com/bwmarrin/discordgo"
 	raven "github.com/getsentry/raven-go"
@@ -16,6 +17,9 @@ import (
 // TODO: ratelimit error sending
 
 func (e *Event) Except(err error, fields ...string) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Except")
+	defer span.End()
+
 	if err == nil {
 		return
 	}
@@ -74,6 +78,9 @@ func (e *Event) Except(err error, fields ...string) {
 }
 
 func (e *Event) ExceptSilent(err error, fields ...string) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.ExceptSilent")
+	defer span.End()
+
 	if ignoreError(err) {
 		return
 	}

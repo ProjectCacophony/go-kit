@@ -5,10 +5,14 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/Cacophony/go-kit/state"
+	"go.opentelemetry.io/otel/api/global"
 )
 
 // FindUser finds any kind of target user in the command
 func (e *Event) FindUser(opts ...optionFunc) (*discordgo.User, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindUser")
+	defer span.End()
+
 	options := getOptions(opts)
 
 	if e.Type != MessageCreateType {
@@ -39,6 +43,9 @@ func (e *Event) FindUser(opts ...optionFunc) (*discordgo.User, error) {
 
 // FindMember finds any kind of member in the command
 func (e *Event) FindMember(opts ...optionFunc) (*discordgo.User, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindMember")
+	defer span.End()
+
 	options := getOptions(opts)
 
 	if e.Type != MessageCreateType {
@@ -77,6 +84,9 @@ func (e *Event) FindMember(opts ...optionFunc) (*discordgo.User, error) {
 // FindChannel finds a target text channel in the command
 // channels have to be on the current guild
 func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindChannel")
+	defer span.End()
+
 	options := getOptions(opts)
 
 	if e.Type != MessageCreateType {
@@ -100,6 +110,9 @@ func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 // FindAnyChannel finds any kind of target channel in the command
 // channels have to be on the current guild
 func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindAnyChannel")
+	defer span.End()
+
 	options := getOptions(opts)
 
 	if e.Type != MessageCreateType {
@@ -123,6 +136,9 @@ func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 // FindRole finds a target role in the command
 // the role has to be on the current guild
 func (e *Event) FindRole(opts ...optionFunc) (*discordgo.Role, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindRole")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("event has to be MessageCreate")
 	}

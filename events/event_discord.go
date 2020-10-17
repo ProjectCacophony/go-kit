@@ -4,10 +4,14 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
+	"go.opentelemetry.io/otel/api/global"
 )
 
 // Respond sends a message to the source channel, translates it if possible
 func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Respond")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("cannot respond to this event")
 	}
@@ -20,6 +24,9 @@ func (e *Event) Respond(message string, values ...interface{}) ([]*discordgo.Mes
 }
 
 func (e *Event) RespondDM(message string, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.RespondDM")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("cannot respond to this event")
 	}
@@ -29,6 +36,9 @@ func (e *Event) RespondDM(message string, values ...interface{}) ([]*discordgo.M
 
 // RespondComplex sends a message to the source channel, translates it if possible
 func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.RespondComplex")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return nil, errors.New("cannot respond to this event")
 	}
@@ -43,6 +53,9 @@ func (e *Event) RespondComplex(message *discordgo.MessageSend, values ...interfa
 // Send sends a message to the given channel, translates it if possible
 // TODO: check language
 func (e *Event) Send(channelID, message string, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Send")
+	defer span.End()
+
 	return discord.SendComplexWithVars(
 		e.Discord(),
 		e.Localizations(),
@@ -55,12 +68,18 @@ func (e *Event) Send(channelID, message string, values ...interface{}) ([]*disco
 }
 
 func (e *Event) SendDM(userID, message string, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.SendDM")
+	defer span.End()
+
 	return e.SendComplexDM(userID, &discordgo.MessageSend{Content: message}, values...)
 }
 
 // SendComplex sends a message to the given channel, translates it if possible
 // TODO: check language
 func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.SendComplex")
+	defer span.End()
+
 	return discord.SendComplexWithVars(
 		e.Discord(),
 		e.Localizations(),
@@ -71,6 +90,9 @@ func (e *Event) SendComplex(channelID string, message *discordgo.MessageSend, va
 }
 
 func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, values ...interface{}) ([]*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.SendComplexDM")
+	defer span.End()
+
 	channelID, err := discord.DMChannel(e.Redis(), e.Discord(), userID)
 	if err != nil {
 		return nil, err
@@ -83,6 +105,9 @@ func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, val
 
 // Typing starts typing in the event channel
 func (e *Event) Typing() {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Typing")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return
 	}
@@ -91,6 +116,9 @@ func (e *Event) Typing() {
 }
 
 func (e *Event) React(emojiID string, emojiIDs ...string) error {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.React")
+	defer span.End()
+
 	if e.Type != MessageCreateType {
 		return nil
 	}
@@ -118,6 +146,9 @@ func (e *Event) defaultParams() []interface{} {
 }
 
 func (e *Event) FindMessageLink(link string) (*discordgo.Message, error) {
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindMessageLink")
+	defer span.End()
+
 	message, err := discord.LookupMessageLink(e.state, e.Discord(), link)
 	if err != nil {
 		return nil, err
