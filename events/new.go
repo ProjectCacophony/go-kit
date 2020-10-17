@@ -16,6 +16,6 @@ func New(eventType Type) (*Event, error) {
 		ID:          eventID.String(),
 		Type:        eventType,
 		ReceivedAt:  time.Now(),
-		SpanContext: map[string]string{},
+		SpanContext: make(map[string]string),
 	}, nil
 }
