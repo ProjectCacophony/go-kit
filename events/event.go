@@ -17,9 +17,9 @@ import (
 )
 
 type EventSpanContext struct {
-	TraceID    [16]byte
-	SpanID     [8]byte
-	TraceFlags byte
+	TraceID    string
+	SpanID     string
+	TraceFlags string
 }
 
 // Event represents an Event
