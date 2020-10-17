@@ -13,8 +13,9 @@ func New(eventType Type) (*Event, error) {
 	}
 
 	return &Event{
-		ID:         eventID.String(),
-		Type:       eventType,
-		ReceivedAt: time.Now(),
+		ID:          eventID.String(),
+		Type:        eventType,
+		ReceivedAt:  time.Now(),
+		SpanContext: map[string]string{},
 	}, nil
 }
