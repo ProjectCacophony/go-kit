@@ -17,7 +17,7 @@ const (
 
 // Parse parses the content of a message into fields
 func (e *Event) Parse() {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Parse")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Parse")
 	defer span.End()
 
 	// only Message Create can be command
@@ -100,7 +100,7 @@ func (e *Event) BotMention() bool {
 
 // Prefix returns the prefix of a command, if event is a command
 func (e *Event) Prefix() string {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Prefix")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Prefix")
 	defer span.End()
 
 	if e.prefix != "" {

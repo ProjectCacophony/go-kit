@@ -10,7 +10,7 @@ import (
 
 // FindUser finds any kind of target user in the command
 func (e *Event) FindUser(opts ...optionFunc) (*discordgo.User, error) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindUser")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.FindUser")
 	defer span.End()
 
 	options := getOptions(opts)
@@ -43,7 +43,7 @@ func (e *Event) FindUser(opts ...optionFunc) (*discordgo.User, error) {
 
 // FindMember finds any kind of member in the command
 func (e *Event) FindMember(opts ...optionFunc) (*discordgo.User, error) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindMember")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.FindMember")
 	defer span.End()
 
 	options := getOptions(opts)
@@ -84,7 +84,7 @@ func (e *Event) FindMember(opts ...optionFunc) (*discordgo.User, error) {
 // FindChannel finds a target text channel in the command
 // channels have to be on the current guild
 func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindChannel")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.FindChannel")
 	defer span.End()
 
 	options := getOptions(opts)
@@ -110,7 +110,7 @@ func (e *Event) FindChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 // FindAnyChannel finds any kind of target channel in the command
 // channels have to be on the current guild
 func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindAnyChannel")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.FindAnyChannel")
 	defer span.End()
 
 	options := getOptions(opts)
@@ -136,7 +136,7 @@ func (e *Event) FindAnyChannel(opts ...optionFunc) (*discordgo.Channel, error) {
 // FindRole finds a target role in the command
 // the role has to be on the current guild
 func (e *Event) FindRole(opts ...optionFunc) (*discordgo.Role, error) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.FindRole")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.FindRole")
 	defer span.End()
 
 	if e.Type != MessageCreateType {

@@ -9,7 +9,7 @@ import (
 
 // Translate translates a given key for the event
 func (e *Event) Translate(key string, values ...interface{}) string {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Translate",
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Translate",
 		trace.WithAttributes(label.String("key", key)),
 	)
 	defer span.End()

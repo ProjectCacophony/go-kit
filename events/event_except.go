@@ -21,7 +21,7 @@ func (e *Event) Except(err error, fields ...string) {
 		return
 	}
 
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Except")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Except")
 	defer span.End()
 
 	doLog := true
@@ -82,7 +82,7 @@ func (e *Event) ExceptSilent(err error, fields ...string) {
 		return
 	}
 
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.ExceptSilent")
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.ExceptSilent")
 	defer span.End()
 
 	if e.logger != nil {

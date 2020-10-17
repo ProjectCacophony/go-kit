@@ -7,7 +7,7 @@ import (
 )
 
 func (e *Event) IsEnabled(key string, fallback bool) bool {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.IsEnabled",
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.IsEnabled",
 		trace.WithAttributes(label.String("featureflag_key", key), label.Bool("featureflag_fallback", fallback)),
 	)
 	defer span.End()
