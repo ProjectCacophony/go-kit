@@ -45,7 +45,7 @@ func (p *Discord) Match(
 var (
 	DiscordReadMessages = NewDiscordPermission(
 		"Read Messages",
-		discordgo.PermissionReadMessages,
+		discordgo.PermissionViewChannel,
 	)
 	DiscordSendMessages = NewDiscordPermission(
 		"Send Messages",
