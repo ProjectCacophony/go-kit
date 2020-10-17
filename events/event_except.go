@@ -17,12 +17,12 @@ import (
 // TODO: ratelimit error sending
 
 func (e *Event) Except(err error, fields ...string) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Except")
-	defer span.End()
-
 	if err == nil {
 		return
 	}
+
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.Except")
+	defer span.End()
 
 	doLog := true
 
@@ -78,12 +78,12 @@ func (e *Event) Except(err error, fields ...string) {
 }
 
 func (e *Event) ExceptSilent(err error, fields ...string) {
-	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.ExceptSilent")
-	defer span.End()
-
 	if ignoreError(err) {
 		return
 	}
+
+	_, span := global.Tracer("cacophony.dev/processor").Start(e.Context(), "event.ExceptSilent")
+	defer span.End()
 
 	if e.logger != nil {
 		e.Logger().Error("silent occurred error while executing event", zap.Error(err), zap.Any("fields", fields))
