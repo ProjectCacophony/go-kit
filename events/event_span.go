@@ -28,6 +28,7 @@ func (sp *SpanContext) Set(key, value string) {
 var (
 	SpanLabelEventingType      = label.Key("eventing_type")
 	SpanLabelEventingIsCommand = label.Key("eventing_is_command")
+	SpanLabelEventingCommand   = label.Key("eventing_command")
 	SpanLabelDiscordBotUserID  = label.Key("discord_bot_user_id")
 	SpanLabelDiscordGuildID    = label.Key("discord_guild_id")
 	SpanLabelDiscordChannelID  = label.Key("discord_channel_id")
