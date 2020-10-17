@@ -14,6 +14,7 @@ require (
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-redis/redis v6.15.2+incompatible
 	github.com/golang/protobuf v1.4.3 // indirect
+	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/huandu/xstrings v1.2.0 // indirect
@@ -30,7 +31,6 @@ require (
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.6.1
 	go.opencensus.io v0.22.5 // indirect
-	go.opentelemetry.io/otel v0.12.0
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
