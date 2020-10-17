@@ -14,7 +14,9 @@ func (sp *SpanContext) Get(key string) string {
 
 func (sp *SpanContext) Set(key, value string) {
 	if sp == nil || sp.Values == nil {
-		sp.Values = make(map[string]string)
+		sp = &SpanContext{
+			Values: make(map[string]string),
+		}
 	}
 
 	sp.Values[key] = value
