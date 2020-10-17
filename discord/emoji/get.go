@@ -26,6 +26,9 @@ func GetWithout(name string) string {
 		return emoji.GetWithout()
 	}
 
+	name = strings.ReplaceAll(name, "<", "")
+	name = strings.ReplaceAll(name, ">", "")
+
 	// return input
 	return name
 }
