@@ -5,12 +5,13 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.com/Cacophony/go-kit/discord"
-	"go.opentelemetry.io/otel/api/global"
-
 	"github.com/bwmarrin/discordgo"
 	raven "github.com/getsentry/raven-go"
+	"gitlab.com/Cacophony/go-kit/discord"
 	"gitlab.com/Cacophony/go-kit/state"
+	"go.opentelemetry.io/otel/api/global"
+	"go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel/label"
 	"go.uber.org/zap"
 )
 
@@ -21,8 +22,13 @@ func (e *Event) Except(err error, fields ...string) {
 		return
 	}
 
-	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Except")
+	fieldsMap := fieldsListToMap(fields)
+
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Except",
+		trace.WithAttributes(label.Any("fields", fieldsMap), label.String("error", err.Error())),
+	)
 	defer span.End()
+	span.RecordError(e.Context(), err)
 
 	doLog := true
 
@@ -68,7 +74,7 @@ func (e *Event) Except(err error, fields ...string) {
 		if raven.DefaultClient != nil {
 			raven.CaptureError(
 				err,
-				generateRavenTags(e, false, fieldsListToMap(fields)),
+				generateRavenTags(e, false, fieldsMap),
 				&raven.User{
 					ID: e.UserID,
 				},
@@ -82,8 +88,13 @@ func (e *Event) ExceptSilent(err error, fields ...string) {
 		return
 	}
 
-	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.ExceptSilent")
+	fieldsMap := fieldsListToMap(fields)
+
+	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.ExceptSilent",
+		trace.WithAttributes(label.Any("fields", fieldsMap), label.String("error", err.Error())),
+	)
 	defer span.End()
+	span.RecordError(e.Context(), err)
 
 	if e.logger != nil {
 		e.Logger().Error("silent occurred error while executing event", zap.Error(err), zap.Any("fields", fields))
@@ -92,7 +103,7 @@ func (e *Event) ExceptSilent(err error, fields ...string) {
 	if raven.DefaultClient != nil {
 		raven.CaptureError(
 			err,
-			generateRavenTags(e, true, fieldsListToMap(fields)),
+			generateRavenTags(e, true, fieldsMap),
 			&raven.User{
 				ID: e.UserID,
 			},
