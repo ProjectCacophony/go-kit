@@ -105,14 +105,19 @@ func (e *Event) SendComplexDM(userID string, message *discordgo.MessageSend, val
 
 // Typing starts typing in the event channel
 func (e *Event) Typing() {
-	_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Typing")
-	defer span.End()
-
 	if e.Type != MessageCreateType {
 		return
 	}
 
-	e.Discord().Client.ChannelTyping(e.MessageCreate.ChannelID)
+	discordClient := e.Discord().Client
+	channelID := e.MessageCreate.ChannelID
+
+	go func() {
+		_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Typing")
+		defer span.End()
+
+		discordClient.ChannelTyping(channelID)
+	}()
 }
 
 func (e *Event) React(emojiID string, emojiIDs ...string) error {
