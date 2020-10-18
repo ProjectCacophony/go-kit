@@ -11,6 +11,7 @@ import (
 	"gitlab.com/Cacophony/go-kit/state"
 	"go.opentelemetry.io/otel/api/global"
 	"go.opentelemetry.io/otel/api/trace"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/label"
 	"go.uber.org/zap"
 )
@@ -28,7 +29,7 @@ func (e *Event) Except(err error, fields ...string) {
 		trace.WithAttributes(label.Any("fields", fieldsMap), label.String("error", err.Error())),
 	)
 	defer span.End()
-	span.RecordError(e.Context(), err)
+	span.RecordError(e.Context(), err, trace.WithErrorStatus(codes.Unknown))
 
 	doLog := true
 
@@ -94,7 +95,7 @@ func (e *Event) ExceptSilent(err error, fields ...string) {
 		trace.WithAttributes(label.Any("fields", fieldsMap), label.String("error", err.Error())),
 	)
 	defer span.End()
-	span.RecordError(e.Context(), err)
+	span.RecordError(e.Context(), err, trace.WithErrorStatus(codes.Unknown))
 
 	if e.logger != nil {
 		e.Logger().Error("silent occurred error while executing event", zap.Error(err), zap.Any("fields", fields))
