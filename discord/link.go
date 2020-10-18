@@ -15,13 +15,13 @@ var (
 
 func LookupMessageLink(state *state.State, discord *Session, link string) (*discordgo.Message, error) {
 	parts := regexp.DiscordMessageLinkRegexp.FindStringSubmatch(link)
-	if len(parts) < 4 {
+	if len(parts) < 5 {
 		return nil, ErrInvalidMessageLink
 	}
 
-	guildID := parts[1]
-	channelID := parts[2]
-	messageID := parts[3]
+	guildID := parts[2]
+	channelID := parts[3]
+	messageID := parts[4]
 
 	message, err := FindMessage(state, discord, channelID, messageID)
 	if err != nil {

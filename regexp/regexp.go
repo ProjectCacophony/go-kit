@@ -25,5 +25,5 @@ var (
 
 	SnowflakeRegexp = regexp.MustCompile(`^[0-9]+$`)
 
-	DiscordMessageLinkRegexp = regexp.MustCompile(`https:\/\/discordapp.com\/channels\/(\d+)\/(\d+)\/(\d+)`)
+	DiscordMessageLinkRegexp = regexp.MustCompile(`https:\/\/discord(app)?.com\/channels\/(\d+)\/(\d+)\/(\d+)`)
 )
