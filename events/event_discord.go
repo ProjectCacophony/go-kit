@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/Cacophony/go-kit/discord"
 	"go.opentelemetry.io/otel/api/global"
+	"go.opentelemetry.io/otel/api/trace"
 )
 
 // Respond sends a message to the source channel, translates it if possible
@@ -113,8 +114,7 @@ func (e *Event) Typing() {
 	channelID := e.MessageCreate.ChannelID
 
 	go func() {
-		_, span := global.Tracer("cacophony.dev/kit").Start(e.Context(), "event.Typing")
-		defer span.End()
+		trace.SpanFromContext(e.Context()).AddEvent(e.Context(), "event.Typing (async)")
 
 		discordClient.ChannelTyping(channelID)
 	}()
