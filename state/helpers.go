@@ -32,7 +32,7 @@ func (s *State) UserFromMention(mention string) (*discordgo.User, error) {
 
 // ChannelFromMention finds a text channel on the same server in an mention, can be direct ID input
 func (s *State) ChannelFromMention(guildID, mention string) (*discordgo.Channel, error) {
-	return s.ChannelFromMentionTypes(guildID, mention, discordgo.ChannelTypeGuildText)
+	return s.ChannelFromMentionTypes(guildID, mention, discordgo.ChannelTypeGuildText, discordgo.ChannelTypeGuildNews)
 }
 
 // ChannelFromMention finds a channel on the same server in an mention, can be direct ID input
