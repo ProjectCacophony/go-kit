@@ -58,7 +58,7 @@ func guildKey(event *discordgo.Guild) string {
 		event.Region +
 		event.AfkChannelID +
 		strconv.Itoa(event.AfkTimeout) +
-		strconv.Itoa(event.DefaultMessageNotifications) +
+		strconv.Itoa(int(event.DefaultMessageNotifications)) +
 		event.EmbedChannelID +
 		strconv.FormatBool(event.EmbedEnabled) +
 		strconv.Itoa(int(event.ExplicitContentFilter)) +
@@ -136,7 +136,7 @@ func channelKey(event *discordgo.Channel) string {
 		event.Name +
 		event.GuildID +
 		strconv.Itoa(event.Position) +
-		string(event.Type) +
+		strconv.Itoa(int(event.Type)) +
 		event.ParentID +
 		event.Icon +
 		strconv.Itoa(event.Bitrate) +

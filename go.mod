@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/sprig v2.20.0+incompatible
 	github.com/Seklfreak/polr-go v0.0.0-20190324143256-a87fed130937
 	github.com/Unleash/unleash-client-go/v3 v3.0.0
-	github.com/bwmarrin/discordgo v0.20.3-0.20200617034334-9b1ba78bc6f4
+	github.com/bwmarrin/discordgo v0.22.1-0.20201016070959-7ab242d361c0
 	github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190515213511-eb9f6a1743f3 // indirect
 	github.com/dustin/go-humanize v1.0.0
@@ -36,9 +36,10 @@ require (
 	go.uber.org/zap v1.10.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
+	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/net v0.0.0-20201016165138-7b1cca2348c0 // indirect
 	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
-	golang.org/x/sys v0.0.0-20201017003518-b09fb700fbb7 // indirect
+	golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20201015140912-32ed001d685c // indirect
 	google.golang.org/grpc v1.33.0 // indirect
