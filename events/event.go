@@ -100,6 +100,7 @@ type Event struct {
 	storage         *Storage
 	featureFlagger  *featureflag.FeatureFlagger
 	publisher       *Publisher
+	timezone        *time.Location
 }
 
 // BucketType specifies the scope of a bucket
