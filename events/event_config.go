@@ -46,7 +46,7 @@ func (e *Event) SetTimezone(timezone *time.Location) error {
 		return errors.New("timezone cannot be empty")
 	}
 
-	if e.DB() == nil || e.UserID != "" {
+	if e.DB() == nil || e.UserID == "" {
 		return errors.New("event is missing fields to set timezone")
 	}
 
