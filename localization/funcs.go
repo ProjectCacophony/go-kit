@@ -89,10 +89,14 @@ var (
 		// Escape returns a text to be escaped to be used in Discord Embeds
 		// example: {{Escape "`"}} => \`
 		"Escape": func(text string) string {
+			// TODO: same as discord.EscapeDiscordStrict, cannot import here due to import cycle, fix this
 			text = strings.Replace(text, "`", "\\`", -1)
 			text = strings.Replace(text, "*", "\\*", -1)
 			text = strings.Replace(text, "_", "\\_", -1)
 			text = strings.Replace(text, "~", "\\~", -1)
+			text = strings.Replace(text, "#", "\\#", -1)
+			text = strings.Replace(text, "@", "\\@", -1)
+
 			return text
 		},
 

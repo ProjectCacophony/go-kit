@@ -8,11 +8,23 @@ const (
 	zeroWidthSpace = "\u200B"
 )
 
-// EscapeDiscordContent escapes @ everyone, and @ here
-func EscapeDiscordContent(content string) (output string) {
+// EscapeDiscordStrict escapes all discord formatting options
+func EscapeDiscordStrict(text string) string {
+	text = strings.Replace(text, "`", "\\`", -1)
+	text = strings.Replace(text, "*", "\\*", -1)
+	text = strings.Replace(text, "_", "\\_", -1)
+	text = strings.Replace(text, "~", "\\~", -1)
+	text = strings.Replace(text, "#", "\\#", -1)
+	text = strings.Replace(text, "@", "\\@", -1)
+
+	return EscapeDiscordLax(text)
+}
+
+// EscapeDiscordLax escapes @ everyone, and @ here
+func EscapeDiscordLax(text string) (output string) {
 	return strings.Replace(
 		strings.Replace(
-			content, "@everyone", "@"+zeroWidthSpace+"everyone", -1),
+			text, "@everyone", "@"+zeroWidthSpace+"everyone", -1),
 		"@here", "@"+zeroWidthSpace+"here", -1,
 	)
 }

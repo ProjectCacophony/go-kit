@@ -72,7 +72,7 @@ func TranslateMessageSend(
 		values...,
 	)
 
-	send.Content = EscapeDiscordContent(send.Content)
+	send.Content = EscapeDiscordLax(send.Content)
 	send.Content = emoji.Replace(send.Content)
 
 	if send.Embed != nil {

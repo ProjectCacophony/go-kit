@@ -59,7 +59,7 @@ func TranslateMessageEdit(
 			*edit.Content,
 			values...,
 		)
-		newContent = EscapeDiscordContent(newContent)
+		newContent = EscapeDiscordLax(newContent)
 		newContent = emoji.Replace(newContent)
 		edit.Content = &newContent
 	}
