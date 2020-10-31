@@ -120,7 +120,18 @@ func generateRavenTags(event *Event, silent bool, fields map[string]string) map[
 	fields["event_id"] = event.ID
 	fields["event_type"] = string(event.Type)
 	fields["bot_id"] = event.BotUserID
-	fields["guild_id"] = event.GuildID
+	if event.GuildID != "" {
+		fields["guild_id"] = event.GuildID
+	}
+	if event.ChannelID != "" {
+		fields["channel_ud"] = event.ChannelID
+	}
+	if event.UserID != "" {
+		fields["user_id"] = event.UserID
+	}
+	if event.MessageID != "" {
+		fields["message_id"] = event.MessageID
+	}
 	fields["silent"] = strconv.FormatBool(silent)
 
 	if event.Type == MessageCreateType {
