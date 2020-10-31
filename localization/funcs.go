@@ -44,6 +44,15 @@ func init() {
 	}
 }
 
+// MapURL allows predefining a specific short URL for a long URL
+// can be used to define vanity URLs for example
+func MapURL(from, to string) {
+	shortenedLinkCacheLock.Lock()
+	defer shortenedLinkCacheLock.Unlock()
+
+	shortenedLinkCache[from] = to
+}
+
 func getTranslationFuncs() map[string]interface{} {
 	// start with sprig
 	methods := sprig.FuncMap()
@@ -141,15 +150,15 @@ var (
 		},
 
 		"Shorten": func(value string) string {
-			if polrClient == nil {
-				return value
-			}
-
 			shortenedLinkCacheLock.Lock()
 			defer shortenedLinkCacheLock.Unlock()
 
 			if shortenedLinkCache[value] != "" {
 				return shortenedLinkCache[value]
+			}
+
+			if polrClient == nil {
+				return value
 			}
 
 			shortened, err := polrClient.Shorten(value, "", false)
