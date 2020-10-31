@@ -3,6 +3,8 @@ package events
 import (
 	"errors"
 	"time"
+
+	// embeding timezones
 	_ "time/tzdata"
 
 	"gitlab.com/Cacophony/go-kit/config"
