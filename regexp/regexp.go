@@ -18,6 +18,11 @@ var (
 		`^(http(s)?:\/\/)?(discord\.gg(\/invite)?|discordapp\.com\/invite)\/([A-Za-z0-9-]+)(\/?)$`,
 	)
 
+	// EmojiRegex matches a built in Emoji or discord emoji
+	EmojiRegex = regexp.MustCompile(`[\x{00A0}-\x{1F9EF}]|<(a)?:[^<>:]+:[0-9]+>`)
+
+	UnicodeEmojiRegex = regexp.MustCompile(`[\x{00A0}-\x{1F9EF}]`)
+
 	// DiscordEmojiRegexp matches an Emoji, or an Emoji ID
 	DiscordEmojiRegexp = regexp.MustCompile(`(<(a)?:([^<>:]+):)?([0-9]+)>?`)
 
