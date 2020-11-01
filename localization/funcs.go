@@ -251,5 +251,9 @@ var (
 		"QuoteText": func(input string) string {
 			return "> " + strings.Replace(input, "\n", "\n> ", -1)
 		},
+
+		"Pad": func(text string, length int) string {
+			return fmt.Sprintf("%-"+strconv.Itoa(length)+"v", text)
+		},
 	}
 )
