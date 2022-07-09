@@ -63,6 +63,7 @@ type Event struct {
 	VoiceStateUpdate         *discordgo.VoiceStateUpdate         `json:"discord_voice_state_update,omitempty"`
 	VoiceServerUpdate        *discordgo.VoiceServerUpdate        `json:"discord_voice_server_update,omitempty"`
 	WebhooksUpdate           *discordgo.WebhooksUpdate           `json:"discord_webhooks_update,omitempty"`
+	InteractionCreate        *discordgo.InteractionCreate        `json:"discord_interaction_create,omitempty"`
 
 	// Cacophony Event Data
 	BucketUpdate           *BucketUpdate           `json:"cacophony_bucket_update,omitempty"`

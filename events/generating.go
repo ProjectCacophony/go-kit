@@ -345,6 +345,12 @@ func GenerateEventFromDiscordgoEvent(
 		if err != nil {
 			return nil, expiration, err
 		}
+	case *discordgo.InteractionCreate:
+		event.Type = InteractionCreateType
+		event.InteractionCreate = t
+		event.GuildID = t.GuildID
+		event.ChannelID = t.ChannelID
+		event.CacheKey, err = hash(string(event.Type) + t.GuildID + t.ChannelID + t.Token)
 	case *discordgo.TypingStart, *discordgo.Ready, *discordgo.Event, *discordgo.Connect:
 		// ignored events
 		return nil, expiration, nil
