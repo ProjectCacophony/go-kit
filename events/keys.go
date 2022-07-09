@@ -66,13 +66,15 @@ func memberKey(event *discordgo.Member) string {
 	key := event.GuildID +
 		strings.Join(event.Roles, "") +
 		event.Nick +
-		event.PremiumSince.String() +
 		event.JoinedAt.String() +
 		strconv.FormatBool(event.Deaf) +
 		strconv.FormatBool(event.Mute)
 
 	if event.User != nil {
 		key += userKey(event.User)
+	}
+	if event.PremiumSince != nil {
+		key += event.PremiumSince.String()
 	}
 
 	return key
