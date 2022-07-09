@@ -351,6 +351,9 @@ func GenerateEventFromDiscordgoEvent(
 		event.GuildID = t.GuildID
 		event.ChannelID = t.ChannelID
 		event.CacheKey, err = hash(string(event.Type) + t.GuildID + t.ChannelID + t.Token)
+		if err != nil {
+			return nil, expiration, err
+		}
 	case *discordgo.TypingStart, *discordgo.Ready, *discordgo.Event, *discordgo.Connect:
 		// ignored events
 		return nil, expiration, nil

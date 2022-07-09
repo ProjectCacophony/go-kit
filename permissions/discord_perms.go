@@ -9,10 +9,10 @@ import (
 
 type Discord struct {
 	name string
-	id   int
+	id   int64
 }
 
-func NewDiscordPermission(name string, id int) *Discord {
+func NewDiscordPermission(name string, id int64) *Discord {
 	return &Discord{
 		name: name,
 		id:   id,

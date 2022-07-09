@@ -20,6 +20,7 @@ require (
 	go.uber.org/zap v1.10.0
 	gocloud.dev v0.20.0
 	gocloud.dev/pubsub/rabbitpubsub v0.20.0
+	golang.org/x/text v0.3.6
 	mvdan.cc/xurls/v2 v2.0.0
 )
 
@@ -59,7 +60,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
 	golang.org/x/sys v0.0.0-20220708085239-5a0f0661e09d // indirect
-	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/tools v0.0.0-20200608174601-1b747fd94509 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/api v0.26.0 // indirect

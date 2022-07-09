@@ -61,7 +61,7 @@ func (iex *IEX) StocksPrice(ctx context.Context, symbol string) (float64, error)
 		return 0, err
 	}
 
-	return strconv.ParseFloat(string(raw), 10)
+	return strconv.ParseFloat(string(raw), 64)
 }
 
 // OHLC models the open, high, low, close for a stock.

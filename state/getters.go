@@ -319,7 +319,7 @@ func (s *State) GuildInvitesWithRefresh(guildID string, session *discordgo.Sessi
 }
 
 // UserChannelPermissions returns the permission of a user in a channel
-func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int, err error) {
+func (s *State) UserChannelPermissions(userID, channelID string) (apermissions int64, err error) {
 	var channel *discordgo.Channel
 	channel, err = s.Channel(channelID)
 	if err != nil {
@@ -353,7 +353,7 @@ func (s *State) UserChannelPermissions(userID, channelID string) (apermissions i
 }
 
 // UserPermissions returns the permissions of a user in a guild
-func (s *State) UserPermissions(userID, guildID string) (apermissions int, err error) {
+func (s *State) UserPermissions(userID, guildID string) (apermissions int64, err error) {
 	var guild *discordgo.Guild
 	guild, err = s.guildLight(guildID)
 	if err != nil {
@@ -412,7 +412,7 @@ func memberChannelPermissions(
 	guildRoles []*discordgo.Role,
 	channel *discordgo.Channel,
 	member *discordgo.Member,
-) (apermissions int) {
+) (apermissions int64) {
 	userID := member.User.ID
 
 	if userID == guildOwnerID {
@@ -449,13 +449,12 @@ func memberChannelPermissions(
 		}
 	}
 
-	denies := 0
-	allows := 0
+	var denies, allows int64
 
 	// Member overwrites can override role overrides, so do two passes
 	for _, overwrite := range channel.PermissionOverwrites {
 		for _, roleID := range member.Roles {
-			if overwrite.Type == "role" && roleID == overwrite.ID {
+			if overwrite.Type == discordgo.PermissionOverwriteTypeRole && roleID == overwrite.ID {
 				denies |= overwrite.Deny
 				allows |= overwrite.Allow
 				break
@@ -467,7 +466,7 @@ func memberChannelPermissions(
 	apermissions |= allows
 
 	for _, overwrite := range channel.PermissionOverwrites {
-		if overwrite.Type == "member" && overwrite.ID == userID {
+		if overwrite.Type == discordgo.PermissionOverwriteTypeMember && overwrite.ID == userID {
 			apermissions &= ^overwrite.Deny
 			apermissions |= overwrite.Allow
 			break
@@ -483,7 +482,7 @@ func memberChannelPermissions(
 
 // memberPermissions calculates the permissions for a member in a guild
 // Source: https://github.com/bwmarrin/discordgo/blob/develop/restapi.go#L503
-func memberPermissions(guildID, guildOwnerID string, guildRoles []*discordgo.Role, member *discordgo.Member) (apermissions int) {
+func memberPermissions(guildID, guildOwnerID string, guildRoles []*discordgo.Role, member *discordgo.Member) (apermissions int64) {
 	userID := member.User.ID
 
 	if userID == guildOwnerID {

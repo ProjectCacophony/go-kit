@@ -9,6 +9,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // NewZapHookDiscord sends Zap log messages to a Discord Webhook
@@ -27,7 +29,7 @@ func NewZapHookDiscord(serviceName, webhookURL string, client *http.Client) func
 		}
 
 		body, err := json.Marshal(discordgo.WebhookParams{
-			Username: strings.Title(serviceName),
+			Username: cases.Title(language.English).String(serviceName),
 			Embeds: []*discordgo.MessageEmbed{
 				{
 					Title:       "Logging message: " + strings.ToUpper(entry.Level.String()),
@@ -55,5 +57,4 @@ func NewZapHookDiscord(serviceName, webhookURL string, client *http.Client) func
 		)
 		return err
 	}
-
 }

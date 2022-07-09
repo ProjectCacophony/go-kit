@@ -9,7 +9,7 @@ import (
 // if possible one should use BotForChannel with the specific permissions
 func (s *State) BotForGuild(
 	guildID string,
-	permissions ...int,
+	permissions ...int64,
 ) (
 	botID string,
 	err error,
@@ -20,7 +20,7 @@ func (s *State) BotForGuild(
 	}
 
 	var permissionsMatch bool
-	var botPermissions int
+	var botPermissions int64
 
 	for _, botID := range botIDs {
 		botPermissions, err = s.UserPermissions(

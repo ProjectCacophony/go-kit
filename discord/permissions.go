@@ -7,7 +7,7 @@ import (
 
 // UserHasPermission returns true if the User has all of th egiven permissions in the given channel
 func UserHasPermission(
-	state interfaces.State, userID, channelID string, firstPermission int, permissions ...int,
+	state interfaces.State, userID, channelID string, firstPermission int64, permissions ...int64,
 ) bool {
 	if userID == "" || channelID == "" {
 		return false
@@ -23,7 +23,6 @@ func UserHasPermission(
 	}
 
 	for _, permission := range append(permissions, firstPermission) {
-
 		if userChannelPermissions&permission != permission {
 			return false
 		}
@@ -34,7 +33,7 @@ func UserHasPermission(
 
 // UserHasPermissionOr returns true if the User has any of the given permissions in the given channel
 func UserHasPermissionOr(
-	state *state.State, userID, channelID string, firstPermission int, permissions ...int,
+	state *state.State, userID, channelID string, firstPermission int64, permissions ...int64,
 ) bool {
 	if userID == "" || channelID == "" {
 		return false
@@ -50,7 +49,6 @@ func UserHasPermissionOr(
 	}
 
 	for _, permission := range append(permissions, firstPermission) {
-
 		if userChannelPermissions&permission == permission {
 			return true
 		}

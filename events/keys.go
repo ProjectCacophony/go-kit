@@ -30,17 +30,10 @@ func presenceUpdateKey(event *discordgo.PresenceUpdate) string {
 		key += event.User.Avatar
 	}
 
-	key += event.Nick
 	key += string(event.Status)
-	key += strings.Join(event.Roles, "")
 
-	if event.Game != nil {
-		key += event.Game.State
-		key += strconv.Itoa(int(event.Game.Type))
-		key += event.Game.Name
-		key += event.Game.URL
-		key += event.Game.ApplicationID
-		key += event.Game.Details
+	if event.Since != nil {
+		key += strconv.Itoa(*event.Since)
 	}
 
 	return key
@@ -59,8 +52,6 @@ func guildKey(event *discordgo.Guild) string {
 		event.AfkChannelID +
 		strconv.Itoa(event.AfkTimeout) +
 		strconv.Itoa(int(event.DefaultMessageNotifications)) +
-		event.EmbedChannelID +
-		strconv.FormatBool(event.EmbedEnabled) +
 		strconv.Itoa(int(event.ExplicitContentFilter)) +
 		strings.Join(event.Features, "") +
 		strconv.Itoa(int(event.MfaLevel)) +
@@ -75,8 +66,8 @@ func memberKey(event *discordgo.Member) string {
 	key := event.GuildID +
 		strings.Join(event.Roles, "") +
 		event.Nick +
-		string(event.PremiumSince) +
-		string(event.JoinedAt) +
+		event.PremiumSince.String() +
+		event.JoinedAt.String() +
 		strconv.FormatBool(event.Deaf) +
 		strconv.FormatBool(event.Mute)
 
@@ -104,12 +95,11 @@ func roleKey(event *discordgo.Role) string {
 	return event.ID +
 		strconv.Itoa(event.Color) +
 		event.Name +
-		strconv.Itoa(event.Permissions) +
+		strconv.FormatInt(event.Permissions, 10) +
 		strconv.FormatBool(event.Hoist) +
 		strconv.FormatBool(event.Managed) +
 		strconv.FormatBool(event.Mentionable) +
 		strconv.Itoa(event.Position)
-
 }
 
 func emojisUpdateKey(event *discordgo.GuildEmojisUpdate) string {
@@ -164,15 +154,12 @@ func channelKey(event *discordgo.Channel) string {
 }
 
 func permissionOverwriteKey(event *discordgo.PermissionOverwrite) string {
-	return event.ID +
-		event.Type +
-		strconv.Itoa(event.Allow) +
-		strconv.Itoa(event.Deny)
+	return event.ID + strconv.Itoa(int(event.Type)) +
+		strconv.FormatInt(event.Allow, 10) + strconv.FormatInt(event.Deny, 10)
 }
 
 func messageUpdateKey(event *discordgo.MessageUpdate) string {
-	return event.ID +
-		string(event.EditedTimestamp)
+	return event.ID + event.EditedTimestamp.String()
 }
 
 func messageReactionKey(event *discordgo.MessageReaction) string {

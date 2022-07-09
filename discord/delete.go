@@ -96,13 +96,8 @@ func DeleteSmart(
 
 	var messageIDsToBulkDelete []string // nolint: prealloc
 	for _, message := range messages {
-		createdAt, err := message.Timestamp.Parse()
-		if err != nil {
-			return err
-		}
-
 		// delete one by one, if older than 14 Days
-		if time.Since(createdAt) > 24*time.Hour*14 {
+		if time.Since(message.Timestamp) > 24*time.Hour*14 {
 			err = Delete(
 				redis,
 				session,

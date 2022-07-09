@@ -10,6 +10,6 @@ type State interface {
 	Member(guildID, userID string) (member *discordgo.Member, err error)
 	Role(guildID, roleID string) (role *discordgo.Role, err error)
 
-	UserPermissions(userID, guildID string) (apermissions int, err error)
-	UserChannelPermissions(userID, channelID string) (apermissions int, err error)
+	UserPermissions(userID, guildID string) (apermissions int64, err error)
+	UserChannelPermissions(userID, channelID string) (apermissions int64, err error)
 }

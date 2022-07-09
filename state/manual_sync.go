@@ -43,7 +43,7 @@ func (s *State) initGuildBans(session *discordgo.Session, guildID string) (err e
 	}
 
 	// cache new guild bans
-	bans, err := session.GuildBans(guildID)
+	bans, err := session.GuildBans(guildID, 1000, "", "")
 	if err != nil {
 		return err
 	}

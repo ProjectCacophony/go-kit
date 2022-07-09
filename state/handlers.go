@@ -7,9 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	messagesLimit = 10
-)
+var messagesLimit = 10
 
 func (s *State) onReady(_ *discordgo.Session, ready *discordgo.Ready) (err error) {
 	// fmt.Println("running onReady", ready.User.ID)
@@ -181,7 +179,7 @@ func (s *State) memberAdd(session *discordgo.Session, member *discordgo.Member, 
 	previousMember, err := s.Member(member.GuildID, member.User.ID)
 	if err == nil {
 		// carry over previous member fields if set
-		if member.JoinedAt == "" {
+		if member.JoinedAt.IsZero() {
 			member.JoinedAt = previousMember.JoinedAt
 		}
 	}
@@ -730,23 +728,14 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 			// Member not found; this is a user coming online
 			previousMember = &discordgo.Member{
 				GuildID: t.GuildID,
-				Nick:    t.Nick,
 				User:    t.User,
-				Roles:   t.Roles,
 			}
-
 		} else {
-			if (t.Nick == "" || t.Nick == previousMember.Nick) &&
-				(t.User.Username == "" || t.User.Username == previousMember.User.Username) &&
+			if (t.User.Username == "" || t.User.Username == previousMember.User.Username) &&
 				(t.User.Discriminator == "" || t.User.Discriminator == previousMember.User.Discriminator) &&
-				(t.User.Avatar == "" || t.User.Avatar == previousMember.User.Avatar) &&
-				sliceMatches(t.Roles, previousMember.Roles) {
+				(t.User.Avatar == "" || t.User.Avatar == previousMember.User.Avatar) {
 				// fmt.Println("skipped presenceUpdate, no changes")
 				return nil
-			}
-
-			if t.Nick != "" {
-				previousMember.Nick = t.Nick
 			}
 
 			if t.User.Username != "" {
@@ -760,9 +749,6 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 			if t.User.Avatar != "" {
 				previousMember.User.Avatar = t.User.Avatar
 			}
-
-			// PresenceUpdates always contain a list of roles, so there's no need to check for an empty list here
-			previousMember.Roles = t.Roles
 		}
 
 		err = s.memberAdd(session, previousMember, false)
@@ -800,20 +786,6 @@ func (s *State) SharedStateEventHandler(session *discordgo.Session, i interface{
 	}
 
 	return nil
-}
-
-func sliceMatches(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for _, itemA := range a {
-		if !sliceContains(itemA, b) {
-			return false
-		}
-	}
-
-	return true
 }
 
 func sliceContains(needle string, haystack []string) bool {
