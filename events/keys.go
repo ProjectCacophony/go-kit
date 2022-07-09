@@ -161,7 +161,12 @@ func permissionOverwriteKey(event *discordgo.PermissionOverwrite) string {
 }
 
 func messageUpdateKey(event *discordgo.MessageUpdate) string {
-	return event.ID + event.EditedTimestamp.String()
+	key := event.ID
+	if event.EditedTimestamp != nil {
+		key += event.EditedTimestamp.String()
+	}
+
+	return key
 }
 
 func messageReactionKey(event *discordgo.MessageReaction) string {
